@@ -8,10 +8,9 @@ import { globalState } from '@/context/context'
 import Modal_Filter from '../../components/modal_filter';
 import event from '@/pages/penguji/event'
 import Image from 'next/image';
-import SocketIo from 'socket.io-client'
 import { useRouter } from 'next/router'
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+import { getSocket } from '../../../../lib/socket';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const rekap_nilai_ukt_ukcw = () => {
@@ -110,6 +109,28 @@ const rekap_nilai_ukt_ukcw = () => {
         setDataEvent(event)
         localStorage.removeItem('filterRanting')
         isLogged()
+
+        const socket = getSocket();
+
+        if (!socket.connected) {
+            socket.connect();
+            socket.emit('join_event', {
+            role: 'pengurus',
+            event_id: event.id_event,
+            });
+        }
+    
+        const handleUpdate = (data) => {
+            console.log('📡 Update nilai:', data);
+            getDataUktFiltered()
+        };
+    
+        socket.on('update_rekap', handleUpdate);
+    
+        return () => {
+            socket.off('update_rekap', handleUpdate);
+            socket.disconnect();
+        };
     }, [])
 
     useEffect(() => {

@@ -4,9 +4,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import ModalSelesai from './components/ModalSelesai';
 import ModalAlert from './components/ModalAlert';
-import SocketIo from 'socket.io-client'
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+import { getSocket } from '../../lib/socket';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const ujian = () => {
@@ -60,8 +59,8 @@ const ujian = () => {
                     setTime(res.data.data.waktu_pengerjaan * 60 * 100)
                     soal = (res.data.data.lembar_soal_ujian);
                     id_lembar_soal = res.data.data.id_lembar_soal
-                    console.log('res.data.data.waktu_pengerjaan')
-                    console.log(res.data.data.waktu_pengerjaan * 60 * 100)
+                    // console.log('res.data.data.waktu_pengerjaan')
+                    // console.log(res.data.data.waktu_pengerjaan * 60 * 100)
 
                     createSession()
                     .then(async () =>{
@@ -243,6 +242,8 @@ const ujian = () => {
     };
 
     const postScore = (benar) => {
+        const socket = getSocket();
+
         const token = localStorage.getItem('tokenSiswa')
         const dataUktSiswa = JSON.parse(localStorage.getItem('dataUktSiswa'));
         console.log(dataUktSiswa.id_ukt_siswa)
@@ -259,9 +260,14 @@ const ujian = () => {
                 }, { headers: { Authorization: `Bearer ${token}` } })
                     .then(res => {
                         // console.log(res);
-                        console.log('semua ini akan berakhir')
-                        socket.emit('pushRekap')
-                        Logout()
+                        console.log("Nilai tersimpan");
+                        console.log(dataSiswa.id_event);
+                        socket.emit('submit_nilai', {
+                            event_id: dataSiswa.id_event
+                        });
+                        // setTimeout(() => {
+                        //     Logout()
+                        // }, 2000); 
                     })
             })
             .catch((error) => {
@@ -365,6 +371,22 @@ const ujian = () => {
         getJawaban()
         getSoal();
         getDataSiswa();
+        const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
+        console.log(dataSiswa);
+        
+        const socket = getSocket();
+
+        if (!socket.connected) {
+            socket.connect();
+            socket.emit('join_event', {
+                role: 'siswa',
+                event_id: dataSiswa.id_event,
+            });
+        }
+    
+        return () => {
+            socket.disconnect();
+        };
     }, []);
 
     return (

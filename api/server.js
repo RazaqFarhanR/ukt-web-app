@@ -4,7 +4,9 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const path = require('path');
-const { Server } = require("socket.io");
+const { Server } = require('socket.io');
+const setupSockets = require('./src/sockets');
+
 const io = new Server(server, {
     cors: {
       origin: "*",
@@ -15,14 +17,7 @@ app.use(cors());
 app.use(express.static(__dirname))
 
 //web socket
-io.on('connection', (socket) => {
-    // console.log('a user connected');
-    socket.on('pushRekap', () =>{
-        console.log('ping socket');
-        
-        io.emit('refreshRekap')
-    })
-});
+setupSockets(io);
 
 app.get('/image/:filename', (req, res) => {
     const filename = req.params.filename;
