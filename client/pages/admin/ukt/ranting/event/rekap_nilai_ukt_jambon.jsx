@@ -15,7 +15,7 @@ import dynamic from 'next/dynamic';
 
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+// const socket = SocketIo(SOCKET_URL)
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const Select = dynamic(() => import('react-select'));

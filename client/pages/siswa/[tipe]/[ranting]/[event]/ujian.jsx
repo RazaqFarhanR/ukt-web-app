@@ -8,10 +8,10 @@ import axios from 'axios';
 import ModalSelesai from '../../../components/ModalSelesai';
 import ModalAlert from '../../../components/ModalAlert';
 import SocketIo from 'socket.io-client'
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
-const SECRET = process.env.NEXT_PUBLIC_SECRET;
+import { getSocket } from '../../../../lib/socket';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const SECRET = process.env.NEXT_PUBLIC_SECRET;
 // import BtnPrevNextImage from '/images/btn_prevnext.webp'
 
 const ujian = () => {
@@ -109,6 +109,8 @@ const ujian = () => {
     }
 
     const handleSave = () => {
+        const socket = getSocket();
+        
         setIsLoading(true)
         let jawaban
         const dataUktSiswa = JSON.parse(localStorage.getItem('dataUktSiswa'));
@@ -124,7 +126,9 @@ const ujian = () => {
         axios.post(BASE_URL+'session/koreksi', data)
         .then(res => {
             // console.log(res.data);
-            socket.emit('pushRekap')
+            socket.emit('submit_nilai', {
+                event_id: dataSiswa.id_event
+            });
             setIsLoading(false)
             setSuccess(true)
             setTimeout(() => {
@@ -203,6 +207,23 @@ const ujian = () => {
         getJawaban();
     }, [tipe, ranting, event])        
     
+    useEffect(() => {
+        const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
+        
+        const socket = getSocket();
+
+        if (!socket.connected) {
+            socket.connect();
+            socket.emit('join_event', {
+                role: 'siswa',
+                event_id: dataSiswa.id_event,
+            });
+        }
+    
+        return () => {
+            socket.disconnect();
+        };
+    }, [])
 
     return (
         <div className={`font-lato bg-darkBlue w-full min-h-screen h-auto flex flex-col items-center`}>

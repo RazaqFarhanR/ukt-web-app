@@ -9,7 +9,7 @@ import ModalSelesai from './components/ModalSelesai';
 import ModalAlert from './components/ModalAlert';
 import SocketIo from 'socket.io-client'
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+// const socket = SocketIo(SOCKET_URL)
 const SECRET = process.env.NEXT_PUBLIC_SECRET;
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 // import BtnPrevNextImage from '/images/btn_prevnext.webp'
