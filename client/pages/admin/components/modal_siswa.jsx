@@ -6,10 +6,27 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const modal_siswa = () => {
 
+    const dataRanting = [
+        { label: 'BENDUNGAN', value: 'BENDUNGAN' },
+        { label: 'DONGKO', value: 'DONGKO' },
+        { label: 'DURENAN', value: 'DURENAN' },
+        { label: 'GANDUSARI', value: 'GANDUSARI' },
+        { label: 'KAMPAK', value: 'KAMPAK' },
+        { label: 'KARANGAN', value: 'KARANGAN' },
+        { label: 'MUNJUNGAN', value: 'MUNJUNGAN' },
+        { label: 'PANGGUL', value: 'PANGGUL' },
+        { label: 'POGALAN', value: 'POGALAN' },
+        { label: 'PULE', value: 'PULE' },
+        { label: 'SURUH', value: 'SURUH' },
+        { label: 'TRENGGALEK', value: 'TRENGGALEK' },
+        { label: 'TUGU', value: 'TUGU' },
+        { label: 'WATULIMO', value: 'WATULIMO' }
+    ]
+
     // state modal
     const {showModalSiswa, setShowModalSiswa} = useContext (globalState)
     const router = useRouter()
-    const { name } = router.query
+    const { eventId, name } = router.query
 
     // state
     const {setDataSiswa, action, idSiswa} = useContext (globalState)
@@ -26,7 +43,7 @@ const modal_siswa = () => {
     // function get data siswa
     const getDataSiswa = () => {
         const token = localStorage.getItem ('token')
-        axios.get (BASE_URL + `siswa/ranting/${ranting}`, { headers: { Authorization: `Bearer ${token}`}})
+        axios.get (BASE_URL + `siswa/event/new/${eventId}`, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataSiswa (res.data.data)
         })
@@ -70,7 +87,7 @@ const modal_siswa = () => {
             .then (res => {
                 setShowModalSiswa (false)
                 getDataSiswa ()
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -80,7 +97,7 @@ const modal_siswa = () => {
             .then (res => {
                 setShowModalSiswa (false)
                 getDataSiswa ()
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -90,7 +107,7 @@ const modal_siswa = () => {
 
     useEffect (() => {
         getDataEvent ()
-    }, [])
+    }, [router.isReady])
 
     return (
         <>
@@ -121,7 +138,7 @@ const modal_siswa = () => {
                                                 </h1>
                                             )
                                         }
-                                    })}
+                                    })()}
                                     <button onClick={() => setShowModalSiswa(false)} type="button" className="p-1.5 inline-flex items-center absolute right-5">
                                         <svg className="w-7 h-7 fill-white hover:fill-purple duration-300" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd">
@@ -166,6 +183,31 @@ const modal_siswa = () => {
                                             </input>
                                         </div>
                                     </div>
+
+                                    {ukt == "UKCW" &&
+                                        <div className="flex flex-row space-x-3 w-full">
+                                            <div className="w-2/6 flex justify-between">
+                                                <span>Ranting</span>
+                                                <span>:</span>
+                                            </div>
+                                            <div className="w-4/6">
+                                                <div className="relative w-full">
+                                                    <div className='bg-darkBlue rounded-lg px-1'>
+                                                        <select className='w-full bg-darkBlue focus:outline-none' 
+                                                        name={ranting} value={ranting} onChange = {(e) => setRanting(e.target.value)} required
+                                                        >
+                                                            <option></option>
+                                                            {dataRanting.map((item, index) => (
+                                                                <option key={index + 1}
+                                                                value={item.value}
+                                                                >{item.label}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
 
                                     {/* Input rayon */}
                                     <div className="flex flex-row space-x-3 w-full">

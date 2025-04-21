@@ -42,7 +42,7 @@ const Modal_Filter = (props) => {
                     const selectedOption = null
                     handleButtonClick(id_ranting, selectedOption)
                 }
-                console.log(selectedButton)
+                // console.log(selectedButton)
             })
             .catch(err => {
                 console.log(err.message);
@@ -97,7 +97,7 @@ const Modal_Filter = (props) => {
     }, [dataRanting])
 
     useEffect(() => {
-        console.log(selectedButton)
+        // console.log(selectedButton)
     }, [selectedButton])
 
     return (

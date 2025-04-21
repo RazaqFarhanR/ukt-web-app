@@ -1,9 +1,11 @@
 import { globalState } from '@/context/context'
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useState } from 'react'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const modal_delete = () => {
+    const router = useRouter()
 
     // state modal
     const {showModalDelete, setShowModalDelete} = useContext (globalState)
@@ -99,7 +101,11 @@ const modal_delete = () => {
     
     // function get data siswa
     const getDataSiswa = () => {
-        axios.get (BASE_URL + `siswa/ranting/${ranting}`, { headers: { Authorization: `Bearer ${token}`}})
+        if (!router.isReady) return
+
+        const { eventId } = router.query
+
+        axios.get (BASE_URL + `siswa/event/new/${eventId}`, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataSiswa (res.data.data)
         })
@@ -138,7 +144,7 @@ const modal_delete = () => {
             .then (res => {
                 getDataAdminCabang ()
                 setShowModalDelete (false)
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -148,7 +154,7 @@ const modal_delete = () => {
             .then (res => {
                 getDataAdminRanting ()
                 setShowModalDelete (false)
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -158,7 +164,7 @@ const modal_delete = () => {
             .then (res => {
                 getDataPengujiCabang ()
                 setShowModalDelete (false)
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -168,7 +174,7 @@ const modal_delete = () => {
             .then (res => {
                 getDataPengujiRanting ()
                 setShowModalDelete (false)
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -178,7 +184,7 @@ const modal_delete = () => {
             .then (res => {
                 getDataPengurusCabang ()
                 setShowModalDelete (false)
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -188,7 +194,7 @@ const modal_delete = () => {
             .then (res => {
                 getDataPengurusRanting ()
                 setShowModalDelete (false)
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -198,7 +204,7 @@ const modal_delete = () => {
             .then (res => {
                 getDataSiswa ()
                 setShowModalDelete (false)
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -208,7 +214,7 @@ const modal_delete = () => {
             .then (res => {
                 getDataEvent ()
                 setShowModalDelete (false)
-                console.log(res.data.message);
+                // console.log(res.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -216,7 +222,7 @@ const modal_delete = () => {
         } else if (action === 'deleteTeknik') {
             axios.delete(BASE_URL + `teknik/${idTeknik}`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(result => {
-                    console.log(result)
+                    // console.log(result)
                     setDataTeknik(result.data.data);
                 })
                 .catch(error => {
