@@ -16,15 +16,14 @@ const event = () => {
     // function get data event
     const getDataEvent = () => {
         const token = localStorage.getItem ('tokenPenguji')
-        const penguji = JSON.parse(localStorage.getItem('penguji'))
 
-        axios.get (BASE_URL + `event/ukt/UKCW/${penguji.id_ranting}`, { headers: { Authorization: `Bearer ${token}`}})
+        axios.get (BASE_URL + `event/ukt/UKCW/`, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataEvent (res.data.data)
         })
         .catch (err => {
             console.log(err.message);
-        })
+        })  
     }
 
     // function go to detail event
