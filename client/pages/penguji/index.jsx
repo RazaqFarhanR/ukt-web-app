@@ -74,13 +74,13 @@ const index = () => {
                         </Link>
 
                         {/* card ukcw */}
-                        {dataPenguji.id_role === 'penguji cabang' && <Link href={'/penguji/event_ukcw'}>
+                        <Link href={'/penguji/event_ukcw'}>
                             <div className="hover:scale-105 transition ease-in-out duration-500 hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5  mt-4">
                                 <div className="bg-navy shadow drop-shadow-lg rounded-md p-5 text-center">
                                     <h1 className='text-xl font-semibold text-green tracking-wide'>UKCW</h1>
                                 </div>
                             </div>
-                        </Link>}
+                        </Link>
 
                     </div>
                 </div>
