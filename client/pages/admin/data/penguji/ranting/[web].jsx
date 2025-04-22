@@ -44,8 +44,8 @@ const penguji_ranting = () => {
     // function get data penguji cabang
     const getDataPengujiRanting  = async () => {
         const token = localStorage.getItem('token')
-        console.log('webquery')
-        console.log(web)
+        // console.log('webquery')
+        // console.log(web)
         // const web1 = web ? web : null
         setNewWeb(web)
         const form = {
@@ -109,7 +109,7 @@ const penguji_ranting = () => {
         setNewWeb(web)
         getDataPengujiRanting()
         isLogged()
-    }, [])
+    }, [router.isReady])
 
     return (
         <>

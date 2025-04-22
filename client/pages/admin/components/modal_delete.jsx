@@ -67,7 +67,12 @@ const modal_delete = () => {
 
     // function get data penguji ranting
     const getDataPengujiRanting = () => {
-        axios.get (BASE_URL + `penguji`, { headers: { Authorization: `Bearer ${token}`}})
+        const { web } = router.query
+        const form = {
+            id_ranting: web ? web : newWeb,
+            id_role: 'penguji ranting'
+        }
+        axios.post(BASE_URL + `penguji/pengujiperranting`, form, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataPengujiRanting (res.data.data)
         })

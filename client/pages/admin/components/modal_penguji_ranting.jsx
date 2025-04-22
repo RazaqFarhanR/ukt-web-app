@@ -22,8 +22,8 @@ const modal_penguji_ranting = () => {
     // function get data penguji ranting
     const getDataPengujiRanting  = async () => {
         const token = localStorage.getItem('token')
-        console.log('modal penguji')
-        console.log(newWeb)
+        // console.log('modal penguji')
+        // console.log(newWeb)
         const form = {
             id_ranting: ranting,
             id_role: role
@@ -65,7 +65,7 @@ const modal_penguji_ranting = () => {
             .then (res => {
                 setShowModalPengujiRanting (false)
                 getDataPengujiRanting ()
-                console.log(res.data.data.message);
+                // console.log(res.data.data.message);
             })
             .catch (err => {
                 console.log(err.message);
@@ -75,7 +75,7 @@ const modal_penguji_ranting = () => {
             .then (res => {
                 setShowModalPengujiRanting (false)
                 getDataPengujiRanting ()
-                console.log(res.data.data.message);
+                // console.log(res.data.data.message);
             })
             .catch (err => {
                 console.log(err.message);
