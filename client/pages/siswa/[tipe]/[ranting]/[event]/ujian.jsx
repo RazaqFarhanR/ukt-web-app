@@ -7,8 +7,7 @@ import { enc } from 'crypto-js';
 import axios from 'axios';
 import ModalSelesai from '../../../components/ModalSelesai';
 import ModalAlert from '../../../components/ModalAlert';
-import SocketIo from 'socket.io-client'
-import { getSocket } from '../../../../lib/socket';
+import { getSocket } from '@/lib/socket';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const SECRET = process.env.NEXT_PUBLIC_SECRET;
