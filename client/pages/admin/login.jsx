@@ -35,6 +35,7 @@ const loginPage = () => {
                 localStorage.setItem('token', token);
     
                 toast.success(res.data.message);
+                toast.dismiss(loadingToast);
     
                 router.push('/admin');
             } else {
