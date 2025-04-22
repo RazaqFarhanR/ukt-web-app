@@ -307,48 +307,53 @@ module.exports = {
 
     controllerAuth: async (req, res) => {
         try {
-            let result = await penguji.findAll({
-                where: {
-                    username: req.body.username
-                }
-            });
-            if (result) {
-                const match = await bcrypt.compare(req.body.password, result[0].password);
-                if (!match) return res.status(400).json({ msg: "password salah" });
-                if (result[0].id_role === "penguji cabang" || "penguji ranting") {
-                    const idUser = result[0].id_penguji;
-                    const role = result[0].id_role;
-
-                    let localToken = jwt.sign({ idUser, role }, process.env.ACCESS_TOKEN_SECRET);
-
-                    const data = await penguji.findAll({
-                        where: {
-                            username: req.body.username,
-                        },
-                        include: [
-                            {
-                                model: ranting,
-                                as: "penguji_ranting",
-                                attributes: ['name'],
-                            }
-                        ]
-                    });
-                    res.json({
-                        logged: true,
-                        data: data[0],
-                        token: localToken,
-                    });
-                } else {
-                    res.status(404).json({ msg: "Kamu Bukan Penguji" });
-                }
-            } else {
-                res.json({
-                    logged: false,
-                    message: "Invalid username or password",
-                });
-            }
+          const { username, password } = req.body;
+      
+          // Validasi input
+          if (!username || !password) {
+            return res.status(400).json({ msg: "Username dan password wajib diisi" });
+          }
+      
+          const users = await penguji.findAll({
+            where: { username },
+            include: [
+              {
+                model: ranting,
+                as: "penguji_ranting",
+                attributes: ["name"],
+              },
+            ],
+          });
+      
+          if (users.length === 0) {
+            return res.status(401).json({ msg: "Username tidak ditemukan" });
+          }
+      
+          const user = users[0];
+          const match = await bcrypt.compare(password, user.password);
+          if (!match) {
+            return res.status(401).json({ msg: "Password salah" });
+          }
+      
+          const allowedRoles = ["penguji cabang", "penguji ranting"];
+          if (!allowedRoles.includes(user.id_role)) {
+            return res.status(403).json({ msg: "Kamu bukan penguji yang berwenang" });
+          }
+      
+          const token = jwt.sign(
+            { idUser: user.id_penguji, role: user.id_role },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: "1d" }
+          );
+      
+          return res.json({
+            logged: true,
+            data: user,
+            token,
+          });
         } catch (error) {
-            res.status(404).json({ msg: error.message });
+          console.error(error);
+          return res.status(500).json({ msg: "Terjadi kesalahan pada server" });
         }
     },
     controllerEdit: async (req, res) => {
