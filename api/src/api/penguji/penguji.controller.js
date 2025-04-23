@@ -11,10 +11,12 @@ const imagePath = process.env.GET_IMAGE
 const localStorage = process.env.LOCAL_STORAGE + "/";
 
 const models = require('../../models/index');
-const { Sequelize, Op } = require("sequelize");
+const { Sequelize, Op, where } = require("sequelize");
 const penguji = models.penguji;
 const cabang = models.cabang;
 const ranting = models.ranting;
+
+const d = new Date("2025-04-20");
 
 
 module.exports = {
@@ -22,6 +24,9 @@ module.exports = {
 
         penguji
             .findAll({
+                where: {
+                    createdAt: { [Op.gt]: d }
+                },
                 include: [
                     {
                         model: cabang,
@@ -69,7 +74,8 @@ module.exports = {
                     }
                 ],
                 where: {
-                    id_penguji: req.params.id
+                    id_penguji: req.params.id,
+                    createdAt: { [Op.gt]: d }
                 }
             })
             .then((penguji) => {
@@ -90,7 +96,8 @@ module.exports = {
         try {
             let result = await penguji.findAll({
                 where: {
-                    NIW: req.params.id
+                    NIW: req.params.id,
+                    createdAt: { [Op.gt]: d }
                 },
                 attributes: ['id_penguji', 'NIW']
             });
@@ -115,6 +122,7 @@ module.exports = {
     },
     controllerGetCountPenguji: async (req, res) => {
         penguji.findAll({
+            where: { createdAt: { [Op.gt]: d } },
             attributes: ['id_ranting',  [Sequelize.fn('COUNT', Sequelize.col('id_ranting')), 'count']],
             group: ['id_ranting']
         })
@@ -135,7 +143,8 @@ module.exports = {
             let result = await penguji.findAll({
                 where: {
                     id_ranting: req.body.id_ranting,
-                    id_role: req.body.id_role
+                    id_role: req.body.id_role,
+                    createdAt: { [Op.gt]: d }   
                 }
             });
             if (result) {
@@ -167,6 +176,7 @@ module.exports = {
                     id_ranting: {
                         [Op.like]: "%" + id_ranting + "%",
                     },
+                    createdAt: { [Op.gt]: d }
                 },
             })
             .then((penguji) => {
@@ -191,7 +201,8 @@ module.exports = {
                     },
                     id_ranting: {
                         [Op.in]: rantings
-                    }
+                    },
+                    createdAt: { [Op.gt]: d }
                 },
             })
             .then((penguji) => {
@@ -222,7 +233,7 @@ module.exports = {
                         id_ranting: req.body.id_ranting,
                         id_cabang: ranting.id_cabang, // set id_cabang based on the corresponding value in the ranting table
                         username: req.body.username,
-                        foto: req.file.filename,
+                        foto: req.file?.filename,
                         password: hash,
                         no_wa: req.body.no_wa,
                     };
@@ -256,9 +267,7 @@ module.exports = {
                 })
             }
         } catch (error) {
-            res.json({
-                message: error.message,
-            });
+            res.json(error);
         }
     },
 
@@ -315,7 +324,10 @@ module.exports = {
           }
       
           const users = await penguji.findAll({
-            where: { username },
+            where: { 
+              username,
+              createdAt: { [Op.gt]: d }
+            },
             include: [
               {
                 model: ranting,
@@ -325,37 +337,45 @@ module.exports = {
             ],
           });
       
-          if (users.length === 0) {
+          if (!users || users.length === 0) {
             return res.status(401).json({ msg: "Username tidak ditemukan" });
           }
       
-          const user = users[0];
-          const match = await bcrypt.compare(password, user.password);
-          if (!match) {
+          let matchedUser = null;
+          for (let user of users) {
+            const match = await bcrypt.compare(password, user.password);
+            if (match) {
+              matchedUser = user;
+              break;
+            }
+          }
+      
+          if (!matchedUser) {
             return res.status(401).json({ msg: "Password salah" });
           }
       
           const allowedRoles = ["penguji cabang", "penguji ranting"];
-          if (!allowedRoles.includes(user.id_role)) {
+          if (!allowedRoles.includes(matchedUser.id_role)) {
             return res.status(403).json({ msg: "Kamu bukan penguji yang berwenang" });
           }
       
           const token = jwt.sign(
-            { idUser: user.id_penguji, role: user.id_role },
+            { idUser: matchedUser.id_penguji, role: matchedUser.id_role },
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: "1d" }
           );
       
           return res.json({
             logged: true,
-            data: user,
+            data: matchedUser,
             token,
           });
+      
         } catch (error) {
-          console.error(error);
+          console.error("Login error:", error);
           return res.status(500).json({ msg: "Terjadi kesalahan pada server" });
         }
-    },
+    },      
     controllerEdit: async (req, res) => {
         const password = req.body.password == null ? 'check' : req.body.password
         const hash = await bcrypt.hash(password, salt);
