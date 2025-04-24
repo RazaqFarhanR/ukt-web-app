@@ -102,7 +102,6 @@ const senam = () => {
         if (alert == true) {
             axios.post(BASE_URL + `senam_detail`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
                 .then(async res => {
-                    // console.log(res)
 
                     const data = selectedButton.map((option) => {
                         return {
@@ -138,9 +137,14 @@ const senam = () => {
                     }
 
                     // -- ukt siswa  -- //
-                    const nilaiUkt10 = ((nilai10.length / data.length) * 100).toFixed(2)
-                    const nilaiUkt8 = ((nilai8.length / data.length) * 80).toFixed(2)
-                    const nilaiUkt = (parseInt(nilaiUkt10) + parseInt(nilaiUkt8)).toFixed(2)
+                    const nilaiUkt10 = ((nilai10.length / data.length) * 100)
+                    const nilaiUkt8 = ((nilai8.length / data.length) * 80)
+                    console.log(nilaiUkt10)
+                    console.log(nilaiUkt8)
+                    console.log(nilaiUkt8+nilaiUkt10)
+                    const nilaiUkt = (nilaiUkt10 + nilaiUkt8).toFixed(2)
+
+                    
                     await axios.put(BASE_URL + `ukt_siswa/${uktSiswa.id_ukt_siswa}`, {
                         senam: nilaiUkt
                     }, { headers: { Authorization: `Bearer ${token}` } })
