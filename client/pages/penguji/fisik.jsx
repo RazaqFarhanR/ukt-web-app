@@ -87,11 +87,20 @@ const fisik = () => {
             const spirPANew = (spirPA / dataStandartFisik.spir_perut_atas) * 100
             const spirPBNew = (spirPB / dataStandartFisik.spir_perut_bawah) * 100
             const spirDadaNew = ((spirDada / dataStandartFisik.spir_dada) * 100)
-            const spirPahaNew = ((spirPaha / dataStandartFisik.spir_paha) * 100)
-            const plankNew = ((plank / dataStandartFisik.plank) * 100)
+            let spirPahaNew = ((spirPaha / dataStandartFisik.spir_paha) * 100)
+            let plankNew = ((plank / dataStandartFisik.plank) * 100)
 
-            const plankLimit = (plankNew > 100 ? 100 : plankNew)
-            const spirPahaLimit = (spirPahaNew > 100 ? 100 : spirPahaNew)
+            if (plankNew > 100) {
+                plankNew = 100
+            }
+
+            if (spirPahaNew > 100) {
+                spirPahaNew = 100
+            }
+
+            console.log(plankNew);
+            console.log(spirPahaNew);
+            
             const data = {
                 id_penguji: dataPenguji.id_penguji,
                 id_event: dataSiswa.id_event,
@@ -112,7 +121,9 @@ const fisik = () => {
                     console.log(error.message);
                 });
             // -- ukt siswa  -- //
-            const nilaiUkt = ((mftNew + pushUpNew + spirPANew + spirPBNew + spirDadaNew + spirPahaLimit + plankLimit) / 7).toFixed(2)
+            const nilaiUkt = ((mftNew + pushUpNew + spirPANew + spirPBNew + spirDadaNew + spirPahaNew + plankNew) / 7).toFixed(2)
+            console.log(nilaiUkt);
+            
             await axios.put(BASE_URL + `ukt_siswa/${uktSiswa.id_ukt_siswa}`, {
                 fisik: nilaiUkt
             }, { headers: { Authorization: `Bearer ${token}` } })
