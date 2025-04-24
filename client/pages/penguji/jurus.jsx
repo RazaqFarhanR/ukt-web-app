@@ -129,9 +129,9 @@ const jurus = () => {
                         }
                     }
 
-                    const nilaiUkt10 = ((nilai10.length / data.length) * 100).toFixed(2)
-                    const nilaiUkt8 = ((nilai8.length / data.length) * 80).toFixed(2)
-                    const nilaiUkt = (parseInt(nilaiUkt10) + parseInt(nilaiUkt8)).toFixed(2)
+                    const nilaiUkt10 = ((nilai10.length / data.length) * 100)
+                    const nilaiUkt8 = ((nilai8.length / data.length) * 80)
+                    const nilaiUkt = ((nilaiUkt10) + (nilaiUkt8)).toFixed(2)
                     await axios.put(BASE_URL + `ukt_siswa/${uktSiswa.id_ukt_siswa}`, {
                         jurus: nilaiUkt
                     }, { headers: { Authorization: `Bearer ${token}` } })
