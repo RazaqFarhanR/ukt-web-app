@@ -40,6 +40,8 @@ const rekap_nilai_ukt_ukcw = () => {
             ranting: dataRanting
         }
         setLoading(true);
+        console.log(form);
+        
         await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 console.log(res)
@@ -105,10 +107,13 @@ const rekap_nilai_ukt_ukcw = () => {
 
 
     useEffect(() => {
-        const event = JSON.parse(localStorage.getItem('event'));
-        setDataEvent(event)
         localStorage.removeItem('filterRanting')
         isLogged()
+    }, [])
+
+    useEffect(() => {
+        const event = JSON.parse(localStorage.getItem('event'));
+        setDataEvent(event)
 
         const socket = getSocket();
 
@@ -131,7 +136,8 @@ const rekap_nilai_ukt_ukcw = () => {
             socket.off('update_rekap', handleUpdate);
             socket.disconnect();
         };
-    }, [])
+    }, [`${dataRanting}`, jenis, updown])
+    
 
     useEffect(() => {
         // console.log(jenis)
