@@ -31,8 +31,8 @@ const navLinks = [
     links: [
       { label: "senam", icon: <img src={senamLine}></img>, icon2: <img src={senamFill}></img>},
       { label: "jurus",  icon: <img src={jurusLine}></img>, icon2: <img src={jurusFill}></img> },
-      { label: "fisik", icon: <img src={fisikLine}></img>, icon2: <img src={fisikFill}></img> },
       { label: "teknik", icon: <img src={teknikLine}></img>, icon2: <img src={teknikFill}></img> },
+      { label: "fisik", icon: <img src={fisikLine}></img>, icon2: <img src={fisikFill}></img> },
       { label: "sambung", icon: <img src={srcSambungline}></img>, icon2: <img src={srcSambungfill}></img> },
     ]
   }
@@ -50,7 +50,7 @@ function MainNavigation(props) {
             <ul className="flex gap-6">
               {navItem.links.map((link, index) => (
                 <li  onClick={() => setActive(link.label)} >
-                  <div className='flex-col px-1 pt-4 py-2 w-12 items-center justify-center'>
+                  <div className='flex-col px-1 pt-4 py-2 w-12 items-center justify-center capitalize'>
                     <div
                     style = {
                       active === link.label ? {background: '#d4d5d6'} : {background: '#ffffff'} 
