@@ -29,6 +29,16 @@ module.exports = {
             where: {
                 id_event: req.params.id
             },
+            include: [
+                {
+                    model: models.siswa,
+                    attributes: ['id_siswa'],                                                                           
+                    as: "keshan_siswa",
+                    where: {
+                        id_ranting: req.params.ranting
+                    }
+                },
+            ],
             attributes: ['id_session']
         })
             .then(result => {
@@ -55,8 +65,11 @@ module.exports = {
             include: [
                 {
                     model: models.siswa,
-                    attributes: ['name', 'nomor_urut'],
+                    attributes: ['name', 'nomor_urut', 'id_ranting'],
                     as: "keshan_siswa",
+                    where: {
+                        id_ranting: req.params.ranting
+                    }
                 },
                 {
                     model: models.lembar_jawaban,
