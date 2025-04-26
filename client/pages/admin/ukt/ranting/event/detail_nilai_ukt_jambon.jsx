@@ -59,6 +59,7 @@ const detail_nilai_ukt_jambon = () => {
         const role = JSON.parse(localStorage.getItem('admin'))
         if (role.id_role === 'admin ranting') {
             setRanting(role.id_ranting)
+            setRole('admin ranting')
         }
     }, [])
 
