@@ -62,7 +62,7 @@ const fisik = (props) => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'))
         setEvent(event.name)
-        axios.get(BASE_URL + `fisik/pages/${event.id_event}/50`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `fisik/pages/${event.id_event}/${props.data?.ranting}/50`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setTotalPages(res.data.totalPages);
             })
@@ -70,7 +70,7 @@ const fisik = (props) => {
                 console.log(err.message);
             })
 
-        axios.get(BASE_URL + `fisik/event/${event.id_event}/${page}/50`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `fisik/event/${event.id_event}/${props.data?.ranting}/${page}/50`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 console.log(res.data.data);
                 setDataFisik(res.data.data)
@@ -82,7 +82,7 @@ const fisik = (props) => {
 
     useEffect(() => {
         getDataFisik()
-    }, [page])
+    }, [page, props])
     return (
         <div className="min-h-screen bg-darkBlue py-6 h-screen">
             {dataFisik.length > 0

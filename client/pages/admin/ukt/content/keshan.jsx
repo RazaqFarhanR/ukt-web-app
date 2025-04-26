@@ -12,20 +12,17 @@ const keshan = (props) => {
         const event = JSON.parse(localStorage.getItem('event'))
         const token = localStorage.getItem('token')
 
-        console.log(event);
-        axios.get(BASE_URL + `session/pages/${event.id_event}/25`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `session/pages/${event.id_event}/${props.data?.ranting}/25`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setTotalPages(res.data.totalPages);
-                console.log(res);
             })
             .catch(err => {
                 // console.log(err.response.data);
                 console.log(err.message);
             })
-        axios.get(BASE_URL + `session/ukt/${event.id_event}/${page}/25`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `session/ukt/${event.id_event}/${props.data?.ranting}/${page}/25`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataUjian(res.data.data)
-                console.log(res);
             })
             .catch(err => {
                 // console.log(err.response.data);
@@ -115,7 +112,7 @@ const keshan = (props) => {
     }
     useEffect(() => {
         getDataUjian()
-    }, [page])
+    }, [page, props])
 
     return (
         <div className="min-h-screen bg-darkBlue h-screen">

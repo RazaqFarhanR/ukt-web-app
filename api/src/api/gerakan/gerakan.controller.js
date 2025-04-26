@@ -35,7 +35,10 @@ module.exports = {
                     model: models.penguji,
                     as: 'penguji_sambung',
                     required: true,
-                    attributes: ['name']
+                    attributes: ['name'],
+                    where: {
+                        id_ranting: req.params.ranting
+                    }
                 },
                 {
                     model: detailGerak,
