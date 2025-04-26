@@ -64,7 +64,6 @@ const rekap_nilai_ukt_ukt_putih = () => {
         const token = localStorage.getItem('token')
         await axios.get(BASE_URL + `ukt_siswa/rayon/${eventId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res.data.data)
                 setDataRayon(res.data.data)
             })
             .catch(err => {

@@ -13,7 +13,6 @@ import Fisik from '../content/fisik'
 import Sambung from '../content/sambung'
 import Keshan from '../content/keshan'
 import { useRouter } from 'next/router'
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const detail_nilai_ukt_ukcw = () => {
 
@@ -60,6 +59,13 @@ const detail_nilai_ukt_ukcw = () => {
 
     useEffect(() => {
         getEvent()
+        isLogged()
+    }, [])
+    useEffect(() => {
+        const role = JSON.parse(localStorage.getItem('admin'))
+        if (role.id_role === 'admin ranting') {
+            setRanting(role.id_ranting)
+        }
     }, [])
 
     return (

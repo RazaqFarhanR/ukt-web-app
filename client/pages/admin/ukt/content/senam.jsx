@@ -7,7 +7,7 @@ const senam = (props) => {
     const getDataSenam = () => {
         const event = JSON.parse(localStorage.getItem('event'))
         const token = localStorage.getItem('token')
-        axios.get(BASE_URL + `senam_detail/ukt/${props.data?.tipe_ukt}/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `senam_detail/ukt/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataSenam(res.data.data)
             })
