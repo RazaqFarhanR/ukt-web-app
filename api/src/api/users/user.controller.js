@@ -190,15 +190,20 @@ module.exports = {
                     no_wa: req.body.no_wa,
                 };
                 if (req.file) {
-                    const imagePath = localStorage + "/" + result[0].foto;
-                    fs.unlink(imagePath, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        console.log('User image deleted successfully');
-                    });
-                    data.foto = req.file.filename;
+                    const oldImagePath = path.join(localStorage, result[0].foto);
+                    
+                    if (result[0].foto !== 'default.png') {
+                        fs.unlink(oldImagePath, (err) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            // console.log('User image deleted successfully');
+                        });
+                        data.foto = req.file.filename;
+                    } else {
+                        // console.log('Skipping delete for default.png');
+                    }
                 }
                 await user
                     .update(req.body.password == null ? dataNoPsw : data, { where: param })
@@ -249,6 +254,21 @@ module.exports = {
         user
             .destroy({ where: param })
             .then((result) => {
+                if (result.foto) {
+                    const oldImagePath = localStorage + result.foto;
+                    
+                    if (result.foto !== 'default.png') {                    
+                        fs.unlink(oldImagePath, (err) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            // console.log('User image deleted successfully');
+                        });
+                    } else {
+                        // console.log('Skipping delete for default.png');
+                    }
+                }
                 res.json({
                     massege: "data has been deleted",
                 });

@@ -187,15 +187,20 @@ module.exports = {
                     no_wa: req.body.no_wa,
                 }
                 if (req.file) {
-                    const imagePath = localStorage + "/" + result[0].foto;
-                    fs.unlink(imagePath, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        console.log('User image deleted successfully');
-                    });
-                    data.foto = req.file.filename;
+                    const oldImagePath = localStorage + result[0].foto;
+                    
+                    if (result[0].foto !== 'default.png') {
+                        fs.unlink(oldImagePath, (err) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            // console.log('User image deleted successfully');
+                        });
+                        data.foto = req.file.filename;
+                    } else {
+                        // console.log('Skipping delete for default.png');
+                    }
                 }
                 pengurus
                     .update(password != null ? data : dataNoPsw, { where: param })
@@ -225,14 +230,20 @@ module.exports = {
         })
             .then(result => {
                 if (result.foto) {
-                    const imagePath = localStorage + "/" + result.foto;
-                    fs.unlink(imagePath, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        console.log('User image deleted successfully');
-                    });
+                    const oldImagePath = localStorage + result.foto;
+                    
+                    if (result.foto !== 'default.png') {
+                        fs.unlink(oldImagePath, (err) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            // console.log('User image deleted successfully');
+                        });
+                        data.foto = req.file.filename;
+                    } else {
+                        // console.log('Skipping delete for default.png');
+                    }
                 }
                 pengurus.destroy({ where: param })
                     .then(result => {
