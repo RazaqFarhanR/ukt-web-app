@@ -446,12 +446,12 @@ app.put(
           });
         }
         res.json({
-          msg: "data has been updated",
+          message: "data has been updated",
         });
       })
       .catch((e) => {
         res.json({
-          msg: e.message,
+          message: e.message,
         });
       });
   }
@@ -502,12 +502,12 @@ app.put(
           });
         }
         res.json({
-          msg: "data has been updated",
+          message: "data has been updated",
         });
       })
       .catch((e) => {
         res.json({
-          msg: e.message,
+          message: e.message,
         });
       });
   }
@@ -558,12 +558,12 @@ app.put(
           });
         }
         res.json({
-          msg: "data has been updated",
+          message: "data has been updated",
         });
       })
       .catch((e) => {
         res.json({
-          msg: e.message,
+          message: e.message,
         });
       });
   }
@@ -614,12 +614,12 @@ app.put(
           });
         }
         res.json({
-          msg: "data has been updated",
+          message: "data has been updated",
         });
       })
       .catch((e) => {
         res.json({
-          msg: e.message,
+          message: e.message,
         });
       });
   }
@@ -670,12 +670,12 @@ app.put(
           });
         }
         res.json({
-          msg: "data has been updated",
+          message: "data has been updated",
         });
       })
       .catch((e) => {
         res.json({
-          msg: e.message,
+          message: e.message,
         });
       });
   }
@@ -725,12 +725,12 @@ app.put("/plank/:id",
           });
         }
         res.json({
-          msg: "data has been updated",
+          message: "data has been updated",
         });
       })
       .catch((e) => {
         res.json({
-          msg: e.message,
+          message: e.message,
         });
       });
   }

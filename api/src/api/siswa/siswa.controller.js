@@ -498,7 +498,7 @@ module.exports = {
                         });
 
                     } else {
-                        res.status(404).json({ msg: "Kamu Bukan Penguji" });
+                        res.status(404).json({ message: "Kamu Bukan Penguji" });
                     }
                 } else {
                     //tidak ditemukan

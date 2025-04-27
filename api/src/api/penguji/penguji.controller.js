@@ -117,7 +117,7 @@ module.exports = {
             }
 
         } catch (e) {
-            res.status(404).json({ msg: e.message });
+            res.status(404).json({ message: e.message });
         }
     },
     controllerGetCountPenguji: async (req, res) => {
@@ -161,7 +161,7 @@ module.exports = {
             }
 
         } catch (e) {
-            res.status(404).json({ msg: e.message });
+            res.status(404).json({ message: e.message });
         }
     },
     controllerGetByNameAndRanting: async (req, res) => {
@@ -320,7 +320,7 @@ module.exports = {
       
           // Validasi input
           if (!username || !password) {
-            return res.status(400).json({ msg: "Username dan password wajib diisi" });
+            return res.status(400).json({ message: "Username dan password wajib diisi" });
           }
       
           const users = await penguji.findAll({
@@ -338,7 +338,7 @@ module.exports = {
           });
       
           if (!users || users.length === 0) {
-            return res.status(401).json({ msg: "Username tidak ditemukan" });
+            return res.status(401).json({ message: "Username tidak ditemukan" });
           }
       
           let matchedUser = null;
@@ -351,12 +351,12 @@ module.exports = {
           }
       
           if (!matchedUser) {
-            return res.status(401).json({ msg: "Password salah" });
+            return res.status(401).json({ message: "Password salah" });
           }
       
           const allowedRoles = ["penguji cabang", "penguji ranting"];
           if (!allowedRoles.includes(matchedUser.id_role)) {
-            return res.status(403).json({ msg: "Kamu bukan penguji yang berwenang" });
+            return res.status(403).json({ message: "Kamu bukan penguji yang berwenang" });
           }
       
           const token = jwt.sign(
@@ -373,7 +373,7 @@ module.exports = {
       
         } catch (error) {
           console.error("Login error:", error);
-          return res.status(500).json({ msg: "Terjadi kesalahan pada server" });
+          return res.status(500).json({ message: "Terjadi kesalahan pada server" });
         }
     },      
     controllerEdit: async (req, res) => {
@@ -463,10 +463,10 @@ module.exports = {
                         });
                     });
             } else {
-                res.status(404).json({ msg: "User not found" });
+                res.status(404).json({ message: "User not found" });
             }
         } catch (error) {
-            res.status(404).json({ msg: error.message });
+            res.status(404).json({ message: error.message });
         }
     },
     controllerDelete: async (req, res) => {
