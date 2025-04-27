@@ -34,10 +34,7 @@ const loginPage = () => {
                 localStorage.setItem('admin', JSON.stringify(data));
                 localStorage.setItem('token', token);
                 
-                console.log(res.data);
-                
                 toast.success("Login berhasil!", { id: toastId });
-    
                 router.push('/admin');
             } else {
                 toast.error(res.data.message);
