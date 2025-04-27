@@ -6,6 +6,7 @@ import { globalState } from '@/context/context'
 import Header from './components/header'
 import Modal_Filter from './components/modal_filter'
 import MainNavigation from './components/Navbar'
+import axiosInstance from '@/lib/axiosInstance'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const detail_event = () => {
@@ -30,18 +31,20 @@ const detail_event = () => {
     const getDataSiswa = () => {
         const dataEvent = JSON.parse(localStorage.getItem('event'))
         const dataPenguji = JSON.parse(localStorage.getItem('penguji'))
-        const token = localStorage.getItem('tokenPenguji')
+        
         setDataPenguji(dataPenguji)
         setDataEvent(dataEvent)
+        
         let IdEvent = (dataEvent.id_event)
         let newActive = active ? active : 'senam'
-        axios.get(BASE_URL + `siswa/event/${IdEvent}/${newActive}`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                setDataSiswa(res.data.data)
-            })
-            .catch(err => {
-                console.log(err.message);
-            })
+        
+        axiosInstance.get(`/siswa/event/${IdEvent}/${newActive}`)
+        .then(res => {
+          setDataSiswa(res.data.data);
+        })
+        .catch(err => {
+          console.error(err);
+        });
     }
 
     // function search siswa by name

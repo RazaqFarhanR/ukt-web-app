@@ -6,14 +6,21 @@ const server = http.createServer(app);
 const path = require('path');
 const { Server } = require('socket.io');
 const setupSockets = require('./src/sockets');
+require('dotenv').config();
 
 const io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: process.env.FRONTEND_ORIGIN,
+      credentials: true,
     }
 });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_ORIGIN,
+    credentials: true,
+  })
+)
 app.use(express.static(__dirname))
 
 //web socket

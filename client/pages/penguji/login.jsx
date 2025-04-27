@@ -29,7 +29,7 @@ const loginPage = () => {
         const toastId = toast.loading("Sedang masuk...");
 
         try {
-            const res = await axios.post(`${BASE_URL}penguji/auth`, form);
+            const res = await axios.post(`${BASE_URL}penguji/auth`, form, {withCredentials: true});
         
             if (res.data.logged) {
               const { data, token } = res.data;
@@ -43,8 +43,8 @@ const loginPage = () => {
               toast.error(res.data.message || "Login gagal", { id: toastId });
             }
           } catch (err) {
-            toast.error(err.response.data.msg, { id: toastId });
-            // console.error(err);
+                console.error(err);
+                toast.error(err.response?.data.msg, { id: toastId });
           }
     }
     

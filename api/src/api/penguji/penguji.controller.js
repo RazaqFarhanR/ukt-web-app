@@ -364,10 +364,27 @@ module.exports = {
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: "1d" }
           );
+
+          res.cookie('token', token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'Lax',
+            // maxAge: 10 * 60 * 1000,
+            maxAge: 24 * 60 * 60 * 1000,
+          });
       
-          return res.json({
+          const userResponse = {
+            id: matchedUser.id_penguji,
+            username: matchedUser.username,
+            role: matchedUser.id_role,
+            ranting: matchedUser.penguji_ranting?.name || null,
+          };
+      
+          return res.status(200).json({
+            success: true,
+            message: "Login berhasil",
+            data: userResponse,
             logged: true,
-            data: matchedUser,
             token,
           });
       

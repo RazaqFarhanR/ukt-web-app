@@ -1,19 +1,37 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
+const ERROR_MESSAGES = {
+  TOKEN_MISSING: 'Authorization token is required.',
+  TOKEN_INVALID: 'Invalid or malformed token.',
+  TOKEN_EXPIRED: 'Token has expired. Please login again.',
+  UNAUTHORIZED: 'Unauthorized access, please login.',
+};
+
 const Auth = (req, res, next) => {
-    const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization;
 
-    if(authHeader) {
-        const token = authHeader.split(' ')[1];
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: ERROR_MESSAGES.TOKEN_MISSING });
+  }
 
-        let verifiedUser = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if(!verifiedUser) return res.status(401).send('Unathorized Request');
+  const token = authHeader.split(' ')[1];
 
-        req.user = verifiedUser;
-        next();
-    } else {
-        return res.sendStatus(401);
+  if (!token) {
+    return res.status(401).json({ success: false, message: ERROR_MESSAGES.TOKEN_INVALID });
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ success: false, message: ERROR_MESSAGES.TOKEN_EXPIRED });
+      }
+      return res.status(401).json({ success: false, message: ERROR_MESSAGES.TOKEN_INVALID });
     }
-}
+
+    req.user = decoded;
+    next();
+  });
+};
 
 module.exports = Auth;
