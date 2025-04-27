@@ -107,7 +107,7 @@ module.exports = {
                 data: niw
             })
         } catch (e) {
-            res.status(404).json({ msg: error.message });
+            res.status(404).json({ message: error.message });
         }
     },
     controllerAuth: async (req, res) => {
@@ -146,7 +146,7 @@ module.exports = {
                         token: localToken,
                     });
                 } else {
-                    res.status(404).json({ msg: "Kamu Bukan Admin" });
+                    res.status(404).json({ message: "Kamu Bukan Admin" });
                 }
             } else {
                 //tidak ditemukan
@@ -156,7 +156,7 @@ module.exports = {
                 });
             }
         } catch (error) {
-            res.status(404).json({ msg: error.message });
+            res.status(404).json({ message: error.message });
         }
     },
     controllerEdit: async (req, res) => {
@@ -236,10 +236,10 @@ module.exports = {
                         });
                     });
             } else {
-                res.status(404).json({ msg: "User not found" });
+                res.status(404).json({ message: "User not found" });
             }
         } catch (error) {
-            res.status(404).json({ msg: error.message });
+            res.status(404).json({ message: error.message });
         }
     },
     controllerDelete: async (req, res) => {

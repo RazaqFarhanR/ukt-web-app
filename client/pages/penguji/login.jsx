@@ -43,7 +43,7 @@ const loginPage = () => {
               toast.error(res.data.message || "Login gagal", { id: toastId });
             }
           } catch (err) {
-            toast.error(err.response.data.msg, { id: toastId });
+            toast.error(err.response.data.message, { id: toastId });
             // console.error(err);
           }
     }

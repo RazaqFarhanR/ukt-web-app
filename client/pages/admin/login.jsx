@@ -22,7 +22,7 @@ const loginPage = () => {
             password: password,
         };
     
-        const loadingToast = toast.loading("Sedang login...");
+        const toastId = toast.loading("Sedang masuk...");
     
         try {
             const res = await axios.post(BASE_URL + `user/auth`, form);
@@ -33,14 +33,14 @@ const loginPage = () => {
     
                 localStorage.setItem('admin', JSON.stringify(data));
                 localStorage.setItem('token', token);
-    
-                toast.success(res.data.message);
-                toast.dismiss(loadingToast);
+                
+                console.log(res.data);
+                
+                toast.success("Login berhasil!", { id: toastId });
     
                 router.push('/admin');
             } else {
                 toast.error(res.data.message);
-                toast.dismiss(loadingToast);
             }
         } catch (err) {
             console.log(err.message);

@@ -477,7 +477,7 @@ module.exports = {
                 id_lembar_soal: id_lembar_soal,
                 id_siswa: req.body.id_siswa
             }
-            let msg
+            let message
             let id_session 
             const cekData = await session.findOne({ where: param })
             if (!cekData) {
@@ -491,7 +491,7 @@ module.exports = {
                 }
                 session.create(data)
                     .then(res => {
-                        msg = "Ujian dimulai"
+                        message = "Ujian dimulai"
                         id_session = res.id_session
                     })
                     .catch(error => {
@@ -500,7 +500,7 @@ module.exports = {
                         })
                     })
             } else {
-                msg = ("Ujian sudah dimulai")
+                message = ("Ujian sudah dimulai")
                 id_session = cekData.id_session
             }
 
@@ -516,7 +516,7 @@ module.exports = {
             })
             .then(soal => {
                 res.json({
-                    message: msg,
+                    message: message,
                     count: soal.length,
                     waktu: waktu,
                     id_lembar_soal: id_lembar_soal,

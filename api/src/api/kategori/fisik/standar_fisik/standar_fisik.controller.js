@@ -365,12 +365,12 @@ module.exports = {
                     });
                 }
                 res.json({
-                    msg: "data has been updated",
+                    message: "data has been updated",
                 });
             })
             .catch((e) => {
                 res.json({
-                    msg: e.message,
+                    message: e.message,
                 });
             });
     },
@@ -406,12 +406,12 @@ module.exports = {
                     });
                 }
                 res.json({
-                    msg: "data has been updated",
+                    message: "data has been updated",
                 });
             })
             .catch((e) => {
                 res.json({
-                    msg: e.message,
+                    message: e.message,
                 });
             });
     },
@@ -447,12 +447,12 @@ module.exports = {
                     });
                 }
                 res.json({
-                    msg: "data has been updated",
+                    message: "data has been updated",
                 });
             })
             .catch((e) => {
                 res.json({
-                    msg: e.message,
+                    message: e.message,
                 });
             });
     },
@@ -488,12 +488,12 @@ module.exports = {
                     });
                 }
                 res.json({
-                    msg: "data has been updated",
+                    message: "data has been updated",
                 });
             })
             .catch((e) => {
                 res.json({
-                    msg: e.message,
+                    message: e.message,
                 });
             });
     },
@@ -529,12 +529,12 @@ module.exports = {
                     });
                 }
                 res.json({
-                    msg: "data has been updated",
+                    message: "data has been updated",
                 });
             })
             .catch((e) => {
                 res.json({
-                    msg: e.message,
+                    message: e.message,
                 });
             });
     },
@@ -570,12 +570,12 @@ module.exports = {
                     });
                 }
                 res.json({
-                    msg: "data has been updated",
+                    message: "data has been updated",
                 });
             })
             .catch((e) => {
                 res.json({
-                    msg: e.message,
+                    message: e.message,
                 });
             });
     },
@@ -611,12 +611,12 @@ module.exports = {
                     });
                 }
                 res.json({
-                    msg: "data has been updated",
+                    message: "data has been updated",
                 });
             })
             .catch((e) => {
                 res.json({
-                    msg: e.message,
+                    message: e.message,
                 });
             });
     },
