@@ -411,15 +411,20 @@ module.exports = {
                     no_wa: req.body.no_wa,
                 }
                 if (req.file) {
-                    const imagePath = localStorage + "/" + result[0].foto;
-                    fs.unlink(imagePath, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        console.log('User image deleted successfully');
-                    });
-                    data.foto = req.file.filename;
+                    const oldImagePath = localStorage + result[0].foto;
+                    
+                    if (result[0].foto !== 'default.png') {
+                        fs.unlink(oldImagePath, (err) => {
+                            if (err) {
+                                console.error(err); 
+                                return;
+                            }
+                            // console.log('User image deleted successfully');
+                        });
+                        data.foto = req.file.filename;
+                    } else {
+                        // console.log('Skipping delete for default.png');
+                    }
                 }
                 penguji
                     .update(req.body.password == null ? dataNoPsw : data, { where: param })
@@ -476,33 +481,38 @@ module.exports = {
         penguji.findOne({
             where: param
         })
-            .then(result => {
-                if (result.foto) {
-                    const imagePath = localStorage + "/" + result.foto;
-                    fs.unlink(imagePath, (err) => {
+        .then(result => {
+            if (result.foto) {
+                const oldImagePath = localStorage + result.foto;
+                
+                if (result.foto !== 'default.png') {                    
+                    fs.unlink(oldImagePath, (err) => {
                         if (err) {
                             console.error(err);
                             return;
                         }
-                        console.log('User image deleted successfully');
+                        // console.log('User image deleted successfully');
                     });
+                } else {
+                    // console.log('Skipping delete for default.png');
                 }
-                penguji.destroy({ where: param })
-                    .then(result => {
-                        res.json({
-                            massege: "data has been deleted"
-                        })
+            }
+            penguji.destroy({ where: param })
+                .then(result => {                    
+                    res.json({
+                        massege: "data has been deleted"
                     })
-                    .catch(error => {
-                        res.json({
-                            message: error.message
-                        })
-                    })
-            })
-            .catch(error => {
-                res.json({
-                    message: error.message
                 })
+                .catch(error => {
+                    res.json({
+                        message: error.message
+                    })
+                })
+        })
+        .catch(error => {
+            res.json({
+                message: error.message
             })
+        })
     },
 }

@@ -20,14 +20,24 @@ app.use(express.static(__dirname))
 setupSockets(io);
 
 app.get('/image/:filename', (req, res) => {
-    const filename = req.params.filename;
-    const imagePath = path.join(__dirname, './src/image', filename);
-  
-    // Use the imagePath to send the image back to the client
+  const filename = req.params.filename;
+
+  if (!filename || filename === 'undefined' || filename === 'null') {
+    return res.status(400).json({ message: 'Nama file tidak valid' });
+  }
+
+  const imagePath = path.join(__dirname, 'src', 'image', filename);
+
+  fs.stat(imagePath, (err, stats) => {
+    if (err || !stats.isFile()) {
+      return res.status(404).json({ message: 'File tidak ditemukan' });
+    }
+
     res.sendFile(imagePath);
   });
+});
 
-  app.use('/image', express.static(path.join(__dirname, './src/image')));
+app.use('/image', express.static(path.join(__dirname, './src/image')));
 
 //import end-point diletakkan disini
 
