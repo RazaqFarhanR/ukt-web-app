@@ -58,13 +58,25 @@ const siswa = () => {
         const admin = JSON.parse(localStorage.getItem('admin'))
         const token = localStorage.getItem('token')
 
-        axios.get(BASE_URL + `event/ukt/${tipe}`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                setDataEvent(res.data.data)
-            })
-            .catch(err => {
-                console.log(err.message);
-            })
+        if (tipe){
+            if (admin.id_role === "admin ranting" && tipe !== "ukcw") {
+                axios.get(BASE_URL + `event/ukt/${tipe}/${admin.id_ranting}`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                    setDataEvent(res.data.data)
+                })
+                .catch(err => {
+                    console.log(err.message);
+                })
+            } else {
+                axios.get(BASE_URL + `event/ukt/${tipe}`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                    setDataEvent(res.data.data)
+                })
+                .catch(err => {
+                    console.log(err.message);
+                })
+            }
+        }
     }
 
     useEffect(() => {
