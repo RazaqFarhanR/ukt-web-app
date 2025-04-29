@@ -37,12 +37,11 @@ const loginPage = () => {
                 toast.success("Login berhasil!", { id: toastId });
                 router.push('/admin');
             } else {
-                toast.error(res.data.message);
+                toast.error(res.data.message || "Login gagal", { id: toastId });
             }
         } catch (err) {
-            console.log(err.message);
-            toast.error("Username atau password salah");
-            toast.dismiss(loadingToast);
+            // console.log(err.message);
+            toast.error("Username atau password salah", { id: toastId });
         }
     };
 
