@@ -9,58 +9,33 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
 const socket = SocketIo(SOCKET_URL)
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-const senam = () => {
+
+
+const belati = () => {
 
     const [showModalAlert, setShowModalAlert] = useState(false);
     const router = useRouter()
     // state
     const [alert, setAlert] = useState(false)
     const [dataSiswa, setDataSiswa] = useState([])
-    const [dataSenam, setDataSenam] = useState([])
     const [selectedButton, setSelectedButton] = useState([])
 
-    const getDataSiswa = () => {
-        const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
-        setDataSiswa(dataSiswa)
-    }
-
     const updatedOptions = [...selectedButton];
-    const getDataSenam = async () => {
-        const token = localStorage.getItem('tokenPenguji')
-        const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
-
-        axios.get(BASE_URL + `senam/ukt/${dataSiswa.tipe_ukt}`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                console.log('res dari senam penguji')
-                console.log(res)
-                setDataSenam(res.data.data)
-                const data = res.data.data
-                for (let i = 0; i < res.data.limit; i++) {
-                    const id_senam = data[i].id_senam
-                    const selectedOption = null
-                    updatedOptions.push({ id_senam, selectedOption })
-                    setSelectedButton(updatedOptions)
-                }
-            })
-            .catch(err => {
-                console.log(err.message);
-            })
-    }
 
     // function set selected button
-    function handleButtonClick(id_senam, selectedOption) {
+    function handleButtonClick(id_belati, selectedOption) {
         const index = updatedOptions.findIndex(
-            (option) => option.id_senam === id_senam && option.selectedOption === selectedOption
+            (option) => option.id === id_belati && option.selectedOption === selectedOption
         );
 
-        const idSenam = updatedOptions.findIndex(
-            (option) => option.id_senam === id_senam
+        const idbelati = updatedOptions.findIndex(
+            (option) => option.id === id_belati
         )
 
         if (index !== -1) {
             updatedOptions[index].selectedOption = null;
         } else {
-            updatedOptions[idSenam].selectedOption = selectedOption
+            updatedOptions[idbelati].selectedOption = selectedOption
         }
 
         setSelectedButton(updatedOptions);
@@ -85,15 +60,16 @@ const senam = () => {
         }
     }, [alert])
 
-    // function handle save nilai senam
+    // function handle save nilai belati
     const handleSave = () => {
         setShowModalAlert(true);
         // -- data detail -- //
+        const uktSiswa = JSON.parse(localStorage.getItem('dataUktSiswa'))
         const token = localStorage.getItem('tokenPenguji')
         const dataPenguji = JSON.parse(localStorage.getItem('penguji'))
         const data = selectedButton.map((option) => {
             return {
-                id_senam: option.id_senam,
+                id_belati: option.id,
                 predikat: option.selectedOption,
             }
         })
@@ -104,12 +80,27 @@ const senam = () => {
             tipe_ukt: dataSiswa.tipe_ukt,
             ujian: data
         }
+        console.log(dataDetail)
         if (alert == true) {
-            axios.post(BASE_URL + `senam_detail/exam`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
+            axios.post(BASE_URL + `belati_detail/exam`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
                 .then(async res => {
+                    console.log(res)
 
-                    socket.emit('pushRekap')
-                    router.back()
+                    const dataDetailBelati = res.data.data
+                    const nilai = dataDetailBelati.nilai
+
+                    // -- ukt siswa  -- //
+                    const nilaiUkt = nilai
+                    await axios.put(BASE_URL + `ukt_siswa/${uktSiswa.id_ukt_siswa}`, {
+                        belati: nilaiUkt
+                    }, { headers: { Authorization: `Bearer ${token}` } })
+                        .then(res => {
+                            socket.emit('pushRekap')
+                            router.back()
+                        })
+                        .catch(err => {
+                            console.log(err.message);
+                        })
                 })
         } else {
             null
@@ -117,11 +108,30 @@ const senam = () => {
     }
 
     useEffect(() => {
-        getDataSiswa()
-        getDataSenam()
+        const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
+        setDataSiswa(dataSiswa)
+        const dataUKCW = [
+            { id: 1, name: "Tusukan Depan 1", selectedOption: null },
+            { id: 2, name: "Tusukan Depan 2", selectedOption: null },
+            { id: 3, name: "Tusukan Belakang 1", selectedOption: null },
+            { id: 4, name: "Tusukan Belakang 2", selectedOption: null },
+            { id: 5, name: "Tusukan Dari Atas 1", selectedOption: null },
+            { id: 6, name: "Tusukan Dari Atas 2", selectedOption: null },
+            { id: 7, name: "Tusukan Dari Bawah 1", selectedOption: null },
+            { id: 8, name: "Tusukan Dari Bawah 2", selectedOption: null },
+            { id: 9, name: "Tusukan Dari Samping 1", selectedOption: null },
+            { id: 10, name: "Tusukan Dari Samping 2", selectedOption: null },
+        ]
+        const dataUktPutih = [
+            { id: 1, name: "Tusukan Depan 1", selectedOption: null },
+            { id: 3, name: "Tusukan Belakang 1", selectedOption: null },
+            { id: 5, name: "Tusukan Dari Atas 1", selectedOption: null },
+            { id: 7, name: "Tusukan Dari Bawah 1", selectedOption: null },
+            { id: 9, name: "Tusukan Dari Samping 1", selectedOption: null },
+        ]
+        const data = dataSiswa.tipe_ukt == "UKCW" ? dataUKCW : dataUktPutih
+        setSelectedButton(data)
     }, [])
-
-
     return (
         <>
             <div className="font-lato">
@@ -143,9 +153,9 @@ const senam = () => {
                             <h1 className='tracking-wide'>{dataSiswa.id_ranting}</h1>
                         </div>
 
-                        {/* senam list */}
+                        {/* belati list */}
                         <div className="space-y-3 mb-10">
-                            {dataSenam.map((item, index) => (
+                            {selectedButton?.map((item, index) => (
                                 <div key={index + 1} className="grid grid-cols-2 items-center">
                                     <h1 className='text-white text-xl font-semibold uppercase'>{item.name}</h1>
                                     <div className="gap-x-2 grid grid-flow-col grid-cols-10 text-sm mb:text-md">
@@ -154,11 +164,11 @@ const senam = () => {
                                             hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5 mb-4">
                                                 <button className={selectedButton.find(
                                                     (option) =>
-                                                        option.id_senam === item.id_senam &&
-                                                        option.selectedOption === 0
+                                                        option.id === item.id &&
+                                                        option.selectedOption == 0
                                                 ) ? "font-semibold bg-red rounded-md text-white py-1.5 w-full uppercase"
                                                     : "font-semibold bg-navy border-2 border-red rounded-md text-white py-1.5 w-full uppercase"}
-                                                    onClick={() => handleButtonClick(item.id_senam, 0)
+                                                    onClick={() => handleButtonClick(item.id, 0)
                                                     }
                                                 >SALAH</button>
                                             </div>
@@ -169,11 +179,11 @@ const senam = () => {
                                             hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5 mb-4">
                                                 <button className={selectedButton.find(
                                                     (option) =>
-                                                        option.id_senam === item.id_senam &&
+                                                        option.id === item.id &&
                                                         option.selectedOption >= 1
                                                 ) ? "font-semibold bg-purple rounded-md text-white py-1.5 w-full uppercase"
                                                     : "font-semibold bg-navy border-2 border-purple rounded-md text-white py-1.5 w-full uppercase"}
-                                                    onClick={() => handleButtonClick(item.id_senam, 1)}>BENAR</button>
+                                                    onClick={() => handleButtonClick(item.id, 1)}>BENAR {item.id}</button>
                                             </div>
                                         </button>
 
@@ -182,11 +192,11 @@ const senam = () => {
                                             hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5 mb-4">
                                                 <button className={selectedButton.find(
                                                     (option) =>
-                                                        option.id_senam === item.id_senam &&
+                                                        option.id === item.id &&
                                                         option.selectedOption === 2
                                                 ) ? "font-semibold bg-green rounded-md text-white py-1.5 w-full uppercase"
                                                     : "font-semibold bg-navy border-2 border-green rounded-md text-white py-1.5 w-full uppercase"}
-                                                    onClick={() => handleButtonClick(item.id_senam, 2)}>+</button>
+                                                    onClick={() => handleButtonClick(item.id, 2)}>+</button>
                                             </div>
                                         </button>
                                     </div>
@@ -206,4 +216,4 @@ const senam = () => {
     )
 }
 
-export default senam
+export default belati
