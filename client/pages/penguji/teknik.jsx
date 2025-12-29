@@ -103,18 +103,18 @@ const teknik = () => {
         if (alert == true) {
 
             // -- data detail -- //
-            const uktSiswa = JSON.parse(localStorage.getItem('dataUktSiswa'))
             const token = localStorage.getItem('tokenPenguji')
             const dataPenguji = JSON.parse(localStorage.getItem('penguji'))
             const dataDetail = {
                 id_penguji: dataPenguji.id_penguji,
                 id_siswa: dataSiswa.id_siswa,
                 id_event: dataSiswa.id_event,
-                tipe_ukt: dataSiswa.tipe_ukt
+                tipe_ukt: dataSiswa.tipe_ukt,
+                data: newData
             }
 
 
-            axios.post(BASE_URL + `teknik_detail`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
+            axios.post(BASE_URL + `teknik_detail/exam`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
                 .then(async res => {
                     console.log(res.data.data)
 

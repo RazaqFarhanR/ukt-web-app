@@ -80,72 +80,38 @@ const jurus = () => {
         setSelectedButton(updatedOptions);
     }
 
-    // function handle save nilai jurus
+     // function handle save nilai jurus
     const handleSave = () => {
         const socket = getSocket();
 
         setShowModalAlert(true);
-        if (alert) {
-            // -- data detail -- //
-            const uktSiswa = JSON.parse(localStorage.getItem('dataUktSiswa'))
-            const token = localStorage.getItem('tokenPenguji')
-            const dataPenguji = JSON.parse(localStorage.getItem('penguji'))
-            const dataDetail = {
-                id_penguji: dataPenguji.id_penguji,
-                id_siswa: dataSiswa.id_siswa,
-                id_event: dataSiswa.id_event,
-                tipe_ukt: dataSiswa.tipe_ukt
+        // -- data detail -- //
+        const token = localStorage.getItem('tokenPenguji')
+        const dataPenguji = JSON.parse(localStorage.getItem('penguji'))
+        const data = selectedButton.map((option) => {
+            return {
+                id_jurus: option.id_jurus,
+                predikat: option.selectedOption,
             }
-            axios.post(BASE_URL + `jurus_detail`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
+        })
+        const dataDetail = {
+            id_penguji: dataPenguji.id_penguji,
+            id_siswa: dataSiswa.id_siswa,
+            id_event: dataSiswa.id_event,
+            tipe_ukt: dataSiswa.tipe_ukt,
+            ujian: data
+        }
+        if (alert == true) {
+            axios.post(BASE_URL + `jurus_detail/exam`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
                 .then(async res => {
-                    const data = selectedButton.map((option) => {
-                        return {
-                            id_jurus: option.id_jurus,
-                            predikat: option.selectedOption,
-                        }
-                    })
 
-                    const id_jurus_detail = res.data.data.id_jurus_detail
-
-                    let nilai8 = [];
-                    let nilai10 = [];
-
-                    for (let i = 0; i < data.length; i++) {
-                        if (data[i].predikat === 8) {
-                            nilai8.push('1')
-                        } else if (data[i].predikat === 10) {
-                            nilai10.push('1')
-                        }
-
-                        try {
-                            const res = await axios.post(BASE_URL + `jurus_siswa`, {
-                                id_jurus_detail: id_jurus_detail,
-                                id_jurus: data[i].id_jurus,
-                                predikat: data[i].predikat,
-                            }, { headers: { Authorization: `Bearer ${token}` } })
-                            console.log(res);
-                        } catch (error) {
-                            console.log(error.message)
-                        }
-                    }
-
-                    const nilaiUkt10 = ((nilai10.length / data.length) * 100)
-                    const nilaiUkt8 = ((nilai8.length / data.length) * 80)
-                    const nilaiUkt = ((nilaiUkt10) + (nilaiUkt8)).toFixed(2)
-                    await axios.put(BASE_URL + `ukt_siswa/${uktSiswa.id_ukt_siswa}`, {
-                        jurus: nilaiUkt
-                    }, { headers: { Authorization: `Bearer ${token}` } })
-                        .then(res => {
-                            console.log(res)
-                            socket.emit('submit_nilai', {
+                    socket.emit('submit_nilai', {
                                 event_id: dataSiswa.id_event
                             });
-                            router.back()
-                        })
-                        .catch(err => {
-                            console.log(err.message);
-                        })
+                    router.back()
                 })
+        } else {
+            null
         }
     }
 
