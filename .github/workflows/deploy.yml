@@ -1,0 +1,147 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - "api/**"
+      - "client/**"
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api_changed: ${{ steps.set-vars.outputs.api_changed }}
+      client_changed: ${{ steps.set-vars.outputs.client_changed }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed folders
+        id: set-vars
+        run: |
+          API_CHANGED=false
+          CLIENT_CHANGED=false
+          echo "Checking changes..."
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "$CHANGED_FILES"
+          if echo "$CHANGED_FILES" | grep -q '^api/'; then
+            API_CHANGED=true
+          fi
+          if echo "$CHANGED_FILES" | grep -q '^client/'; then
+            CLIENT_CHANGED=true
+          fi
+          echo "::set-output name=api_changed::$API_CHANGED"
+          echo "::set-output name=client_changed::$CLIENT_CHANGED"
+
+  deploy-api:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set API Environment Variables
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "ENV=prod" >> $GITHUB_ENV
+            echo "APP_DIR=/srv/apps/ukt-prod" >> $GITHUB_ENV
+            echo "API_PORT=8080" >> $GITHUB_ENV
+            echo "API_CONTAINER=ukt_api_prod" >> $GITHUB_ENV
+            echo "API_IMAGE=ukt-api:prod" >> $GITHUB_ENV
+          else
+            echo "ENV=dev" >> $GITHUB_ENV
+            echo "APP_DIR=/srv/apps/ukt-dev" >> $GITHUB_ENV
+            echo "API_PORT=8081" >> $GITHUB_ENV
+            echo "API_CONTAINER=ukt_api_dev" >> $GITHUB_ENV
+            echo "API_IMAGE=ukt-api:dev" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy API via SSH
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: ENV,APP_DIR,API_PORT,API_CONTAINER,API_IMAGE
+          script: |
+            set -e
+            echo "Deploying API to $ENV environment..."
+            cd $APP_DIR
+            git fetch origin
+            git checkout $GITHUB_REF_NAME
+            git pull origin $GITHUB_REF_NAME
+
+            echo "Building API Docker image..."
+            docker build -t $API_IMAGE ./api
+
+            echo "Stopping old API container if exists..."
+            docker rm -f $API_CONTAINER || true
+
+            echo "Running new API container..."
+            docker run -d \
+              --name $API_CONTAINER \
+              --restart unless-stopped \
+              -p ${API_PORT}:3000 \
+              --env-file $APP_DIR/api/.env \
+              --add-host=host.docker.internal:host-gateway \
+              -v $APP_DIR/api/image:/app/image \
+              $API_IMAGE
+
+
+            docker image prune -f
+            echo "API deploy completed"
+
+  deploy-client:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.client_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Client via SSH
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: GITHUB_REF_NAME
+          script: |
+            set -e
+            echo "Deploying Client..."
+
+            # Tentukan folder & container sesuai branch
+            APP_DIR=/srv/apps/ukt-${GITHUB_REF_NAME}
+            CLIENT_CONTAINER=ukt_client_${GITHUB_REF_NAME}
+            CLIENT_IMAGE=ukt-client:${GITHUB_REF_NAME}
+            CLIENT_PORT=$([[ "${GITHUB_REF_NAME}" == "main" ]] && echo 3000 || echo 3001)
+
+            cd $APP_DIR
+            git fetch origin
+            git checkout $GITHUB_REF_NAME
+            git pull origin $GITHUB_REF_NAME
+
+            echo "Building Next.js Client..."
+            cd client
+            npm ci
+            npm run build
+
+            echo "Building Docker image..."
+            docker build --pull -t $CLIENT_IMAGE .
+
+            echo "Stopping old container if exists..."
+            docker rm -f $CLIENT_CONTAINER || true
+
+            echo "Running new container..."
+            docker run -d \
+              --name $CLIENT_CONTAINER \
+              --restart unless-stopped \
+              -p ${CLIENT_PORT}:3000 \
+              --env-file $APP_DIR/client/.env \
+              $CLIENT_IMAGE
+
+            docker image prune -f
+            echo "Client deploy completed"
