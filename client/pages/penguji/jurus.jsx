@@ -165,10 +165,10 @@ const jurus = () => {
                                                 <button className={selectedButton.find(
                                                     (option) =>
                                                         option.id_jurus === item.id_jurus &&
-                                                        option.selectedOption >= 8
+                                                        option.selectedOption >= 1
                                                 ) ? "font-semibold bg-purple rounded-md text-white py-1.5 w-full uppercase"
                                                     : "font-semibold bg-navy border-2 border-purple rounded-md text-white py-1.5 w-full uppercase"}
-                                                    onClick={() => handleButtonClick(item.id_jurus, 8)}>BENAR</button>
+                                                    onClick={() => handleButtonClick(item.id_jurus, 1)}>BENAR</button>
                                             </div>
                                         </button>
 
@@ -178,10 +178,10 @@ const jurus = () => {
                                                 <button className={selectedButton.find(
                                                     (option) =>
                                                         option.id_jurus === item.id_jurus &&
-                                                        option.selectedOption === 10
+                                                        option.selectedOption === 2
                                                 ) ? "font-semibold bg-green rounded-md text-white py-1.5 w-full uppercase"
                                                     : "font-semibold bg-navy border-2 border-green rounded-md text-white py-1.5 w-full uppercase"}
-                                                    onClick={() => handleButtonClick(item.id_jurus, 10)}>+</button>
+                                                    onClick={() => handleButtonClick(item.id_jurus, 2)}>+</button>
                                             </div>
                                         </button>
 

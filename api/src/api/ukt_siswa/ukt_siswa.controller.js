@@ -161,12 +161,24 @@ module.exports = {
             case 'sambung':
                 orderCriteria.push(['sambung', updown === 'downToUp' ? 'ASC' : 'DESC']);
                 break;
+            case 'belati':
+                orderCriteria.push(['belati', updown === 'downToUp' ? 'ASC' : 'DESC']);
+                break;
+            case 'kripen':
+                orderCriteria.push(['kripen', updown === 'downToUp' ? 'ASC' : 'DESC']);
+                break;
+            case 'jurus_toya':
+                orderCriteria.push(['jurus_toya', updown === 'downToUp' ? 'ASC' : 'DESC']);
+                break;
+            case 'senam_toya':
+                orderCriteria.push(['senam_toya', updown === 'downToUp' ? 'ASC' : 'DESC']);
+                break;
             case 'keshan':
                 orderCriteria.push(['keshan', updown === 'downToUp' ? 'ASC' : 'DESC']);
                 break;
             case 'all':
                 orderCriteria.push([
-                    Sequelize.literal('(COALESCE(senam, 0) + COALESCE(jurus, 0) + COALESCE(fisik, 0) + COALESCE(teknik, 0) + COALESCE(sambung, 0) + COALESCE(keshan, 0))/6'),
+                    Sequelize.literal('(COALESCE(senam, 0) + COALESCE(jurus, 0) + COALESCE(fisik, 0) + COALESCE(teknik, 0) + COALESCE(sambung, 0) + COALESCE(belati, 0) + COALESCE(kripen, 0) + COALESCE(senam_toya, 0) + COALESCE(jurus_toya, 0) + COALESCE(keshan, 0))/10'),
                     updown === 'downToUp' ? 'ASC' : 'DESC'
                 ]);
                 break;
