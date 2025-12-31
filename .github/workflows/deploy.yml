@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Detect changed folders
         id: set-vars
@@ -25,14 +27,14 @@ jobs:
           API_CHANGED=false
           CLIENT_CHANGED=false
           echo "Checking changes..."
-          if git diff --name-only HEAD~1 | grep -q '^api/'; then
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "$CHANGED_FILES"
+          if echo "$CHANGED_FILES" | grep -q '^api/'; then
             API_CHANGED=true
           fi
-          if git diff --name-only HEAD~1 | grep -q '^client/'; then
+          if echo "$CHANGED_FILES" | grep -q '^client/'; then
             CLIENT_CHANGED=true
           fi
-          echo "API_CHANGED=$API_CHANGED"
-          echo "CLIENT_CHANGED=$CLIENT_CHANGED"
           echo "::set-output name=api_changed::$API_CHANGED"
           echo "::set-output name=client_changed::$CLIENT_CHANGED"
 
@@ -109,15 +111,6 @@ jobs:
           key: ${{ runner.os }}-next-${{ hashFiles('client/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-next-
-
-      - name: Create .env for Next.js
-        run: |
-          cat <<EOF > client/.env
-          NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
-          NEXT_PUBLIC_IMAGE_URL=${{ secrets.NEXT_PUBLIC_IMAGE_URL }}
-          NEXT_PUBLIC_SOCKET_URL=${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
-          NEXT_PUBLIC_SECRET=${{ secrets.NEXT_PUBLIC_SECRET }}
-          EOF
 
       - name: Set Client Environment Variables
         run: |
