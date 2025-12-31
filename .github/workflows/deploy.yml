@@ -122,6 +122,7 @@ jobs:
               --name $CLIENT_CONTAINER \
               --restart unless-stopped \
               -p ${CLIENT_PORT}:3000 \
+              --env-file $APP_DIR/client/.env \
               $CLIENT_IMAGE
             docker image prune -f
             echo "Client deploy completed"
