@@ -1,4 +1,4 @@
-name: Build and Deploy UKT
+name: Build and Deploy
 
 on:
   push:
