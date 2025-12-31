@@ -10,7 +10,7 @@ const teknik = (props) => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'))
 
-        axios.get(BASE_URL + `teknik_detail/event/${event.id_event}`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `teknik_detail/event/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 console.log(res.data.data[0].siswa_teknik_detail.length);
                 setDataTeknik(res.data.data)
@@ -35,7 +35,7 @@ const teknik = (props) => {
     }
     useEffect(() => {
         getDataTeknik()
-    }, [])
+    }, [props])
 
     return (
         <div className="min-h-screen bg-darkBlue py-6 h-screen">

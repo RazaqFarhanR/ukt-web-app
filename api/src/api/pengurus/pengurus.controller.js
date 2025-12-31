@@ -77,7 +77,7 @@ module.exports = {
                 data: niw
             })
         } catch (e) {
-            res.status(404).json({ msg: error.message });
+            res.status(404).json({ message: error.message });
         }
     },
     controllerAdd: async (req, res) => {
@@ -140,7 +140,7 @@ module.exports = {
                         token: localToken,
                     });
                 } else {
-                    res.status(404).json({ msg: "Kamu Bukan Pengurus" });
+                    res.status(404).json({ message: "Kamu Bukan Pengurus" });
                 }
             } else {
                 //tidak ditemukan
@@ -150,7 +150,7 @@ module.exports = {
                 });
             }
         } catch (error) {
-            res.status(404).json({ msg: error.message });
+            res.status(404).json({ message: error.message });
         }
     },
     controllerEdit: async (req, res) => {
@@ -187,15 +187,20 @@ module.exports = {
                     no_wa: req.body.no_wa,
                 }
                 if (req.file) {
-                    const imagePath = localStorage + "/" + result[0].foto;
-                    fs.unlink(imagePath, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        console.log('User image deleted successfully');
-                    });
-                    data.foto = req.file.filename;
+                    const oldImagePath = localStorage + result[0].foto;
+                    
+                    if (result[0].foto !== 'default.png') {
+                        fs.unlink(oldImagePath, (err) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            // console.log('User image deleted successfully');
+                        });
+                        data.foto = req.file.filename;
+                    } else {
+                        // console.log('Skipping delete for default.png');
+                    }
                 }
                 pengurus
                     .update(password != null ? data : dataNoPsw, { where: param })
@@ -210,10 +215,10 @@ module.exports = {
                         });
                     });
             } else {
-                res.status(404).json({ msg: "User not found" });
+                res.status(404).json({ message: "User not found" });
             }
         } catch (error) {
-            res.status(404).json({ msg: error.message });
+            res.status(404).json({ message: error.message });
         }
     },
     controllerDelete: async (req, res) => {
@@ -225,14 +230,20 @@ module.exports = {
         })
             .then(result => {
                 if (result.foto) {
-                    const imagePath = localStorage + "/" + result.foto;
-                    fs.unlink(imagePath, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        console.log('User image deleted successfully');
-                    });
+                    const oldImagePath = localStorage + result.foto;
+                    
+                    if (result.foto !== 'default.png') {
+                        fs.unlink(oldImagePath, (err) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            // console.log('User image deleted successfully');
+                        });
+                        data.foto = req.file.filename;
+                    } else {
+                        // console.log('Skipping delete for default.png');
+                    }
                 }
                 pengurus.destroy({ where: param })
                     .then(result => {

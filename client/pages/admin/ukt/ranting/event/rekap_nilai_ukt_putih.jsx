@@ -15,7 +15,7 @@ import dynamic from 'next/dynamic';
 
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+// const socket = SocketIo(SOCKET_URL)
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const Select = dynamic(() => import('react-select'));
@@ -64,7 +64,6 @@ const rekap_nilai_ukt_ukt_putih = () => {
         const token = localStorage.getItem('token')
         await axios.get(BASE_URL + `ukt_siswa/rayon/${eventId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res.data.data)
                 setDataRayon(res.data.data)
             })
             .catch(err => {

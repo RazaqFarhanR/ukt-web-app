@@ -170,7 +170,10 @@ module.exports = {
                     model: models.siswa,
                     attributes: ['name', 'nomor_urut'],
                     as: "teknik_siswa",
-                    require: true
+                    require: true,
+                    where: {
+                        id_ranting: req.params.ranting
+                    }
                 },
                 {
                     model: models.penguji,

@@ -15,6 +15,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 
 const index = () => {
+    const router = useRouter();
+
     const [data, setData] = useState([])
     const [dataTable, setDataTable] = useState([])
     const [dataCabang, setDataCabang] = useState([]);
@@ -126,17 +128,6 @@ const index = () => {
         handlerGetDataRanting();
     }, [])
 
-    // deklarasi router
-    const router = useRouter()
-
-    // function login checker
-    const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
-            router.push('/admin/login')
-        }
-    }
-
-
     const thTables = (props) => {
         const name = ['KESHAN', 'SENAM', 'JURUS', 'FISIK', 'TEKNIK', 'SAMBUNG', 'RATA - RATA']
         {
@@ -157,9 +148,6 @@ const index = () => {
             )
         }
     }
-    useEffect(() => {
-        isLogged()
-    }, [])
 
     const handleChange = (option) => {
         setSearch(option);
@@ -170,6 +158,37 @@ const index = () => {
     useEffect(() => {
         handlerClick();
     }, [event, ranting])
+
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const admin = localStorage.getItem('admin');
+
+        if (!token || !admin) {
+            router.replace('/admin/login');
+        } else {
+            setIsAuthorized(true);
+        }
+
+        setIsCheckingAuth(false);
+    }, []);
+
+    if (isCheckingAuth) {
+        return (
+            <div className="flex justify-center items-center h-screen bg-darkBlue text-white">
+                <div className="flex flex-col justify-center items-center">
+                    <div className="border-t-transparent border-solid animate-spin border-4 border-blue-400 rounded-full h-12 w-12"></div> {/* Spinner saat loading */}
+                    <p className="mt-4 text-lg">Loading, please wait...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
 
     return (
         <div className="flex font-lato">

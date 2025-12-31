@@ -32,11 +32,11 @@ const detail_siswa = () => {
     const [jenisLatihan, setJenisLatihan] = useState ('')
     const [ukt, setUkt] = useState ('')
     const [event, setEvent] = useState ('')
+    const [dataEvent, setDataEvent] = useState ('')
 
     // function get data siswa
     const getDataSiswa = () => {
         const token = localStorage.getItem ('token')
-        const event = JSON.parse (localStorage.getItem ('event'))
 
         axios.get(BASE_URL + `siswa/event/new/${eventId}` , { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
@@ -48,17 +48,21 @@ const detail_siswa = () => {
     }
 
     // function modal add
-    const addModal = () => {
+    const addModal = () => {        
         setShowModalSiswa (true)
         setAction ('insert')
         setNoUrut ('')
         setSiswaName ('')
-        setRanting (ranting)
+        if (dataEvent.tipe_ukt == "UKCW") {
+            setRanting ('')
+        } else {
+            setRanting (dataEvent.id_ranting)
+        }
         setRayon ('')
         setJenisKelamin ('')
         setJenisLatihan ('')
-        setUkt ('')
-        setEvent ('')
+        setUkt (dataEvent.tipe_ukt)
+        setEvent (dataEvent.id_event)
     }
 
     // function modal edit
@@ -68,7 +72,7 @@ const detail_siswa = () => {
         setIdSiswa (selectedItem.id_siswa)
         setNoUrut (selectedItem.nomor_urut)
         setSiswaName (selectedItem.name)
-        setRanting (ranting)
+        setRanting (selectedItem.id_ranting)
         setRayon (selectedItem.rayon)
         setJenisKelamin (selectedItem.jenis_kelamin)
         setJenisLatihan (selectedItem.jenis_latihan)
@@ -92,9 +96,11 @@ const detail_siswa = () => {
     }
 
     useEffect (() => {
+        const event = JSON.parse(localStorage.getItem ('event'))
+        setDataEvent(event)
         getDataSiswa ()
         isLogged ()
-    }, [])
+    }, [router.isReady])
 
     return (
         <>

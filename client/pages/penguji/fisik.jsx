@@ -4,9 +4,8 @@ import { globalState } from '@/context/context'
 import Header from './components/header'
 import Modal_Alert from './components/modal_alert';
 import { useRouter } from 'next/router';
-import SocketIo from 'socket.io-client'
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+import { getSocket } from '../../lib/socket';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const fisik = () => {
@@ -73,6 +72,8 @@ const fisik = () => {
             })
     }
     const handleSave = async () => {
+        const socket = getSocket();
+
         setShowModalAlert(true)
         if (alert) {
             // -- data detail -- //
@@ -86,8 +87,20 @@ const fisik = () => {
             const spirPANew = (spirPA / dataStandartFisik.spir_perut_atas) * 100
             const spirPBNew = (spirPB / dataStandartFisik.spir_perut_bawah) * 100
             const spirDadaNew = ((spirDada / dataStandartFisik.spir_dada) * 100)
-            const spirPahaNew = ((spirPaha / dataStandartFisik.spir_paha) * 100)
-            const plankNew = ((plank / dataStandartFisik.plank) * 100)
+            let spirPahaNew = ((spirPaha / dataStandartFisik.spir_paha) * 100)
+            let plankNew = ((plank / dataStandartFisik.plank) * 100)
+
+            if (plankNew > 100) {
+                plankNew = 100
+            }
+
+            if (spirPahaNew > 100) {
+                spirPahaNew = 100
+            }
+
+            console.log(plankNew);
+            console.log(spirPahaNew);
+            
             const data = {
                 id_penguji: dataPenguji.id_penguji,
                 id_event: dataSiswa.id_event,
@@ -109,12 +122,16 @@ const fisik = () => {
                 });
             // -- ukt siswa  -- //
             const nilaiUkt = ((mftNew + pushUpNew + spirPANew + spirPBNew + spirDadaNew + spirPahaNew + plankNew) / 7).toFixed(2)
+            console.log(nilaiUkt);
+            
             await axios.put(BASE_URL + `ukt_siswa/${uktSiswa.id_ukt_siswa}`, {
                 fisik: nilaiUkt
             }, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     console.log(res)
-                    socket.emit('pushRekap')
+                    socket.emit('submit_nilai', {
+                        event_id: dataSiswa.id_event
+                    });
                     router.back()
                 })
                 .catch(err => {
@@ -127,6 +144,21 @@ const fisik = () => {
     useEffect(() => {
         getDataSiswa()
         getDataStandartFisik()
+        const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
+
+        const socket = getSocket();
+
+        if (!socket.connected) {
+            socket.connect();
+            socket.emit('join_event', {
+            role: 'penguji',
+            event_id: dataSiswa.id_event,
+            });
+        }
+    
+        return () => {
+            socket.disconnect();
+        };
     }, [])
 
     useEffect(() => {

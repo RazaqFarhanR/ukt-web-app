@@ -12,20 +12,17 @@ const keshan = (props) => {
         const event = JSON.parse(localStorage.getItem('event'))
         const token = localStorage.getItem('token')
 
-        console.log(event);
-        axios.get(BASE_URL + `session/pages/${event.id_event}/25`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `session/pages/${event.id_event}/${props.data?.ranting}/25`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setTotalPages(res.data.totalPages);
-                console.log(res);
             })
             .catch(err => {
                 // console.log(err.response.data);
                 console.log(err.message);
             })
-        axios.get(BASE_URL + `session/ukt/${event.id_event}/${page}/25`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `session/ukt/${event.id_event}/${props.data?.ranting}/${page}/25`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataUjian(res.data.data)
-                console.log(res);
             })
             .catch(err => {
                 // console.log(err.response.data);
@@ -92,7 +89,7 @@ const keshan = (props) => {
 
     function TdComponent({ items }) {
         return items.map((item, index) => (
-            <td key={index + 1} className='px-3 border-b-2 border-gray uppercase text-left w-[30rem]'>{item.soal_ujian.pertanyaan}
+            <td key={index + 1} className='px-3 border-b-2 border-gray uppercase text-left w-[30rem]'>{item?.soal_ujian?.pertanyaan}
                 {item.answer === 'benar' && (
                     <div className="font-semibold bg-purple rounded-md text-white py-1.5 px-12 uppercase flex justify-center my-2">
                         benar
@@ -115,7 +112,7 @@ const keshan = (props) => {
     }
     useEffect(() => {
         getDataUjian()
-    }, [page])
+    }, [page, props])
 
     return (
         <div className="min-h-screen bg-darkBlue h-screen">
