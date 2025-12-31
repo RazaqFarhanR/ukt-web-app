@@ -99,62 +99,45 @@ jobs:
     if: needs.detect-changes.outputs.client_changed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Cache Node Modules & Next.js Build
-        uses: actions/cache@v3
-        with:
-          path: |
-            client/node_modules
-            client/.next/cache
-          key: ${{ runner.os }}-next-${{ hashFiles('client/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-next-
-
-      - name: Set Client Environment Variables
-        run: |
-          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-            echo "ENV=prod" >> $GITHUB_ENV
-            echo "APP_DIR=/srv/apps/ukt-prod" >> $GITHUB_ENV
-            echo "CLIENT_PORT=3000" >> $GITHUB_ENV
-            echo "CLIENT_CONTAINER=ukt_client_prod" >> $GITHUB_ENV
-            echo "CLIENT_IMAGE=ukt-client:prod" >> $GITHUB_ENV
-          else
-            echo "ENV=dev" >> $GITHUB_ENV
-            echo "APP_DIR=/srv/apps/ukt-dev" >> $GITHUB_ENV
-            echo "CLIENT_PORT=3001" >> $GITHUB_ENV
-            echo "CLIENT_CONTAINER=ukt_client_dev" >> $GITHUB_ENV
-            echo "CLIENT_IMAGE=ukt-client:dev" >> $GITHUB_ENV
-          fi
-
-      - name: Build Next.js Client
-        run: |
-          cd client
-          npm ci
-          npm run build
-
-      - name: Build Client Docker Image
-        run: |
-          docker build -t $CLIENT_IMAGE ./client
-
       - name: Deploy Client via SSH
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: ENV,APP_DIR,CLIENT_PORT,CLIENT_CONTAINER,CLIENT_IMAGE
           script: |
             set -e
-            echo "Deploying Client to $ENV environment..."
+            echo "Deploying Client..."
+
+            # Tentukan folder & container sesuai branch
+            APP_DIR=/srv/apps/ukt-${GITHUB_REF_NAME}
+            CLIENT_CONTAINER=ukt_client_${GITHUB_REF_NAME}
+            CLIENT_IMAGE=ukt-client:${GITHUB_REF_NAME}
+            CLIENT_PORT=$([[ "${GITHUB_REF_NAME}" == "main" ]] && echo 3000 || echo 3001)
+
             cd $APP_DIR
+            git fetch origin
+            git checkout $GITHUB_REF_NAME
+            git pull origin $GITHUB_REF_NAME
+
+            echo "Building Next.js Client..."
+            cd client
+            npm ci
+            npm run build
+
+            echo "Building Docker image..."
+            docker build --pull -t $CLIENT_IMAGE .
+
+            echo "Stopping old container if exists..."
             docker rm -f $CLIENT_CONTAINER || true
+
+            echo "Running new container..."
             docker run -d \
               --name $CLIENT_CONTAINER \
               --restart unless-stopped \
               -p ${CLIENT_PORT}:3000 \
               --env-file $APP_DIR/client/.env \
               $CLIENT_IMAGE
+
             docker image prune -f
             echo "Client deploy completed"
