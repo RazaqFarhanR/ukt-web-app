@@ -1,0 +1,82 @@
+name: Build and Deploy UKT
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Deployment Variables
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "ENV=prod" >> $GITHUB_ENV
+            echo "APP_DIR=/srv/apps/ukt-prod" >> $GITHUB_ENV
+            echo "BRANCH=main" >> $GITHUB_ENV
+            echo "API_PORT=8080" >> $GITHUB_ENV
+            echo "CLIENT_PORT=3000" >> $GITHUB_ENV
+            echo "API_CONTAINER=ukt_api_prod" >> $GITHUB_ENV
+            echo "CLIENT_CONTAINER=ukt_client_prod" >> $GITHUB_ENV
+            echo "API_IMAGE=ukt-api:prod" >> $GITHUB_ENV
+            echo "CLIENT_IMAGE=ukt-client:prod" >> $GITHUB_ENV
+          else
+            echo "ENV=dev" >> $GITHUB_ENV
+            echo "APP_DIR=/srv/apps/ukt-dev" >> $GITHUB_ENV
+            echo "BRANCH=dev" >> $GITHUB_ENV
+            echo "API_PORT=8081" >> $GITHUB_ENV
+            echo "CLIENT_PORT=3001" >> $GITHUB_ENV
+            echo "API_CONTAINER=ukt_api_dev" >> $GITHUB_ENV
+            echo "CLIENT_CONTAINER=ukt_client_dev" >> $GITHUB_ENV
+            echo "API_IMAGE=ukt-api:dev" >> $GITHUB_ENV
+            echo "CLIENT_IMAGE=ukt-client:dev" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: ENV,APP_DIR,BRANCH,API_PORT,CLIENT_PORT,API_CONTAINER,CLIENT_CONTAINER,API_IMAGE,CLIENT_IMAGE
+          script: |
+            set -e
+
+            echo "Deploy environment : $ENV"
+            echo "Target directory  : $APP_DIR"
+            echo "Git branch        : $BRANCH"
+
+            cd $APP_DIR
+            git fetch origin
+            git checkout $BRANCH
+            git pull origin $BRANCH
+
+            echo "Building API image"
+            docker build -t $API_IMAGE ./api
+            docker rm -f $API_CONTAINER || true
+            docker run -d \
+              --name $API_CONTAINER \
+              --restart unless-stopped \
+              -p 127.0.0.1:${API_PORT}:3000 \
+              --env-file $APP_DIR/api/.env \
+              $API_IMAGE
+
+            echo "Building Client image"
+            docker build -t $CLIENT_IMAGE ./client
+            docker rm -f $CLIENT_CONTAINER || true
+            docker run -d \
+              --name $CLIENT_CONTAINER \
+              --restart unless-stopped \
+              -p 127.0.0.1:${CLIENT_PORT}:3000 \
+              --env-file $APP_DIR/client/.env \
+              $CLIENT_IMAGE
+
+            docker image prune -f
+
+            echo "Deploy completed"
