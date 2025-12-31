@@ -90,7 +90,9 @@ jobs:
               -p ${API_PORT}:3000 \
               --env-file $APP_DIR/api/.env \
               --add-host=host.docker.internal:host-gateway \
+              -v $APP_DIR/api/image:/app/image \
               $API_IMAGE
+
 
             docker image prune -f
             echo "API deploy completed"
