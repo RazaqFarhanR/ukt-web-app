@@ -89,6 +89,7 @@ jobs:
               --restart unless-stopped \
               -p ${API_PORT}:3000 \
               --env-file $APP_DIR/api/.env \
+              --add-host=host.docker.internal:host-gateway \
               $API_IMAGE
 
             docker image prune -f
