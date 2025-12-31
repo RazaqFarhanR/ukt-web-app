@@ -83,6 +83,7 @@ const fisik = () => {
                 id_event: dataSiswa.id_event,
                 id_siswa: dataSiswa.id_siswa,
                 peserta: dataSiswa.peserta,
+                tipe_ukt: dataSiswa.tipe_ukt,
                 mft: primeMft,
                 push_up: pushUp,
                 spir_perut_atas: spirPA,
@@ -91,7 +92,7 @@ const fisik = () => {
                 spir_paha: spirPaha,
                 plank: plank
             }
-            axios.post(BASE_URL + `fisik`, data, { headers: { Authorization: `Bearer ${token}` } },)
+            axios.post(BASE_URL + `fisik/exam`, data, { headers: { Authorization: `Bearer ${token}` } },)
                 .then((res) => {
                     socket.emit('pushRekap')
                     router.back()
@@ -139,10 +140,6 @@ const fisik = () => {
             socket.disconnect();
         };
     }, [])
-
-    useEffect(() => {
-        console.log(mft)
-    }, [mft])
 
     // function untuk timer
     useEffect(() => {

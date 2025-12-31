@@ -1,15 +1,15 @@
 const models = require('../../../../models/index');
-const senam_detail = models.senam_detail;
-const senam_siswa = models.senam_siswa;
-const ukt_siswa = models.ukt_siswa;
+const kripen_detail = models.kripen_detail;
+const kripen_siswa = models.kripen_siswa
+const ukt_siswa = models.ukt_siswa
 
 module.exports = {
     controllerGetAll: async (req, res) => {
-        senam_detail.findAll()
-            .then(senam_detail => {
+        kripen_detail.findAll()
+            .then(kripen_detail => {
                 res.json({
-                    count: senam_detail.length,
-                    data: senam_detail
+                    count: kripen_detail.length,
+                    data: kripen_detail
                 })
             })
             .catch(error => {
@@ -19,40 +19,40 @@ module.exports = {
             })
     },
     controllerGetByTipeUkt: async (req, res) => {
-        senam_detail.findAll({
+        kripen_detail.findAll({
             where: {
                 tipe_ukt: req.params.id
             },
-            attributes: ['id_senam_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
+            attributes: ['id_kripen_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
             include: [
                 {
                     model: models.siswa,
                     attributes: ['name'],
-                    as: "senam_siswa",
+                    as: "kripen_siswa",
                 },
                 {
                     model: models.penguji,
                     attributes: ['name'],
-                    as: "penguji_senam"
+                    as: "penguji_kripen"
                 },
                 {
-                    model: models.senam_siswa,
-                    attributes: ['id_senam', 'predikat'],
-                    as: "siswa_senam_detail",
+                    model: models.kripen_siswa,
+                    attributes: ['id_kripen', 'predikat'],
+                    as: "siswa_kripen_detail",
                     include: [
                         {
-                            model: models.senam,
+                            model: models.kripen,
                             attributes: ['name'],
-                            as: "siswa_senam"
+                            as: "siswa_kripen"
                         }
                     ]
                 }
             ]
         })
-            .then(senam => {
+            .then(kripen => {
                 res.json({
-                    count: senam.length,
-                    data: senam
+                    count: kripen.length,
+                    data: kripen
                 })
             })
             .catch(error => {
@@ -62,44 +62,42 @@ module.exports = {
             })
     },
     controllerGetByUktEvent: async (req, res) => {
-        senam_detail.findAll({
+        kripen_detail.findAll({
             where: {
-                id_event: req.params.event,
+                tipe_ukt: req.params.id,
+                id_event: req.params.event
             },
-            attributes: ['id_senam_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
+            attributes: ['id_kripen_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
             include: [
                 {
                     model: models.siswa,
-                    attributes: ['name', 'nomor_urut','id_ranting'],
-                    as: "senam_siswa",
-                    where: {
-                        id_ranting: req.params.ranting
-                    }
+                    attributes: ['name', 'nomor_urut'],
+                    as: "kripen_siswa",
                 },
                 {
                     model: models.penguji,
                     attributes: ['name'],
-                    as: "penguji_senam"
+                    as: "penguji_kripen"
                 },
                 {
-                    model: models.senam_siswa,
-                    attributes: ['id_senam', 'predikat'],
-                    as: "siswa_senam_detail",
+                    model: models.kripen_siswa,
+                    attributes: ['id_kripen', 'predikat'],
+                    as: "siswa_kripen_detail",
                     required: true,
                     include: [
                         {
-                            model: models.senam,
+                            model: models.kripen,
                             attributes: ['name'],
-                            as: "siswa_senam"
+                            as: "siswa_kripen"
                         }
                     ]
                 }
             ]
         })
-            .then(senam => {
+            .then(kripen => {
                 res.json({
-                    count: senam.length,
-                    data: senam
+                    count: kripen.length,
+                    data: kripen
                 })
             })
             .catch(error => {
@@ -109,33 +107,33 @@ module.exports = {
             })
     },
     controllerGetByIdSiswa: async (req, res) => {
-        senam_detail.findAll({
-            attributes: ['id_senam_detail', 'id_siswa', 'id_senam', 'predikat'],
+        kripen_detail.findAll({
+            attributes: ['id_kripen_detail', 'id_siswa', 'id_kripen', 'predikat'],
             where: {
                 id_siswa: req.params.id
             },
             include: [
                 {
-                    model: models.senam,
+                    model: models.kripen,
                     attributes: ['name', 'tipe_ukt'],
-                    as: "siswa_senam",
+                    as: "siswa_kripen",
                     required: false
                 }
             ]
         })
-            .then(senam => {
-                console.log(senam[0].predikat)
+            .then(kripen => {
+                console.log(kripen[0].predikat)
                 const nilai = []
-                for (let i = 0; i < senam.length; i++) {
-                    if (senam[i].predikat == true) {
+                for (let i = 0; i < kripen.length; i++) {
+                    if (kripen[i].predikat == true) {
                         nilai.push('true');
                     }
                 }
                 console.log(nilai.length);
                 res.json({
-                    count: senam.length,
-                    senam_benar: nilai.length,
-                    data: senam
+                    count: kripen.length,
+                    kripen_benar: nilai.length,
+                    data: kripen
                 })
             })
             .catch(error => {
@@ -151,7 +149,7 @@ module.exports = {
             id_siswa: req.body.id_siswa,
             tipe_ukt: req.body.tipe_ukt
         }
-        senam_detail.create(data)
+        kripen_detail.create(data)
             .then(result => {
                 res.json({
                     message: "data has been inserted",
@@ -174,26 +172,28 @@ module.exports = {
                 ujian
             } = req.body;
             const detail = {
-                id_penguji,id_siswa,id_event,tipe_ukt
+                id_penguji, id_siswa, id_event, tipe_ukt
             }
-            const processDetail = await senam_detail.create(detail)
+            const processDetail = await kripen_detail.create(detail)
             // mapping array ujian jadi banyak row
             const data = ujian.map(item => ({
-                id_senam_detail: processDetail.id_senam_detail,
+                id_kripen_detail: processDetail.id_kripen_detail,
                 id_siswa,
-                id_senam: item.id_senam,
+                id_kripen: item.id_kripen,
                 predikat: item.predikat
             }));
 
-            await senam_siswa.bulkCreate(data);
-
+            await kripen_siswa.bulkCreate(data);
             const total = data.length;
-            const predikat10 = data.filter(i => i.predikat === 2).length;
-            const predikat8 = data.filter(i => i.predikat === 1).length;
+
+            const predikat10 = data.filter(item => item.predikat === 2).length;
+            const predikat8 = data.filter(item => item.predikat === 1).length;
 
             const examResult10 = predikat10 * (100 / total);
             const examResult8 = predikat8 * (80 / total);
-            const examResult = (examResult10 + examResult8);
+
+            const examResult = examResult10 + examResult8;
+
             const result1 = {
                 total: Number(examResult.toFixed(2)),
                 plus: Number(examResult10.toFixed(2)),
@@ -201,13 +201,19 @@ module.exports = {
             };
 
             await ukt_siswa.update(
-                { senam: result1.total },
-                { where: { id_siswa: req.body.id_siswa } }
-            );
+                {
+                    kripen: examResult
+                },
+                {
+                    where: {
+                        id_siswa: req.body.id_siswa
+                    }
+                }
+            )
 
             res.json({
                 message: "All exams inserted successfully",
-                data: result1
+                result: "anjing"
             });
 
         } catch (error) {
@@ -218,7 +224,7 @@ module.exports = {
     },
     controllerEdit: async (req, res) => {
         let param = {
-            id_senam_detail: req.params.id
+            id_kripen_detail: req.params.id
         }
         let data = {
             id_penguji: req.body.id_penguji,
@@ -226,7 +232,7 @@ module.exports = {
             tipe_ukt: req.body.tipe_ukt,
             name: req.body.name
         }
-        senam_detail.update(data, { where: param })
+        kripen_detail.update(data, { where: param })
             .then(result => {
                 res.json({
                     message: "data has been updated"
@@ -240,9 +246,9 @@ module.exports = {
     },
     controllerDelete: async (req, res) => {
         let param = {
-            id_senam_detail: req.params.id
+            id_kripen_detail: req.params.id
         }
-        senam_detail.destroy({ where: param })
+        kripen_detail.destroy({ where: param })
             .then(result => {
                 res.json({
                     massege: "data has been deleted"

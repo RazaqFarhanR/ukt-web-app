@@ -122,7 +122,15 @@ const jurus_toya = () => {
             { id: 7, name: "Jurus Toya 7", selectedOption: null },
             { id: 8, name: "Jurus Toya 8", selectedOption: null },
         ]
-        const data = dataSiswa.tipe_ukt == "UKCW" ? dataUKCW : dataUktPutih
+        const shuffleArray = (arr) => {
+            return [...arr].sort(() => Math.random() - 0.5)
+        }
+
+        const data =
+            dataSiswa.tipe_ukt === "UKCW"
+                ? shuffleArray(dataUKCW).slice(0, 8)
+                : shuffleArray(dataUktPutih).slice(0, 4)
+
         setSelectedButton(data)
     }, [])
     return (

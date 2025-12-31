@@ -44,7 +44,6 @@ const rekap_nilai_ukt_ukcw = () => {
         
         await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res)
                 setDataUkt(res.data.data)
             })
             .catch(err => {
@@ -71,12 +70,10 @@ const rekap_nilai_ukt_ukcw = () => {
     const getDataByName = () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
-        console.log("getdatabyname")
 
         setLoading(true);
         axios.get(BASE_URL + `ukt_siswa/name/${name}/${event.id_event}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res);
                 setDataUkt(res.data.data)
             })
             .catch(err => {
@@ -90,7 +87,6 @@ const rekap_nilai_ukt_ukcw = () => {
     let timeoutId = null;
 
     useEffect(() => {
-        console.log(name)
         if (name != null) {
             const delay = 500; // Adjust the delay time (in milliseconds) as per your requirement
 
@@ -379,7 +375,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.belati < 50 && 'text-[#ca3030]'} ${item.belati > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item.belati)}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.kripen < 50 && 'text-[#ca3030]'} ${item.kripen > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item.kripen)}</td>
                                                     <td className={`border-b-2 border-gray border font-bold text-lg ${((item.keshan + item.senam + item.jurus + item.fisik + item.teknik + item.sambung) / 6) < 50 && 'bg-[#371b1b]'} ${((item.keshan + item.senam + item.jurus + item.fisik + item.teknik + item.sambung) / 6) > 89.99 && 'bg-[#1f371b]'} `}>
-                                                        {((item.keshan + item.senam + item.jurus + item.fisik + item.teknik + item.sambung) / 6).toLocaleString('id', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}
+                                                        {((item.keshan + item.senam + item.jurus + item.fisik + item.teknik + item.sambung) / 10).toLocaleString('id', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}
                                                     </td>
                                                 </tr>
                                             )
@@ -412,4 +408,4 @@ const rekap_nilai_ukt_ukcw = () => {
     )
 }
 
-export default rekap_nilai_ukt_ukcw                                                                                 
+export default rekap_nilai_ukt_ukcw

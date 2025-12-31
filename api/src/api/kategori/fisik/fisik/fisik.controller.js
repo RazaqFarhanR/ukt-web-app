@@ -191,13 +191,13 @@ module.exports = {
             })
     },
     controllerAddExam: async (req, res) => {
-        let data = {
+        const data = {
             id_penguji: req.body.id_penguji,
             id_event: req.body.id_event,
             id_siswa: req.body.id_siswa,
             peserta: req.body.peserta,
             tipe_ukt: req.body.tipe_ukt,
-            mft: req.body.mft,
+            mft: parseInt(req.body.mft),
             push_up: req.body.push_up,
             spir_perut_atas: req.body.spir_perut_atas,
             spir_perut_bawah: req.body.spir_perut_bawah,
@@ -205,19 +205,21 @@ module.exports = {
             spir_paha: req.body.spir_paha,
             plank: req.body.plank,
         }
-        const dataStandartFisik = await standarFisik.findAll({
+        console.log(data)
+        const dataStandartFisik = await standarFisik.findOne({
             where: {
                 tipe_ukt: data.tipe_ukt,
                 peserta: data.peserta
             }
         })
+        console.log(dataStandartFisik)
         const dataExam = {
             id_penguji: data.id_penguji,
             id_event: data.id_event,
             id_siswa: data.id_siswa,
             peserta: data.peserta,
             tipe_ukt: data.tipe_ukt,
-            mft: (mft / dataStandartFisik.mft) * 100,
+            mft: (data.mft / dataStandartFisik.mft) * 100,
             push_up: (data.push_up / dataStandartFisik.push_up) * 100,
             spir_perut_atas: (data.spir_perut_atas / dataStandartFisik.spir_perut_atas) * 100,
             spir_perut_bawah: (data.spir_perut_bawah / dataStandartFisik.spir_perut_bawah) * 100,
@@ -225,8 +227,9 @@ module.exports = {
             spir_paha: (data.spir_paha / dataStandartFisik.spir_paha) * 100,
             plank: (data.plank / dataStandartFisik.plank) * 100
         }
+        console.log(dataExam)
         const nilaiUkt = ((dataExam.mft + dataExam.push_up + dataExam.spir_perut_atas + dataExam.spir_perut_bawah + dataExam.spir_dada + dataExam.spir_paha + dataExam.plank) / 7).toFixed(2)
-        uktSiswa.update(
+        await uktSiswa.update(
             {
                 nilai_ukt: nilaiUkt
             },
@@ -237,10 +240,11 @@ module.exports = {
             }
         )
 
-        fisik.create(data)
+        await fisik.create(data)
             .then(result => {
                 res.json({
-                    message: "data has been inserted"
+                    message: "data has been inserted",
+                    result: nilaiUkt
                 })
             })
             .catch(error => {
