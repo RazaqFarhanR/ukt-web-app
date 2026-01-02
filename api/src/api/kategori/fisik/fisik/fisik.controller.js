@@ -213,6 +213,12 @@ module.exports = {
             }
         })
         console.log(dataStandartFisik)
+        const plank = (data.plank / dataStandartFisik.plank) * 100
+        const plankNew = plank > 100 ? 100 : plank
+
+        const spirPaha = (data.spir_paha / dataStandartFisik.spir_paha) * 100
+        const spirPahaNew = spirPaha > 100 ? 100: spirPaha
+
         const dataExam = {
             id_penguji: data.id_penguji,
             id_event: data.id_event,
@@ -224,14 +230,14 @@ module.exports = {
             spir_perut_atas: (data.spir_perut_atas / dataStandartFisik.spir_perut_atas) * 100,
             spir_perut_bawah: (data.spir_perut_bawah / dataStandartFisik.spir_perut_bawah) * 100,
             spir_dada: (data.spir_dada / dataStandartFisik.spir_dada) * 100,
-            spir_paha: (data.spir_paha / dataStandartFisik.spir_paha) * 100,
-            plank: (data.plank / dataStandartFisik.plank) * 100
+            spir_paha: spirPahaNew,
+            plank: plankNew
         }
-        console.log(dataExam)
         const nilaiUkt = ((dataExam.mft + dataExam.push_up + dataExam.spir_perut_atas + dataExam.spir_perut_bawah + dataExam.spir_dada + dataExam.spir_paha + dataExam.plank) / 7).toFixed(2)
+        const nilaiUktNew = nilaiUkt > 100 ? 100 : nilaiUkt
         await uktSiswa.update(
             {
-                nilai_ukt: nilaiUkt
+                nilai_ukt: nilaiUktNew
             },
             {
                 where: {
@@ -244,7 +250,7 @@ module.exports = {
             .then(result => {
                 res.json({
                     message: "data has been inserted",
-                    result: nilaiUkt
+                    result: nilaiUktNew
                 })
             })
             .catch(error => {
