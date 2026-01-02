@@ -140,7 +140,7 @@ app.get("/NIW/:id", Auth, verifyRoles("admin", "super admin", "admin ranting", "
     }
     
   } catch (e) {
-    res.status(404).json({ msg: e.message });
+    res.status(404).json({ message: e.message });
   }
 })
 
@@ -316,10 +316,10 @@ app.put("/:id", Auth, verifyRoles("admin", "super admin", "admin ranting", "admi
           });
         });
     } else {
-      res.status(404).json({ msg: "User not found" });
+      res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
-    res.status(404).json({ msg: error.message });
+    res.status(404).json({ message: error.message });
   }
 });
 
@@ -359,7 +359,7 @@ app.post("/auth", async (req, res) => {
       //set payload from data
       console.log("oi" + req.body.password)
       const match = await bcrypt.compare(req.body.password, result[0].password);
-      if (!match) return res.status(400).json({ msg: "password salah" });
+      if (!match) return res.status(400).json({ message: "password salah" });
       if (result[0].id_role === "penguji cabang" || "penguji ranting") {
         const idUser = result[0].id_penguji;
         const role = result[0].id_role;
@@ -385,7 +385,7 @@ app.post("/auth", async (req, res) => {
           token: localToken,
         });
       } else {
-        res.status(404).json({ msg: "Kamu Bukan Penguji" });
+        res.status(404).json({ message: "Kamu Bukan Penguji" });
       }
     } else {
       //tidak ditemukan
@@ -395,7 +395,7 @@ app.post("/auth", async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(404).json({ msg: error.message });
+    res.status(404).json({ message: error.message });
   }
 });
 

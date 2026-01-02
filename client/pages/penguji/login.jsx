@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { globalState } from '@/context/context'
 import Modal_Password from './components/modal_password';
+import { toast } from "react-hot-toast";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const loginPage = () => {
@@ -25,24 +26,26 @@ const loginPage = () => {
             password : password
         }
 
-        await axios.post (BASE_URL + `penguji/auth`, form)
-        .then (res => {
-            if (res.data.logged) {
-                let data = res.data.data
-                let token = res.data.token
+        const toastId = toast.loading("Sedang masuk...");
 
-                localStorage.setItem ('penguji', JSON.stringify (data))
-                localStorage.setItem ('tokenPenguji', (token))
-                
-                console.log(res.data.message);
-                router.push ('/penguji')
+        try {
+            const res = await axios.post(`${BASE_URL}penguji/auth`, form);
+        
+            if (res.data.logged) {
+              const { data, token } = res.data;
+        
+              localStorage.setItem("penguji", JSON.stringify(data));
+              localStorage.setItem("tokenPenguji", token);
+        
+              toast.success("Login berhasil!", { id: toastId });
+              router.push("/penguji");
             } else {
-                window.alert (res.data.message)
+              toast.error(res.data.message || "Login gagal", { id: toastId });
             }
-        })
-        .catch (err => {
-            console.log(err.message);
-        })
+          } catch (err) {
+            toast.error(err.response.data.message, { id: toastId });
+            // console.error(err);
+          }
     }
     
     return (

@@ -18,29 +18,28 @@ const sambung = (props) => {
         //     .catch(err => {
         //         console.log(err.message);
         //     })
-        axios.get(BASE_URL + `gerakan/array/${event.id_event}`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `gerakan/array/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res.data.data)
                 setDatasambung(res.data.data);
             })
             .catch(err => {
                 console.log(err.message);
             })
     }
-    function TdComponent({ items }) {
-        return items.map((item, index) => (
-            <td key={item.id_senam} className='border-b-2 border-gray w-[40%]'>
-                <div className="flex flex-row justify-center">
-                    <div className="font-semibold w-3/4 bg-navy border-2 border-purple rounded-md rounded-br-none rounded-tr-none text-white py-1.5 px-2">
-                        {item.sambung_siswa.nomor_urut} - {item.sambung_siswa.name}
-                    </div>
-                    <div className="flex items-center justify-center text-bold font-semibold w-[15%] bg-purple rounded-md rounded-l-none text-white py-1.5 px-2">
-                        {item.nilai}
-                    </div>
-                </div>
-            </td>
-        ));
-    }
+    // function TdComponent({ items }) {
+    //     return items.map((item, index) => (
+    //         <td key={item.id_senam} className='border-b-2 border-gray w-[40%]'>
+    //             <div className="flex flex-row justify-center">
+    //                 <div className="font-semibold w-3/4 bg-navy border-2 border-purple rounded-md rounded-br-none rounded-tr-none text-white py-1.5 px-2">
+    //                     {item.sambung_siswa.nomor_urut} - {item.sambung_siswa.name}
+    //                 </div>
+    //                 <div className="flex items-center justify-center text-bold font-semibold w-[15%] bg-purple rounded-md rounded-l-none text-white py-1.5 px-2">
+    //                     {item.nilai}
+    //                 </div>
+    //             </div>
+    //         </td>
+    //     ));
+    // }
 
     function checkBG(data){
         const colorBG = `h-16 p-4 border border-white ${data == true ? 'bg-green' : data == false ? 'bg-purple' : '' }`
@@ -49,7 +48,7 @@ const sambung = (props) => {
     }
 
     function NewDetailRow(data) {
-        return data.map((item, index) => (
+        return data?.map((item, index) => (
             <>
                 <tr className='text-green text-center' key={item.id_sambung}>
                     <td className='border-b-2 text-white py-3 border-gray'>{index + 1}</td>
@@ -73,73 +72,73 @@ const sambung = (props) => {
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[0].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[0].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[0].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[0].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[1].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[1].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[1].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[1].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[2].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[2].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[2].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[2].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[3].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[3].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[3].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[3].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[4].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[4].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[4].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[4].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[5].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[5].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[5].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[5].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[6].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[6].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[6].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[6].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[7].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[7].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[7].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[7].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[8].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[8].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[8].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[8].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[9].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[9].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[9].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[9].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[10].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[10].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[10].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[10].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[11].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[11].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[11].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[11].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[12].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[12].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[12].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[12].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
-                        <div className={checkBG(item.detail_gerak[0].gerak_detail[13].green)}></div>
-                        <div className={checkBG(item.detail_gerak[1].gerak_detail[13].green)}></div>
+                        <div className={checkBG(item.detail_gerak[0]?.gerak_detail[13].green)}></div>
+                        <div className={checkBG(item.detail_gerak[1]?.gerak_detail[13].green)}></div>
                     </td>
                     <td className='h-full flex-col'>
                         <div className='h-5  bg-transparent'></div>
@@ -162,7 +161,7 @@ const sambung = (props) => {
 
     useEffect(() => {
         getDataSambung()
-    }, [])
+    }, [props])
 
     return (
         <div className="min-h-screen bg-darkBlue h-screen">

@@ -5,10 +5,9 @@ import Header from './components/header'
 import Modal_Sambung from './components/modal_sambung';
 import Modal_Alert from './components/modal_alert';
 import { useRouter } from 'next/router';
-import SocketIo from 'socket.io-client'
 import MainNavigation from './components/Navbar';
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+import { getSocket } from '../../lib/socket';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const sambung = () => {
@@ -217,6 +216,8 @@ const sambung = () => {
     }, [alert])
 
     const postDataSambung = () => {
+        const socket = getSocket();
+
         const token = localStorage.getItem('tokenPenguji')
         const penguji = JSON.parse(localStorage.getItem('penguji'));
         const event = JSON.parse(localStorage.getItem('event'));
@@ -281,10 +282,11 @@ const sambung = () => {
                 }, { headers: { Authorization: `Bearer ${token}` } })
                     .then(res => {
                         console.log(res)
+                        socket.emit('submit_nilai', {
+                            event_id: event.id_event
+                        });
                     })
             }
-
-            socket.emit('pushRekap')
             router.back()
 
         }
@@ -295,6 +297,20 @@ const sambung = () => {
         const event = JSON.parse(localStorage.getItem('event'));
         setEvent(event)
         getData()
+
+        const socket = getSocket();
+
+        if (!socket.connected) {
+            socket.connect();
+            socket.emit('join_event', {
+                role: 'penguji',
+                event_id: event.id_event,
+            });
+        }
+    
+        return () => {
+            socket.disconnect();
+        };
     }, [])
 
     return (

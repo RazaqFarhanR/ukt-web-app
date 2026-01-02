@@ -7,9 +7,8 @@ import Footer from '../components/footer'
 import { globalState } from '@/context/context'
 import Modal_Filter from '../components/modal_filter';
 import event from '@/pages/penguji/event'
-import SocketIo from 'socket.io-client'
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+import { getSocket } from '../../../lib/socket';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const rekap_nilai_ukt_ukcw = () => {
@@ -17,26 +16,36 @@ const rekap_nilai_ukt_ukcw = () => {
 
     // state modal
     const [dataEvent, setDataEvent] = useState([])
-    const [dataRanting, setDataRanting] = useState([])
+    const [dataRanting, setDataRanting] = useState(null)
     const [modalFilter, setModalFilter] = useState(false)
     const [jenis, setJenis] = useState('all')
     const [updown, setUpDown] = useState('upToDown')
+    const [loading, setLoading] = useState(false);
 
-    const getDataUktFiltered = () => {
+    const getDataUktFiltered = async () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
         let form = {
+            event: event.id_event,
+            jenis: jenis,
+            updown: updown,
             ranting: dataRanting
         }
-        axios.post(BASE_URL + `ukt_siswa/ukt/${event.id_event}/${jenis}/${updown}`, form, { headers: { Authorization: `Bearer ${token}` } })
+        console.log(form);
+        
+        setLoading(true);
+        await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                // console.log(res);
+                console.log(res)
                 setDataUkt(res.data.data)
             })
             .catch(err => {
                 console.log(err.message);
                 console.log(err.response.data);
             })
+            .finally(() => {
+                setLoading(false);
+            });
     }
 
     function formatNumber(number) {
@@ -48,6 +57,28 @@ const rekap_nilai_ukt_ukcw = () => {
     useEffect(() => {
         const event = JSON.parse(localStorage.getItem('event'));
         setDataEvent(event)
+
+        const socket = getSocket();
+
+        if (!socket.connected) {
+          socket.connect();
+          socket.emit('join_event', {
+            role: 'pengurus',
+            event_id: event.id_event,
+          });
+        }
+    
+        const handleUpdate = (data) => {
+          console.log('📡 Update nilai:', data);
+          getDataUktFiltered()
+        };
+    
+        socket.on('update_rekap', handleUpdate);
+    
+        return () => {
+          socket.off('update_rekap', handleUpdate);
+          socket.disconnect();
+        };
     }, [])
 
     useEffect(() => {

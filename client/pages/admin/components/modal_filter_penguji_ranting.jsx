@@ -33,7 +33,6 @@ const ModalFilterPengujiRanting = (props) => {
     const getData = () => {  
         const dataEvent = JSON.parse(localStorage.getItem('event'))
         const token = localStorage.getItem('token')
-        let IdEvent = (dataEvent.id_event)
         axios.get(BASE_URL + `ranting`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 // console.log(res)

@@ -4,9 +4,8 @@ import { globalState } from '@/context/context'
 import Header from './components/header'
 import Modal_Alert from './components/modal_alert';
 import { useRouter } from 'next/router';
-import SocketIo from 'socket.io-client'
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+import { getSocket } from '../../lib/socket';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const fisik = () => {
@@ -52,6 +51,8 @@ const fisik = () => {
         }
     }, [alert])
     const handleSave = async () => {
+        const socket = getSocket();
+
         setShowModalAlert(true)
         if (alert) {
             const token = localStorage.getItem('tokenPenguji')

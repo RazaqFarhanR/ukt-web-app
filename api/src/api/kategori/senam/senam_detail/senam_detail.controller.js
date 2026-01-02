@@ -64,15 +64,17 @@ module.exports = {
     controllerGetByUktEvent: async (req, res) => {
         senam_detail.findAll({
             where: {
-                tipe_ukt: req.params.id,
-                id_event: req.params.event
+                id_event: req.params.event,
             },
             attributes: ['id_senam_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
             include: [
                 {
                     model: models.siswa,
-                    attributes: ['name', 'nomor_urut'],
+                    attributes: ['name', 'nomor_urut','id_ranting'],
                     as: "senam_siswa",
+                    where: {
+                        id_ranting: req.params.ranting
+                    }
                 },
                 {
                     model: models.penguji,

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const loginPage = () => {
@@ -14,32 +15,35 @@ const loginPage = () => {
     const [password, setPassword] = useState ('')
     
     const login = async (e) => {
-        e.preventDefault()
-
-        let form = {
-            username : username,
-            password : password,
-        }
-        await axios.post(BASE_URL + `user/auth`, form)
-        .then (res => {
+        e.preventDefault();
+    
+        const form = {
+            username: username,
+            password: password,
+        };
+    
+        const toastId = toast.loading("Sedang masuk...");
+    
+        try {
+            const res = await axios.post(BASE_URL + `user/auth`, form);
+    
             if (res.data.logged) {
-              let data = res.data.data
-              let token = res.data.token
-      
-              localStorage.setItem ('admin', JSON.stringify (data))
-              localStorage.setItem ('token', (token))
-              
-              console.log(res.data.message);
-              router.push ('/admin')
+                const data = res.data.data;
+                const token = res.data.token;
+    
+                localStorage.setItem('admin', JSON.stringify(data));
+                localStorage.setItem('token', token);
+                
+                toast.success("Login berhasil!", { id: toastId });
+                router.push('/admin');
             } else {
-              window.alert (res.data.message)
+                toast.error(res.data.message || "Login gagal", { id: toastId });
             }
-        })
-        .catch (err => {
-            console.log(err.message);
-            alert ("username atau password salah")
-        })
-    }
+        } catch (err) {
+            // console.log(err.message);
+            toast.error("Username atau password salah", { id: toastId });
+        }
+    };
 
     return (
         <div className="font-lato">

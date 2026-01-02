@@ -4,9 +4,8 @@ import { globalState } from '@/context/context'
 import Modal_Alert from './components/modal_alert';
 import Header from './components/header'
 import { useRouter } from 'next/router';
-import SocketIo from 'socket.io-client'
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
-const socket = SocketIo(SOCKET_URL)
+import { getSocket } from '../../lib/socket';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const teknik = () => {
@@ -83,6 +82,8 @@ const teknik = () => {
 
     //  function post data teknik  //
     const postDataTeknik = () => {
+        const socket = getSocket();
+
         const newData = selectedButton.map((option) => {
             return {
                 id_teknik: option.id_teknik,
@@ -127,6 +128,21 @@ const teknik = () => {
     useEffect(() => {
         getDataSiswa();
         getDataTeknik();
+        const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
+
+        const socket = getSocket();
+
+        if (!socket.connected) {
+            socket.connect();
+            socket.emit('join_event', {
+            role: 'penguji',
+            event_id: dataSiswa.id_event,
+            });
+        }
+    
+        return () => {
+            socket.disconnect();
+        };
     }, [])
 
     return (

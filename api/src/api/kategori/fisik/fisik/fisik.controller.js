@@ -66,7 +66,17 @@ module.exports = {
             where: {
                 id_event: req.params.id
             },
-            attributes: ['id_fisik']
+            attributes: ['id_fisik'],
+            include: [
+                {
+                    model: models.siswa,
+                    as: "siswa_fisik",
+                    attributes: ['id_siswa'],
+                    where: {
+                        id_ranting: req.params.ranting
+                    }
+                },
+            ]
         })
             .then(result => {
                 const totalPages = Math.ceil(result.length / limit);
@@ -85,15 +95,15 @@ module.exports = {
 
         const offset = (pageNumber - 1) * itemsPerPage;
 
-        console.log(pageNumber)
-        console.log(itemsPerPage);
-
         fisik.findAll({
             include: [
                 {
                     model: models.siswa,
                     as: "siswa_fisik",
-                    attributes: ['name']
+                    attributes: ['name'],
+                    where: {
+                        id_ranting: req.params.ranting
+                    }
                 },
                 {
                     model: models.penguji,

@@ -56,7 +56,7 @@ function MainNavigation(props) {
             <ul className="flex gap-6">
               {navItem.links.map((link, index) => (
                 <li key={index+1} onClick={() => setActive(link.link)} >
-                  <div className='flex-col px-1 pt-4 py-2 w-12 items-center justify-center'>
+                  <div className='flex-col px-1 pt-4 py-2 w-12 items-center justify-center capitalize'>
                     <div
                     style = {
                       active === link.link ? {background: '#d4d5d6'} : {background: '#ffffff'} 
