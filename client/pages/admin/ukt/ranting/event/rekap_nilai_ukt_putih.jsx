@@ -92,7 +92,6 @@ const rekap_nilai_ukt_ukt_putih = () => {
         setLoading(true);
         await axios.post(BASE_URL + `ukt_siswa/ukt/filter`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res)
                 setDataUkt(res.data.data)
             })
             .catch(err => {
@@ -128,12 +127,10 @@ const rekap_nilai_ukt_ukt_putih = () => {
     const getDataByName = () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
-        console.log("getdatabyname")
 
         setLoading(true);
         axios.get(BASE_URL + `ukt_siswa/name/${name}/${event.id_event}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res);
                 setDataUkt(res.data.data)
             })
             .catch(err => {
@@ -147,7 +144,6 @@ const rekap_nilai_ukt_ukt_putih = () => {
     let timeoutId = null;
 
     useEffect(() => {
-        console.log(name)
         if (name != null) {
             const delay = 500; // Adjust the delay time (in milliseconds) as per your requirement
 
@@ -169,7 +165,6 @@ const rekap_nilai_ukt_ukt_putih = () => {
     }, [])
 
     useEffect(() => {
-        console.log(rayon)
         getDataUktFiltered()
     }, [`${dataRanting}`, jenis, updown, rayon])
 

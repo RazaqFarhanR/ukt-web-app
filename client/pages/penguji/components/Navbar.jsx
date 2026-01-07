@@ -1,15 +1,6 @@
-import React, { useEffect, useContext } from 'react'
+import React, { } from 'react'
 
 //icon
-
-import { BsPlusCircle } from "react-icons/bs";
-import { BsFillPlusCircleFill } from "react-icons/bs";
-
-import { IoBodyOutline } from "react-icons/io5";
-import { IoBodySharp } from "react-icons/io5";
-// import { RiGroup2Fill } from "react-icons/ri";
-import { RiTableLine } from "react-icons/ri";
-import { RiTableFill } from "react-icons/ri";
 
 // import jurusSvg from '../components/jurus.svg';
 
@@ -27,61 +18,102 @@ const belatiLine = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAA
 const belatiFill = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA0ElEQVR4nO3UPWoCQRgG4KewSae9dbCwEM+Qg3iVFBEvkMIjeIIUIZeQQMgJ0iQQUUTTjAgbkEVYdmd3J4R9YYphGB6+b37oUpw5dnjQco4IOLRdYbgY19YbqzDk4MY6EHJQ0TwZPK+r9aEkXFvrQ0m4ttaHDpYADiVHB/8NeIJXbPGCu7bgtysbnjBuGp5lf2t+0w8WTZ/xCOtIpPLlusEyBfybx1RwD88p4HMGeI9Ev1XMLb4i4JWITPFRAf3EUGT6uM+e274A3GSVRqP+XU5XVGLOyJjRHwAAAABJRU5ErkJggg=="
 const kniveLine = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAADiUlEQVR4nO2ZWYiOYRTHf8xYxr7NZx1lJ1kuZUmIC9KUJTdcuSBrSiSSC1Io1IxEFDcklJDlZoxIlG0+xlqWjGVQ9p3RU/+3Tk/ffJ8J71Lzr6n3/Z8z857zPM/ZnoF61ONfoQfQiIRiLLAdeAzUAAUkCA2BWcB1GR/8vCNBGANcMcb/MO+VJABtgN3AL+NACdATmCPuFAmIgyrvGN008i3ithHjWFil1a9RQO/R8wGjVyZuNjFEB+CE2YFdQGtgp97nS68x8FHcYGKGYSadvgGmi88DnovvL2643t8C+cQIM4DPMu4y0MvIxotPG25dhqMWORYDP2XYQaCZJz8q2ULDVYpzdSVyuCOxQwa59LoWaODpDJDsE9BW3CD9zlegPRGjBXBSBn0BZtaid1g6rnYE2CzuEBHDrewFGfNCgZsJE6TzAegszvVUL8VPIkI4gypkyEOgdy16BcBt6a3w4slxD5TNImu378uQO0BRFt0S6d1QzXBoCjwRv4CI0McY4brXjll0JyrAXewMNfw8cxz9zBYK+pqe6SLQLotuyhS/pYZ3u/JI/BIiciLYiXKgVQ79I0a3oeFXmthoQshwgfxUBpz+gylurnRfA9282Ar6KtcBhIpuWj338XNA8xz6Q1X0Mhl7VPxxQkYn4K4+fl7FLxvaKxVnmi2mmubQ7tJ/R6GaO/fxS2rBsyFPx65GRTJItcjwV5K5aTASJ4IakFL+Xw6sztAbrZeuy1RdPQfLJSvL0IOF4kTae75qnLtmgn6m6sV3YLT399ZIvxroHpYTKc/wlMcFs/YtPZcCI1Xw7NQXoFhtvRt1x0XpRID94m+JHyLjfyl4nWxrhuz1XrJlUTjhVnCgkS0yl2f9DL/E7NIxr/ErMqPugbDiwnfC7sgI4JtW3qVPiwZmDjlljO1sUvZZJYhQnUhrJ9ImUwV91cYsdaba9E0pM7qmdSkXWUz4wX0mx+3GZNPhBkngnpeCIwlsO4JWadVzodQ47pzpQgycmKIV/qYY+RMUKC1X5JhPQnOin0mnbhSta5ufq435ZxW7wmy/f2SaK8CdfB8xRWEOJxz2Su4uClqSUCcWS/5eF2mJdGKYbvpcgE8joU50NHP4BmKKQs+R4IYvQL6KXTAnxOpKvy7ObBL/LKwC9j+cKTZFbxQJQsoUwsq/KHqx25maOBe9ujgT26JX12NW278A6lEPasdvVddMopMSBK0AAAAASUVORK5CYII="
 const kniveFill = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC3UlEQVR4nO2YO2hUQRSGv8RnRFGRuxqNguKzCFqKIqKWIhYKVlaCgq8QCIJoYWVho4IsYmErCVj5wBSSaJNOMNGNaEAUH/FVaFTiqrkycAYOw272zmLunQv7w7DsmTvDfPM458xAQw39L60EZpBT7QSuAq+BGGghR2oGDgKPZfC2fCNH2gE8UoP/o/6XyIEWANeBCQVwBVgFHBFbLzk4B2+dbfRU1V8SW5GAz8JZmf3YKT3quz6xHSJALQLuVgCw5Zh8Z9ztD7G1E5g2K3caVynr5dst8v8rMJ2AtA/4WQOipL4/L7ZuAlIH8LcGRAycUG1KYjNxJXOZLXEtAUAsq7VQ2rWL7ZecqUw1F7iXECKW2GF1UWw3yVhmZgc8IL4DrdLW5FSfxL47SwgzoEEPiBg47ZwnY3sJTMsy3R7xhHgCzJT2s4E3Yj+eFcQaNYikZRzYpPo4KvYPwJwsINZWyJmSlC7Vh1mVV2LvzArCdyVMeSA5l9UZdTZmpQ2xGnhXB8QXoM05WzavOpA2RJvMni9EpcHeEvudtCGWAM/rhChWyMFiSQ71Kk25ImCoTogB5WqRgX+WOnMbTBXCN9jZMurMeDNwX+r6gaYsVmLIc1V+A9ud/s5J3UdgRVoQBQei4NjsXXu4xq3Paq+k9eaquytLCKtusQ+LfaNEaw1x2enPRPIxqTsVAkSHejxbp+ydCuK2k/gtV1fdnrTOhYYYkTNitRUoy1uUcZ9aTeoe0qsG26pc9kNJEFP3TmYvH5a6xSoluTDJJIyqvCmSLDeWX3sTnFK5h9iWCXmL6lcuc7LXjT3SZlw5gRfAspDixHtgaYL+iqrNs7QgCgljQ1nOSBK1iFselC0ZDEQs3so3zZ9PYGnHDQJV5AFh9vg8cg4xBmwg5xATwH4CVOSZilcLerkC6QvtSb8emKRBL2iYMrCNHCmqAnOSHCpyYIINej4wwQY933zLvBw21BB++gcp3fbXRiBN8gAAAABJRU5ErkJggg=="
-const navLinks = [
+const navLinks1 = [
   {
-    role: "penguji",
     links: [
-      { label: "senam", link:"senam", icon: <img src={senamLine}></img>, icon2: <img src={senamFill}></img>},
-      { label: "senam toya", link:"senam_toya", icon: <img src={senamLine}></img>, icon2: <img src={senamFill}></img>},
-      { label: "jurus", link:"jurus", icon: <img src={jurusLine}></img>, icon2: <img src={jurusFill}></img> },
-      { label: "jurus toya", link:"jurus_toya",  icon: <img src={jurusLine}></img>, icon2: <img src={jurusFill}></img> },
-      { label: "fisik", link:"fisik", icon: <img src={fisikLine}></img>, icon2: <img src={fisikFill}></img> },
-      { label: "teknik", link:"teknik", icon: <img src={teknikLine}></img>, icon2: <img src={teknikFill}></img> },
-      { label: "belati", link:"belati", icon: <img src={kniveLine}></img>, icon2: <img src={kniveFill}></img> },
-      { label: "kripen", link:"kripen", icon: <img src={belatiLine}></img>,  icon2: <img src={belatiFill}></img> },
-      { label: "sambung", link:"sambung", icon: <img src={srcSambungline}></img>, icon2: <img src={srcSambungfill}></img> },
+      { label: "senam", link: "senam", icon: <img src={senamLine}></img>, icon2: <img src={senamFill}></img> },
+      { label: "jurus", link: "jurus", icon: <img src={jurusLine}></img>, icon2: <img src={jurusFill}></img> },
+      { label: "fisik", link: "fisik", icon: <img src={fisikLine}></img>, icon2: <img src={fisikFill}></img> },
+      { label: "teknik", link: "teknik", icon: <img src={teknikLine}></img>, icon2: <img src={teknikFill}></img> },
+      { label: "sambung", link: "sambung", icon: <img src={srcSambungline}></img>, icon2: <img src={srcSambungfill}></img> },
+    ]
+  }
+];
+const navLinks2 = [
+  {
+    links: [
+      { label: "senam", link: "senam", icon: <img src={senamLine}></img>, icon2: <img src={senamFill}></img> },
+      { label: "senam toya", link: "senam_toya", icon: <img src={senamLine}></img>, icon2: <img src={senamFill}></img> },
+      { label: "jurus", link: "jurus", icon: <img src={jurusLine}></img>, icon2: <img src={jurusFill}></img> },
+      { label: "jurus toya", link: "jurus_toya", icon: <img src={jurusLine}></img>, icon2: <img src={jurusFill}></img> },
+      { label: "fisik", link: "fisik", icon: <img src={fisikLine}></img>, icon2: <img src={fisikFill}></img> },
+      { label: "teknik", link: "teknik", icon: <img src={teknikLine}></img>, icon2: <img src={teknikFill}></img> },
+      { label: "belati", link: "belati", icon: <img src={kniveLine}></img>, icon2: <img src={kniveFill}></img> },
+      { label: "kripen", link: "kripen", icon: <img src={belatiLine}></img>, icon2: <img src={belatiFill}></img> },
+      { label: "sambung", link: "sambung", icon: <img src={srcSambungline}></img>, icon2: <img src={srcSambungfill}></img> },
     ]
   }
 ];
 
 function MainNavigation(props) {
-  const { active, setActive } = props;
-  const role = 'penguji'
-
+  const { active, setActive, tipeUkt } = props;
+  const dataEvent = tipeUkt
+  const data = dataEvent == "UKCW"
+    ? navLinks2 : dataEvent == "UKT PUTIH"
+      ? navLinks2 : navLinks1
+  const chunkArray = (arr, size) => {
+    const chunks = [];
+    for (let i = 0; i < arr.length; i += size) {
+      chunks.push(arr.slice(i, i + size));
+    }
+    return chunks;
+  };
   return (
-    <header className="sticky z-10  w-full bg-white  h-16 justify-center flex mx-auto items-center shadow-md">
-      {navLinks.map((navItem) => {
+    <header className="sticky z-10 w-full bg-white h-auto flex flex-col mx-auto shadow-md">
+      {data.map((navItem, navIndex) => {
+        const rows = chunkArray(navItem.links, 7);
+
         return (
-          <nav>
-            <ul className="flex gap-6">
-              {navItem.links.map((link, index) => (
-                <li key={index+1} onClick={() => setActive(link.link)} >
-                  <div className='flex-col px-1 pt-4 py-2 w-12 items-center justify-center capitalize'>
-                    <div
-                    style = {
-                      active === link.link ? {background: '#d4d5d6'} : {background: '#ffffff'} 
-                    } 
-                    className={active === link.label ? 'flex rounded-full items-center justify-center transition-all duration-200 ease-linear' :
-                      'flex rounded-full items-center justify-center transition-all duration-200 ease-linear'}>
-                      <div className='p-2'>
-                        <div
-                          key={index}
-                          className={active === link.link ? 'text-black text-xl rounded-full' : 'text-gray text-xl rounded-full'}>
-                          {active === link.link ? link.icon2 : link.icon}
+          <nav key={navIndex} className="w-full">
+            {rows.map((row, rowIndex) => (
+              <ul key={rowIndex} className="flex gap-6 justify-center">
+                {row.map((link, index) => (
+                  <li
+                    key={index}
+                    onClick={() => setActive(link.link)}
+                  >
+                    <div className="flex flex-col px-1 pt-4 py-2 w-12 items-center justify-center capitalize">
+                      <div
+                        style={{
+                          background:
+                            active === link.link ? "#d4d5d6" : "#ffffff",
+                        }}
+                        className="flex rounded-full items-center justify-center transition-all duration-200 ease-linear"
+                      >
+                        <div className="p-2">
+                          <div
+                            className={
+                              active === link.link
+                                ? "text-black text-xl rounded-full"
+                                : "text-gray text-xl rounded-full"
+                            }
+                          >
+                            {active === link.link
+                              ? link.icon2
+                              : link.icon}
+                          </div>
                         </div>
                       </div>
+
+                      <div
+                        className={
+                          active === link.link
+                            ? "text-sm text-center text-black"
+                            : "text-sm text-center text-gray"
+                        }
+                      >
+                        {link.label}
+                      </div>
                     </div>
-                    <div className={active === link.label ? 'text-sm text-center text-black' : 'text-sm text-center text-gray'}>
-                      {link.label}
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            ))}
           </nav>
         );
       })}
     </header>
+
   );
 }
 

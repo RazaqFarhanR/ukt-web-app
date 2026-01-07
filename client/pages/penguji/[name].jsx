@@ -141,7 +141,7 @@ const detail_event = () => {
                 } else {
                     searchSiswa();
                 }
-            }, 1000); // Adjust the interval time (in milliseconds) as per your requirement
+            }, 1000); 
         };
 
         delayedSearch();
@@ -229,7 +229,7 @@ const detail_event = () => {
                         </svg>
                     </button>
                 </div>
-                <MainNavigation active={active} setActive={setActive}/>
+                <MainNavigation active={active} setActive={setActive} tipeUkt={dataEvent.tipe_ukt}/>
                 </div>
             </div>
             

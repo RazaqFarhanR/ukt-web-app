@@ -64,7 +64,6 @@ const rekap_nilai_ukt_ukt_hijau = () => {
         const token = localStorage.getItem('token')
         await axios.get(BASE_URL + `ukt_siswa/rayon/${eventId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res.data.data)
                 setDataRayon(res.data.data)
             })
             .catch(err => {
@@ -81,19 +80,18 @@ const rekap_nilai_ukt_ukt_hijau = () => {
 
     const getDataUktFiltered = async () => {
         const token = localStorage.getItem('token')
-        const rayonData = dataRayon.map(item => item.value); 
-        const formRayon = rayon.length === 0 ? rayonData : rayon
+        const event = JSON.parse(localStorage.getItem('event'));
         let form = {
-            event: eventId,
-            ranting: [idRanting],
-            rayon: formRayon,
+            event: event.id_event,
+            tipeUkt: event.tipe_ukt,
             jenis: jenis,
-            updown: updown
+            updown: updown,
+            ranting: [idRanting]
         }
         setLoading(true);
-        await axios.post(BASE_URL + `ukt_siswa/ukt/filter`, form, { headers: { Authorization: `Bearer ${token}` } })
+        
+        await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res)
                 setDataUkt(res.data.data)
             })
             .catch(err => {
@@ -103,7 +101,6 @@ const rekap_nilai_ukt_ukt_hijau = () => {
             .finally(() => {
                 setLoading(false);
             });
-
     }
     function formatNumber(number) {
         return (number % 1 === 0)
@@ -129,12 +126,10 @@ const rekap_nilai_ukt_ukt_hijau = () => {
     const getDataByName = () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
-        console.log("getdatabyname")
 
         setLoading(true);
         axios.get(BASE_URL + `ukt_siswa/name/${name}/${event.id_event}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res);
                 setDataUkt(res.data.data)
             })
             .catch(err => {
@@ -148,7 +143,6 @@ const rekap_nilai_ukt_ukt_hijau = () => {
     let timeoutId = null;
 
     useEffect(() => {
-        console.log(name)
         if (name != null) {
             const delay = 500; // Adjust the delay time (in milliseconds) as per your requirement
 
@@ -170,7 +164,6 @@ const rekap_nilai_ukt_ukt_hijau = () => {
     }, [])
 
     useEffect(() => {
-        console.log(rayon)
         getDataUktFiltered()
     }, [`${dataRanting}`, jenis, updown, rayon])
 
@@ -361,16 +354,16 @@ const rekap_nilai_ukt_ukt_hijau = () => {
                                             dataUkt?.map((item, index) => (
                                                 <tr key={index + 1} className={'text-white text-center even:bg-darkBlue border-t border-gray-100 border font-bold'}>
                                                     <td className='border-b-2 py-3 border-gray text-purple font-bold border'>{index + 1}</td>
-                                                    <td className='border-b-2 border-gray text-left border px-2'>{item.siswa_ukt_siswa.name} [{item.siswa_ukt_siswa.nomor_urut}]</td>
-                                                    <td className='border-b-2 border-gray border'>{item?.rayon}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item.keshan < 50 && 'text-[#ca3030]'} ${item.keshan > 89.99 && 'text-[#7dff5d]'}`}>{(item.keshan)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item.senam < 50 && 'text-[#ca3030]'} ${item.senam > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item.senam)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item.jurus < 50 && 'text-[#ca3030]'} ${item.jurus > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item.jurus)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item.teknik < 50 && 'text-[#ca3030]'} ${item.teknik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item.teknik)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item.fisik < 50 && 'text-[#ca3030]'} ${item.fisik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item.fisik)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item.sambung < 50 && 'text-[#ca3030]'} ${item.sambung > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item.sambung)}</td>
-                                                    <td className={`border-b-2 border-gray border font-bold text-lg ${((item.keshan + item.senam + item.jurus + item.fisik + item.teknik + item.sambung) / 6) < 50 && 'bg-[#371b1b]'} ${((item.keshan + item.senam + item.jurus + item.fisik + item.teknik + item.sambung) / 6) > 89.99 && 'bg-[#1f371b]'} `}>
-                                                        {((item.keshan + item.senam + item.jurus + item.fisik + item.teknik + item.sambung) / 6).toLocaleString('id', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}
+                                                    <td className='border-b-2 border-gray text-left border px-2'>{item?.name} [{item?.nomor_urut}]</td>
+                                                    <td className='border-b-2 border-gray border text-xs'>{item?.ranting}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.keshan < 50 && 'text-[#ca3030]'} ${item?.keshan > 89.99 && 'text-[#7dff5d]'}`}>{(item?.keshan)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.senam < 50 && 'text-[#ca3030]'} ${item?.senam > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.senam)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.jurus < 50 && 'text-[#ca3030]'} ${item?.jurus > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.jurus)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.teknik < 50 && 'text-[#ca3030]'} ${item?.teknik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.teknik)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.fisik < 50 && 'text-[#ca3030]'} ${item?.fisik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.fisik)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.sambung < 50 && 'text-[#ca3030]'} ${item?.sambung > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambung)}</td>
+                                                    <td className={`border-b-2 border-gray border font-bold text-lg ${item?.total < 50 && 'bg-[#371b1b]'} ${item?.total > 89.99 && 'bg-[#1f371b]'} `}>
+                                                        {(item?.total)}
                                                     </td>
                                                 </tr>
                                             )
