@@ -121,7 +121,6 @@ const rekap_nilai_ukt_ukcw = () => {
         }
     
         const handleUpdate = (data) => {
-            console.log('📡 Update nilai:', data);
             getDataUktFiltered()
         };
     
@@ -135,8 +134,6 @@ const rekap_nilai_ukt_ukcw = () => {
     
 
     useEffect(() => {
-        // console.log(jenis)
-        console.log("updown" + updown)
         getDataUktFiltered()
     }, [`${dataRanting}`, jenis, updown])
 

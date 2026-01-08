@@ -2,7 +2,11 @@ const models = require('../../models/index');
 const ukt_siswa = models.ukt_siswa;
 
 const { Sequelize, Op, or } = require("sequelize");
-
+function formatNumber(number) {
+        return (number % 1 === 0)
+            ? number
+            : number.toLocaleString('id', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 module.exports = {
     controllerGetAll: async (req, res) => {
         ukt_siswa.findAll()
@@ -188,7 +192,7 @@ module.exports = {
                 return;
         }
         const tipe = tipeUkt == "UKCW"
-            ? 2 : tipeUkt == "UKT PUTIH"
+            ? 2 : tipeUkt == "UKT Putih"
                 ? 2 : 1
         const attribute1 = ['id_ukt_siswa', 'id_siswa', 'nomor_urut', 'name', 'ranting', 'keshan', 'senam', 'jurus', 'teknik', 'fisik', 'sambung']
         const attribute2 = ['id_ukt_siswa', 'id_siswa', 'nomor_urut', 'name', 'ranting', 'keshan', 'senam', 'senam_toya', 'jurus', 'jurus_toya', 'teknik', 'fisik', 'belati', 'kripen', 'sambung']
@@ -233,7 +237,7 @@ module.exports = {
                             keshan: item.keshan,
                             senam: item.senam,
                             jurus: item.jurus,
-                            teknik: item.teknik,
+                            teknik: formatNumber(item.teknik),
                             fisik: item.fisik,
                             sambung: item.sambung,
                             total: (
@@ -260,7 +264,7 @@ module.exports = {
                         senam_toya: item.senam_toya,
                         jurus: item.jurus,
                         jurus_toya: item.jurus_toya,
-                        teknik: item.teknik,
+                        teknik: formatNumber(item.teknik),
                         fisik: item.fisik,
                         sambung: item.sambung,
                         belati: item.belati,
