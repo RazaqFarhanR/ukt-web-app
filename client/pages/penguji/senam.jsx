@@ -108,8 +108,9 @@ const senam = () => {
         if (alert == true) {
             axios.post(BASE_URL + `senam_detail/exam`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
                 .then(async res => {
-
-                    socket.emit('pushRekap')
+                    socket.emit('submit_nilai', {
+                        event_id: dataSiswa.id_event
+                    });
                     router.back()
                 })
         } else {
@@ -125,15 +126,15 @@ const senam = () => {
         const socket = getSocket();
 
         if (!socket.connected) {
-          socket.connect();
-          socket.emit('join_event', {
-            role: 'penguji',
-            event_id: dataSiswa.id_event,
-          });
+            socket.connect();
+            socket.emit('join_event', {
+                role: 'penguji',
+                event_id: dataSiswa.id_event,
+            });
         }
-    
+
         return () => {
-          socket.disconnect();
+            socket.disconnect();
         };
     }, [])
 

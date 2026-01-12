@@ -75,7 +75,9 @@ const fisik = () => {
             }
             axios.post(BASE_URL + `fisik/exam`, data, { headers: { Authorization: `Bearer ${token}` } },)
                 .then((res) => {
-                    socket.emit('pushRekap')
+                    socket.emit('submit_nilai', {
+                        event_id: dataSiswa.id_event
+                    });
                     router.back()
                 })
                 .catch((error) => {
@@ -87,6 +89,21 @@ const fisik = () => {
     }
     useEffect(() => {
         getDataSiswa()
+         const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
+
+        const socket = getSocket();
+
+        if (!socket.connected) {
+            socket.connect();
+            socket.emit('join_event', {
+            role: 'penguji',
+            event_id: dataSiswa.id_event,
+            });
+        }
+    
+        return () => {
+            socket.disconnect();
+        };
     }, [])
 
     // function untuk timer

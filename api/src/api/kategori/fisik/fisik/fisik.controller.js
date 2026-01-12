@@ -235,7 +235,7 @@ module.exports = {
         const nilaiUktNew = nilaiUkt > 100 ? 100 : nilaiUkt
         await uktSiswa.update(
             {
-                nilai_ukt: nilaiUktNew
+                fisik: nilaiUktNew
             },
             {
                 where: {
