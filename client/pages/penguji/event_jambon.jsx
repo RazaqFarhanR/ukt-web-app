@@ -57,7 +57,7 @@ const event = () => {
                                 <div className="hover:scale-105 transition ease-in-out duration-500 hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5 mb-4">
                                     <div className="bg-navy shadow drop-shadow-lg rounded-md p-5 text-center">
                                         <h1 className='text-xl font-semibold text-green tracking-wide'>{item.name}</h1>
-                                        <h1 className='text-white tracking-wider'>30 Siswa</h1>
+                                        <h1 className='text-white tracking-wider'>{item.jumlah_siswa}</h1>
                                     </div>
                                 </div>
                             </button> 
