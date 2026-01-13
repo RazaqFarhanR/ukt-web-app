@@ -48,9 +48,9 @@ const siswa = () => {
     // }
 
     const dataTipe = [
-        { name: 'UKT Jambon' },
-        { name: 'UKT Hijau' },
-        { name: 'UKT Putih' },
+        { name: 'UKT Jambon', color: 'bg-purple' },
+        { name: 'UKT Hijau', color: 'bg-green' },
+        { name: 'UKT Putih', color: 'bg-white' },
         { name: 'UKCW' },
     ]
 
@@ -154,7 +154,7 @@ const siswa = () => {
 
                             {/* card ranting */}
                             {dataTipe.map((item, index) => (
-                                <button onClick={() => setTipe(item.name)} key={index + 1} className="bg-navy hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5">
+                                <button onClick={() => setTipe(item.name)} key={index + 1} className={item.color + " hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5"}>
 
                                     {/* inner bg */}
                                     <div className="bg-navy p-5 rounded-md space-y-5">
