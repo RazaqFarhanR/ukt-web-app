@@ -82,7 +82,7 @@ const ukt_hijau = () => {
         localStorage.setItem ('event', JSON.stringify (item))
         router.push({
             pathname: './ranting/event/rekap_nilai_' + idTipe,
-            query: { eventId: item.id_event, idRanting: item.id_ranting, nameEvent:item.name } // Add your parameter here
+            query: { eventId: item.id_event, idRanting: idRanting, nameEvent:item.name } // Add your parameter here
         });
     }
 
@@ -91,7 +91,7 @@ const ukt_hijau = () => {
         localStorage.setItem ('event', JSON.stringify (item))
         router.push({
             pathname: './ranting/event/detail_nilai_' + idTipe,
-            query: { eventId: item.id_event, idRanting: item.id_ranting, nameEvent:item.name } // Add your parameter here
+            query: { eventId: item.id_event, idRanting: idRanting, nameEvent:item.name } // Add your parameter here
         });
     }
 
@@ -105,7 +105,7 @@ const ukt_hijau = () => {
     useEffect (() => {
         getDataEvent ()
         isLogged ()
-    }, [])
+    }, [idRanting])
 
     return (
         <>

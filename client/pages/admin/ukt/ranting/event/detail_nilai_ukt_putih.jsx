@@ -32,7 +32,7 @@ const detail_nilai_ukt_putih = () => {
     }
 
     let activeComponent;
-    const data = { tipe_ukt: "UKT PUTIH", ranting: ranting }
+    const data = { tipe_ukt: "UKT PUTIH", ranting: idRanting }
     if (active === 'senam') {
         activeComponent = <Senam data={data} />;
     } else if (active === 'jurus') {
