@@ -65,6 +65,17 @@ const detail_siswa = () => {
         setEvent (dataEvent.id_event)
     }
 
+    const nonAktifkanAll = () => {
+        const token = localStorage.getItem ('token')
+        axios.get(BASE_URL + `siswa/event/non_aktifkan/${eventId}` , { headers: { Authorization: `Bearer ${token}`}})
+        .then (res => {
+            
+        })
+        .catch (err => {
+            console.log(err.message);
+        })
+    }
+
     // function modal edit
     const editModal = (selectedItem) => {
         setShowModalSiswa (true)
@@ -151,6 +162,10 @@ const detail_siswa = () => {
                                 {/* button add data */}
                                 <button onClick={() => addModal()} className="bg-purple hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
                                     <h1>Tambah Data</h1>
+                                </button>
+                                {/* button add data */}
+                                <button onClick={() => nonAktifkanAll()} className="bg-red hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
+                                    <h1>nonaktifkan Data</h1>   
                                 </button>
                             </div>
                         </div>

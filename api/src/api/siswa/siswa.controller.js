@@ -62,13 +62,8 @@ module.exports = {
             where: {
                 id_event: req.params.id
             },
+            attributes: ['id_siswa', 'nomor_urut', 'name', 'rayon', 'jenis_kelamin', 'jenis_latihan'],
             include: [
-                {
-                    model: ranting,
-                    as: "siswa_ranting",
-                    attributes: ['name'],
-                    required: false,
-                },
                 {
                     model: event,
                     as: "siswa_event",
@@ -81,6 +76,28 @@ module.exports = {
                 res.json({
                     count: siswa.length,
                     data: siswa
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
+    controllerDisabledByEvent: async (req, res) => {
+        siswa.update(
+            {
+                active: 0   // <-- columns to update
+            },
+            {
+                where: {
+                    id_event: req.params.id
+                }
+            }
+        )
+            .then(item => {
+                res.json({
+                    message: "Siswa Updated Successfully"
                 })
             })
             .catch(error => {

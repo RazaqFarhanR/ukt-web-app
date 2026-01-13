@@ -15,37 +15,10 @@ const siswa = () => {
     const router = useRouter()
 
     // state
-    const [dataRanting, setDataRanting] = useState([])
     const [showModalCSV, setShowModalCSV] = useState(false);
 
     const [tipe, setTipe] = useState('')
     const [dataEvent, setDataEvent] = useState([])
-
-    // function get data ranting
-    // const getDataRanting = () => {
-    //     const admin = JSON.parse(localStorage.getItem('admin'))
-    //     const token = localStorage.getItem('token')
-
-    //     if (admin.id_role == 'admin cabang' || admin.id_role == 'super admin') {
-    //         axios.get(BASE_URL + `siswa/count`, { headers: { Authorization: `Bearer ${token}` } })
-    //             .then(res => {
-    //                 setDataRanting(res.data.data)
-    //                 setRanting(res.data.data.id_ranting)
-    //             })
-    //             .catch(err => {
-    //                 console.log(err.message);
-    //             })
-    //     } else {
-    //         axios.get(BASE_URL + `ranting/${admin.id_ranting}`, { headers: { Authorization: `Bearer ${token}` } })
-    //             .then(res => {
-    //                 setDataRanting(res.data.data)
-    //                 setRanting(res.data.data.name)
-    //             })
-    //             .catch(err => {
-    //                 console.log(err.message);
-    //             })
-    //     }
-    // }
 
     const dataTipe = [
         { name: 'UKT Jambon', color: 'bg-purple' },
@@ -143,10 +116,6 @@ const siswa = () => {
                                 onClick={() => setShowModalCSV(true)}
                                 className="bg-purple hover:bg-indigo-600 rounded-md px-5 py-2 flex items-center gap-x-2 w-72">
                                 ADD VIA CSV
-                                {/* <svg className='z-50' width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg> */}
                             </button>
                         </div>
                         {/* PILIH TIPE UKT $$$ */}
