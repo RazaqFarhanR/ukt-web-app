@@ -27,6 +27,7 @@ const penguji_ranting = () => {
     const [dataRanting, setDataRanting] = useState([])
     const [modalFilter, setModalFilter] = useState(false)
     const [newWeb, setNewWeb] = useState('')
+    const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(false);
 
 
@@ -43,7 +44,7 @@ const penguji_ranting = () => {
     const [foto, setFoto] = useState('')
 
     // function get data penguji cabang
-    const getDataPengujiRanting  = async () => {
+    const getDataPengujiRanting = async () => {
         const token = localStorage.getItem('token')
         // console.log('webquery')
         // console.log(web)
@@ -54,16 +55,34 @@ const penguji_ranting = () => {
             id_role: 'penguji ranting'
         }
         axios.post(BASE_URL + `penguji/pengujiperranting`, form, { headers: { Authorization: `Bearer ${token}` } })
+        .then(res => {
+            setDataPengujiRanting(res.data.data)
+        })
+        .catch(err => {
+            console.log(err.message);
+        })
+    }
+    
+    const searchPenguji = (e) => {
+        e.preventDefault(); 
+        const token = localStorage.getItem('token')
+        setNewWeb(web)
+        const form = {
+            id_ranting: web ? web : newWeb,
+            name: search,
+            id_role: 'penguji ranting'
+        }
+        axios.post(BASE_URL + `penguji/pengujiperranting`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataPengujiRanting(res.data.data)
             })
             .catch(err => {
                 console.log(err.message);
             })
-    }
+    };
 
     const getRole = () => {
-        const role = JSON.parse (localStorage.getItem ('admin'))
+        const role = JSON.parse(localStorage.getItem('admin'))
         setAdminRole(role.id_role)
     }
 
@@ -167,7 +186,15 @@ const penguji_ranting = () => {
                                         <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
-                                    <input className='bg-transparent placeholder:text-white placeholder:tracking-wider placeholder:text-sm w-full focus:outline-none' placeholder='Search' type="text" />
+                                    <form onSubmit={searchPenguji}>
+                                        <input
+                                            type="text"
+                                            value={search}
+                                            onChange={(e) => setSearch(e.target.value)}
+                                            placeholder="Search"
+                                            className="bg-transparent placeholder:text-white placeholder:tracking-wider placeholder:text-sm w-full focus:outline-none"
+                                        />
+                                    </form>
                                 </div>
 
                                 <button onClick={() => addModal()} className="bg-purple hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">

@@ -140,12 +140,23 @@ module.exports = {
     },
     controllerGetByRanting: async (req, res) => {
         try {
-            let result = await penguji.findAll({
-                where: {
-                    id_ranting: req.body.id_ranting,
-                    id_role: req.body.id_role,
-                    createdAt: { [Op.gt]: d }
-                }
+            const { id_ranting, id_role, name } = req.body;
+
+            let whereClause = {
+                id_ranting,
+                id_role,
+                createdAt: { [Op.gt]: d }
+            };
+
+            // only add name filter if name is not empty
+            if (name && name.trim() !== "") {
+                whereClause.name = {
+                    [Op.like]: `%${name}%`
+                };
+            }
+
+            const result = await penguji.findAll({
+                where: whereClause
             });
             if (result) {
                 res.json({
@@ -222,7 +233,7 @@ module.exports = {
             const { id, tipe } = req.body;
             const data = tipe == 'individu' ? {
                 id_penguji: id
-            } : { id_ranting: id}
+            } : { id_ranting: id }
             const [updated] = await penguji.update(
                 { active: 0 },
                 { where: data }
