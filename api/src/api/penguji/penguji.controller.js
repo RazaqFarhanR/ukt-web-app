@@ -121,22 +121,36 @@ module.exports = {
         }
     },
     controllerGetCountPenguji: async (req, res) => {
-        penguji.findAll({
-            where: { createdAt: { [Op.gt]: d } },
-            attributes: ['id_ranting', [Sequelize.fn('COUNT', Sequelize.col('id_ranting')), 'count']],
-            group: ['id_ranting']
-        })
-            .then(result => {
-                res.json({
-                    count: result.length,
-                    data: result
-                });
+        try {
+            const result = await penguji.findAll({
+                where: {
+                    createdAt: { [Op.gt]: d }
+                },
+                attributes: [
+                    'id_ranting',
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = true THEN 1 ELSE 0 END)`
+                        ),
+                        'count_active'
+                    ],
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = false THEN 1 ELSE 0 END)`
+                        ),
+                        'count_disabled'
+                    ]
+                ],
+                group: ['id_ranting']
             })
-            .catch(error => {
-                res.json({
-                    message: error.message
-                })
+
+            res.json({
+                count: result.length,
+                data: result
             })
+        } catch (error) {
+            res.json({ message: error.message })
+        }
     },
     controllerGetByRanting: async (req, res) => {
         try {

@@ -32,6 +32,7 @@ const penguji_ranting = () => {
 
 
     const [action, setAction] = useState('')
+    const [active, setActive] = useState(0)
     const [idPengujiRanting, setIdPengujiRanting] = useState('')
     const [niw, setNiw] = useState('')
     const [name, setName] = useState('')
@@ -97,6 +98,7 @@ const penguji_ranting = () => {
         setPassword('')
         setNoWa('')
         setRole('penguji ranting')
+        setActive(0)
         setFoto()
     }
 
@@ -112,6 +114,7 @@ const penguji_ranting = () => {
         setPassword(selectedItem.password)
         setNoWa(selectedItem.no_wa)
         setRole('penguji ranting')
+        setActive(1)
         setFoto(selectedItem.foto)
     }
 
