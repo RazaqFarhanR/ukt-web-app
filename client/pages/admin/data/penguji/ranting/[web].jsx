@@ -102,6 +102,11 @@ const penguji_ranting = () => {
         setAction('deletePengujiRanting')
         setIdPengujiRanting(selectedId)
     }
+    const deleteRantingModal = () => {
+        setShowModalDelete(true)
+        setAction('deletePengujiRantingTipeRanting')
+        setIdPengujiRanting(newWeb)
+    }
 
     // function login checker
     const isLogged = () => {
@@ -167,6 +172,9 @@ const penguji_ranting = () => {
 
                                 <button onClick={() => addModal()} className="bg-purple hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
                                     <h1>Tambah Data</h1>
+                                </button>
+                                <button onClick={() => deleteRantingModal()} className="bg-red hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
+                                    <h1>Non Aktifkan Semua</h1>
                                 </button>
                             </div>
                         </div>

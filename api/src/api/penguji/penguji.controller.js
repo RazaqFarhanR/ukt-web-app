@@ -123,7 +123,7 @@ module.exports = {
     controllerGetCountPenguji: async (req, res) => {
         penguji.findAll({
             where: { createdAt: { [Op.gt]: d } },
-            attributes: ['id_ranting',  [Sequelize.fn('COUNT', Sequelize.col('id_ranting')), 'count']],
+            attributes: ['id_ranting', [Sequelize.fn('COUNT', Sequelize.col('id_ranting')), 'count']],
             group: ['id_ranting']
         })
             .then(result => {
@@ -144,7 +144,7 @@ module.exports = {
                 where: {
                     id_ranting: req.body.id_ranting,
                     id_role: req.body.id_role,
-                    createdAt: { [Op.gt]: d }   
+                    createdAt: { [Op.gt]: d }
                 }
             });
             if (result) {
@@ -217,6 +217,32 @@ module.exports = {
                 });
             });
     },
+    controllerDisabledById: async (req, res) => {
+        try {
+            const { id, tipe } = req.body;
+            const data = tipe == 'individu' ? {
+                id_penguji: id
+            } : { id_ranting: id}
+            const [updated] = await penguji.update(
+                { active: 0 },
+                { where: data }
+            );
+            if (updated === 0) {
+                return res.status(404).json({
+                    message: "Penguji not found"
+                });
+            }
+
+            res.status(200).json({
+                message: `Penguji disabled successfully`,
+                id
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
     controllerAdd: async (req, res) => {
         const Ranting = models.ranting;
         const hash = await bcrypt.hash(req.body.password, salt);
@@ -278,7 +304,7 @@ module.exports = {
             .on('data', (data) => results.push(data))
             .on('end', async () => {
                 const promises = [];
-                
+
                 for (const data of results) {
                     const values = Object.values(data);
                     const hash = await bcrypt.hash(values[7], salt);
@@ -290,7 +316,7 @@ module.exports = {
                         id_cabang: 'jatim',
                         username: values[5],
                         foto: "default.png",
-                        password:  hash,
+                        password: hash,
                         no_wa: values[8],
                     };
                     promises.push(penguji.create(newData));
@@ -316,66 +342,66 @@ module.exports = {
 
     controllerAuth: async (req, res) => {
         try {
-          const { username, password } = req.body;
-      
-          // Validasi input
-          if (!username || !password) {
-            return res.status(400).json({ message: "Username dan password wajib diisi" });
-          }
-      
-          const users = await penguji.findAll({
-            where: { 
-              username,
-              createdAt: { [Op.gt]: d }
-            },
-            include: [
-              {
-                model: ranting,
-                as: "penguji_ranting",
-                attributes: ["name"],
-              },
-            ],
-          });
-      
-          if (!users || users.length === 0) {
-            return res.status(401).json({ message: "Username tidak ditemukan" });
-          }
-      
-          let matchedUser = null;
-          for (let user of users) {
-            const match = await bcrypt.compare(password, user.password);
-            if (match) {
-              matchedUser = user;
-              break;
+            const { username, password } = req.body;
+
+            // Validasi input
+            if (!username || !password) {
+                return res.status(400).json({ message: "Username dan password wajib diisi" });
             }
-          }
-      
-          if (!matchedUser) {
-            return res.status(401).json({ message: "Password salah" });
-          }
-      
-          const allowedRoles = ["penguji cabang", "penguji ranting"];
-          if (!allowedRoles.includes(matchedUser.id_role)) {
-            return res.status(403).json({ message: "Kamu bukan penguji yang berwenang" });
-          }
-      
-          const token = jwt.sign(
-            { idUser: matchedUser.id_penguji, role: matchedUser.id_role },
-            process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "1d" }
-          );
-      
-          return res.json({
-            logged: true,
-            data: matchedUser,
-            token,
-          });
-      
+
+            const users = await penguji.findAll({
+                where: {
+                    username,
+                    createdAt: { [Op.gt]: d }
+                },
+                include: [
+                    {
+                        model: ranting,
+                        as: "penguji_ranting",
+                        attributes: ["name"],
+                    },
+                ],
+            });
+
+            if (!users || users.length === 0) {
+                return res.status(401).json({ message: "Username tidak ditemukan" });
+            }
+
+            let matchedUser = null;
+            for (let user of users) {
+                const match = await bcrypt.compare(password, user.password);
+                if (match) {
+                    matchedUser = user;
+                    break;
+                }
+            }
+
+            if (!matchedUser) {
+                return res.status(401).json({ message: "Password salah" });
+            }
+
+            const allowedRoles = ["penguji cabang", "penguji ranting"];
+            if (!allowedRoles.includes(matchedUser.id_role)) {
+                return res.status(403).json({ message: "Kamu bukan penguji yang berwenang" });
+            }
+
+            const token = jwt.sign(
+                { idUser: matchedUser.id_penguji, role: matchedUser.id_role },
+                process.env.ACCESS_TOKEN_SECRET,
+                { expiresIn: "1d" }
+            );
+
+            return res.json({
+                logged: true,
+                data: matchedUser,
+                token,
+            });
+
         } catch (error) {
-          console.error("Login error:", error);
-          return res.status(500).json({ message: "Terjadi kesalahan pada server" });
+            console.error("Login error:", error);
+            return res.status(500).json({ message: "Terjadi kesalahan pada server" });
         }
-    },      
+    },
     controllerEdit: async (req, res) => {
         const password = req.body.password == null ? 'check' : req.body.password
         const hash = await bcrypt.hash(password, salt);
@@ -412,11 +438,11 @@ module.exports = {
                 }
                 if (req.file) {
                     const oldImagePath = localStorage + result[0].foto;
-                    
+
                     if (result[0].foto !== 'default.png') {
                         fs.unlink(oldImagePath, (err) => {
                             if (err) {
-                                console.error(err); 
+                                console.error(err);
                                 return;
                             }
                             // console.log('User image deleted successfully');
@@ -481,38 +507,38 @@ module.exports = {
         penguji.findOne({
             where: param
         })
-        .then(result => {
-            if (result.foto) {
-                const oldImagePath = localStorage + result.foto;
-                
-                if (result.foto !== 'default.png') {                    
-                    fs.unlink(oldImagePath, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        // console.log('User image deleted successfully');
-                    });
-                } else {
-                    // console.log('Skipping delete for default.png');
+            .then(result => {
+                if (result.foto) {
+                    const oldImagePath = localStorage + result.foto;
+
+                    if (result.foto !== 'default.png') {
+                        fs.unlink(oldImagePath, (err) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            // console.log('User image deleted successfully');
+                        });
+                    } else {
+                        // console.log('Skipping delete for default.png');
+                    }
                 }
-            }
-            penguji.destroy({ where: param })
-                .then(result => {                    
-                    res.json({
-                        massege: "data has been deleted"
+                penguji.destroy({ where: param })
+                    .then(result => {
+                        res.json({
+                            massege: "data has been deleted"
+                        })
                     })
-                })
-                .catch(error => {
-                    res.json({
-                        message: error.message
+                    .catch(error => {
+                        res.json({
+                            message: error.message
+                        })
                     })
-                })
-        })
-        .catch(error => {
-            res.json({
-                message: error.message
             })
-        })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
     },
 }
