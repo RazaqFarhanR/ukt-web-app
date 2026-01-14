@@ -67,9 +67,6 @@ const fisik = () => {
                                             <rect width="77" height="77" rx="3" fill="#FF32DE"/>
                                         </svg>
                                     </div>
-
-                                    {/* data count */}
-                                    <h1 className='text-white text-4xl font-semibold tracking-wider'>1180</h1>
                                 </div>
                             </Link>
 
@@ -86,9 +83,6 @@ const fisik = () => {
                                             <rect width="77" height="77" rx="3" fill="#0B8800"/>
                                         </svg>
                                     </div>
-
-                                    {/* data count */}
-                                    <h1 className='text-white text-4xl font-semibold tracking-wider'>1180</h1>
                                 </div>
                             </Link>
 
@@ -105,9 +99,6 @@ const fisik = () => {
                                             <rect width="77" height="77" rx="3" fill="#FFFFFF"/>
                                         </svg>
                                     </div>
-
-                                    {/* data count */}
-                                    <h1 className='text-white text-4xl font-semibold tracking-wider'>1180</h1>
                                 </div>
                             </Link>
 
@@ -125,9 +116,6 @@ const fisik = () => {
                                         </svg>
 
                                     </div>
-
-                                    {/* data count */}
-                                    <h1 className='text-white text-4xl font-semibold tracking-wider'>1180</h1>
                                 </div>
                             </Link>
 

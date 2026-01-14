@@ -16,6 +16,20 @@ module.exports = {
                 });
             });
     },
+    controllerGetCountByTipeUkt: async (req, res) => {
+        standar_fisik
+            .findAll({
+                order: [['tipe_ukt', 'ASC'], ['peserta', 'ASC']],
+            })
+            .then((standar_fisik) => {
+                res.json(standar_fisik);
+            })
+            .catch((error) => {
+                res.json({
+                    message: error.message,
+                });
+            });
+    },
     controllerGetByPeserta: async (req, res) => {
         standar_fisik
             .findOne({
