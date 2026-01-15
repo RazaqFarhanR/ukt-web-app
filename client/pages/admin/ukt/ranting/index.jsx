@@ -105,7 +105,7 @@ const ukt_hijau = () => {
     useEffect (() => {
         getDataEvent ()
         isLogged ()
-    }, [idRanting])
+    }, [idRanting, idUkt, idTipe])
 
     return (
         <>

@@ -551,13 +551,15 @@ module.exports = {
                     break;
                 }
             }
-
             if (!matchedUser) {
                 return res.status(401).json({ message: "Password salah" });
             }
 
             const allowedRoles = ["penguji cabang", "penguji ranting"];
             if (!allowedRoles.includes(matchedUser.id_role)) {
+                return res.status(403).json({ message: "Kamu bukan penguji yang berwenang" });
+            }
+            if (matchedUser.active === false) {
                 return res.status(403).json({ message: "Kamu bukan penguji yang berwenang" });
             }
 

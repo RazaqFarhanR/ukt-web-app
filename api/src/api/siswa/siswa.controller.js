@@ -502,7 +502,7 @@ module.exports = {
                     //set payload from data
                     // console.log(result)
                     const data = result
-                    if (result.id_role === "siswa") {
+                    if (result.id_role === "siswa" && result.active === true) {
                         const idUser = result.id_user;
                         const role = result.id_role;
 
@@ -515,7 +515,7 @@ module.exports = {
                         });
 
                     } else {
-                        res.status(404).json({ message: "Kamu Bukan Penguji" });
+                        res.status(404).json({ message: "Kamu Bukan Siswa berwenang" });
                     }
                 } else {
                     //tidak ditemukan

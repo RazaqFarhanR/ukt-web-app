@@ -74,48 +74,49 @@ const index = () => {
 
                     {/* konten utama */}
                     <div className="min-h-full bg-darkBlue px-4 py-8">
-                    {
-                        router.query.tipe === "ukcw" ? (
-                            <div className='h-auto overflow-y-auto px-5 py-7 grid grid-flow-row auto-rows-max gap-y-6'>
-                                {events.map((item, index) => (
-                                    <button
-                                        key={index + 1}
-                                        className='w-full bg-[#1B2537] py-5'
-                                        onClick={() => router.push(`/siswa/dev/ukcw/${router.query.tipe}/${encryptId(item.id_event)}`)}
-                                    >
-                                        <h1 className='text-[#42C6A3] text-3xl font-[600] tracking-wide text-center'>{item.name}</h1>
-                                    </button>
-                                ))}
-                            </div>
-                        )
-                            :
-                            (
-                                <div className='h-auto overflow-y-auto px-5 py-7 grid grid-flow-row auto-rows-max gap-y-6 '>
-                                    {/* card ranting */}
-                                    {!errMsg && dataRanting ? (
-                                        dataRanting.map((item, index) => (
-                                            <button key={index + 1} onClick={() => router.push({ pathname: `/siswa/${router.query.tipe}/${(item.name).toLowerCase()}` })} className='sm:w-full lg:w-1/3 bg-[#1B2537] py-5'>
-
-                                                {/* inner bg */}
-                                                <div className="bg-navy p-5 rounded-md">
-
-                                                    {/* ranting name */}
-                                                    <h1 className='text-green text-center text-2xl'>RANTING</h1>
-                                                    <h1 className='text-green text-center text-2xl '>{item.name}</h1>
-
-                                                </div>
-                                            </button>
-                                        ))
-                                    )
-                                        :
-                                        (
-                                            <h1 className='text-2xl text-white'>{errMsg}</h1>
-                                        )
-                                    }
+                        {
+                            router.query.tipe === "ukcw" ? (
+                                <div className='h-auto overflow-y-auto px-5 py-7 grid grid-flow-row auto-rows-max gap-y-6'>
+                                    {events.map((item, index) => (
+                                        <button
+                                            key={index + 1}
+                                            className='w-full bg-[#1B2537] py-5'
+                                            onClick={() => router.push(`/siswa/dev/ukcw/${router.query.tipe}/${encryptId(item.id_event)}`)}
+                                        >
+                                            <h1 className='text-[#42C6A3] text-3xl font-[600] tracking-wide text-center'>{item.name}</h1>
+                                        </button>
+                                    ))}
                                 </div>
                             )
-                    }
-                    </div>  
+                                :
+                                (
+                                    <div className="h-auto overflow-y-auto px-5 py-7 flex justify-center">
+                                        <div className="grid grid-flow-row auto-rows-max gap-y-6 w-full lg:max-w-4xl">
+                                            {!errMsg && dataRanting ? (
+                                                dataRanting.map((item, index) => (
+                                                    <button
+                                                        key={index + 1}
+                                                        onClick={() =>
+                                                            router.push({
+                                                                pathname: `/siswa/${router.query.tipe}/${item.name.toLowerCase()}`
+                                                            })
+                                                        }
+                                                        className="w-full bg-[#1B2537] py-5"
+                                                    >
+                                                        <div className="bg-navy p-5 rounded-md">
+                                                            <h1 className="text-green text-center text-2xl">RANTING</h1>
+                                                            <h1 className="text-green text-center text-2xl">{item.name}</h1>
+                                                        </div>
+                                                    </button>
+                                                ))
+                                            ) : (
+                                                <h1 className="text-2xl text-white">{errMsg}</h1>
+                                            )}
+                                        </div>
+                                    </div>
+                                )
+                        }
+                    </div>
                 </div>
             </div>
         </>

@@ -31,23 +31,23 @@ const siswa = () => {
         const admin = JSON.parse(localStorage.getItem('admin'))
         const token = localStorage.getItem('token')
 
-        if (tipe){
+        if (tipe) {
             if (admin.id_role === "admin ranting" && tipe !== "ukcw") {
                 axios.get(BASE_URL + `event/ukt/${tipe}/${admin.id_ranting}`, { headers: { Authorization: `Bearer ${token}` } })
-                .then(res => {
-                    setDataEvent(res.data.data)
-                })
-                .catch(err => {
-                    console.log(err.message);
-                })
+                    .then(res => {
+                        setDataEvent(res.data.data)
+                    })
+                    .catch(err => {
+                        console.log(err.message);
+                    })
             } else {
                 axios.get(BASE_URL + `event/ukt/${tipe}`, { headers: { Authorization: `Bearer ${token}` } })
-                .then(res => {
-                    setDataEvent(res.data.data)
-                })
-                .catch(err => {
-                    console.log(err.message);
-                })
+                    .then(res => {
+                        setDataEvent(res.data.data)
+                    })
+                    .catch(err => {
+                        console.log(err.message);
+                    })
             }
         }
     }
@@ -58,7 +58,7 @@ const siswa = () => {
 
     // function go to detail siswa
     const goToDetailSiswa = (item) => {
-        localStorage.setItem ('event', JSON.stringify (item))
+        localStorage.setItem('event', JSON.stringify(item))
         router.push({
             pathname: './detail_siswa',
             query: { eventId: item.id_event, name: item.name } // Add your parameter here
@@ -112,11 +112,18 @@ const siswa = () => {
                             </div>
 
                             {/* upload data siswa via CSV */}
-                            <button
-                                onClick={() => setShowModalCSV(true)}
-                                className="bg-purple hover:bg-indigo-600 rounded-md px-5 py-2 flex items-center gap-x-2 w-72">
-                                ADD VIA CSV
-                            </button>
+                            <div className='flex flex-row'>
+                                <button
+                                    onClick={() => setShowModalCSV(true)}
+                                    className="bg-white text-purple hover:bg-indigo-600 rounded-md px-5 py-2 flex items-center gap-x-2 w-72">
+                                    TEMPLATE CSV
+                                </button>
+                                <button
+                                    onClick={() => setShowModalCSV(true)}
+                                    className="bg-purple hover:bg-indigo-600 rounded-md px-5 py-2 flex items-center gap-x-2 w-72">
+                                    ADD VIA CSV
+                                </button>
+                            </div>
                         </div>
                         {/* PILIH TIPE UKT $$$ */}
                         {!tipe ? <div className="grid grid-cols-4 gap-x-5 gap-y-3">
@@ -139,8 +146,8 @@ const siswa = () => {
                                 {/* card ranting */}
                                 {dataEvent.map((item, index) => (
                                     <button onClick={() => goToDetailSiswa(item)}
-                                    key={index + 1} 
-                                    className="bg-navy hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5">
+                                        key={index + 1}
+                                        className="bg-navy hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5">
 
                                         {/* inner bg */}
                                         <div className="bg-navy p-5 rounded-md space-y-5">
