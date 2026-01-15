@@ -48,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true,
     },
+    active: DataTypes.BOOLEAN,
     NIW: DataTypes.STRING,
     name: DataTypes.STRING,
     id_role: DataTypes.STRING,

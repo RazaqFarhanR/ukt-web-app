@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false
     },
-    tipe_ukt: DataTypes.ENUM('UKT Jambon','UKT Hijau','UKT Putih','UKCW'),
+    tipe_ukt: DataTypes.ENUM('UKT Jambon', 'UKT Hijau', 'UKT Putih', 'UKCW'),
     id_event: DataTypes.INTEGER,
     id_siswa: {
       type: DataTypes.INTEGER,
@@ -40,6 +40,22 @@ module.exports = (sequelize, DataTypes) => {
     jurus: DataTypes.DOUBLE,
     fisik: DataTypes.DOUBLE,
     teknik: DataTypes.DOUBLE,
+    belati: {
+      type: DataTypes.DOUBLE,
+      allowNull: true
+    },
+    kripen: {
+      type: DataTypes.DOUBLE,
+      allowNull: true
+    },
+    senam_toya: {
+      type: DataTypes.DOUBLE,
+      allowNull: true
+    },
+    jurus_toya: {
+      type: DataTypes.DOUBLE,
+      allowNull: true
+    },
     sambung: DataTypes.INTEGER
   }, {
     sequelize,

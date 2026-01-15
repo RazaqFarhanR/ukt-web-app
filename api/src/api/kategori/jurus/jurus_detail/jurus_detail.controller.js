@@ -1,5 +1,7 @@
 const models = require('../../../../models/index');
 const jurus_detail = models.jurus_detail;
+const jurus_siswa = models.jurus_siswa;
+const ukt_siswa = models.ukt_siswa;
 
 module.exports = {
     controllerGetAll: async (req, res) => {
@@ -156,6 +158,58 @@ module.exports = {
                     message: error.message
                 })
             })
+    },
+    controllerAddExam: async (req, res) => {
+        try {
+            const {
+                id_penguji,
+                id_event,
+                id_siswa,
+                tipe_ukt,
+                ujian
+            } = req.body;
+            const detail = {
+                id_penguji,id_siswa,id_event,tipe_ukt
+            }
+            const processDetail = await jurus_detail.create(detail)
+            // mapping array ujian jadi banyak row
+            const data = ujian.map(item => ({
+                id_jurus_detail: processDetail.id_jurus_detail,
+                id_siswa,
+                id_jurus: item.id_jurus,
+                predikat: item.predikat
+            }));
+
+            await jurus_siswa.bulkCreate(data);
+
+            const total = data.length;
+            const predikat10 = data.filter(i => i.predikat === 2).length;
+            const predikat8 = data.filter(i => i.predikat === 1).length;
+
+            const examResult10 = predikat10 * (100 / total);
+            const examResult8 = predikat8 * (80 / total);
+            const examResult = examResult10 + examResult8;
+            const result1 = {
+                total: Number(examResult.toFixed(2)),
+                plus: Number(examResult10.toFixed(2)),
+                benar: Number(examResult8.toFixed(2))
+            };
+
+            await ukt_siswa.update(
+                { jurus: examResult },
+                { where: { id_siswa: req.body.id_siswa } }
+            );
+
+            res.json({
+                message: "All exams inserted successfully",
+                data: result1
+            });
+
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
     },
     controllerEdit: async (req, res) => {
         let param = {

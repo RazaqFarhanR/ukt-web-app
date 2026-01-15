@@ -1,5 +1,7 @@
 const models = require('../../../../models/index');
 const teknik_detail = models.teknik_detail;
+const teknik_siswa = models.teknik_siswa;
+const ukt_siswa = models.ukt_siswa
 
 module.exports = {
     controllerGetAll: async (req, res) => {
@@ -22,7 +24,7 @@ module.exports = {
                 {
                     model: models.siswa,
                     as: "teknik_siswa",
-                    attributes: ['nomor_urut','name'],
+                    attributes: ['nomor_urut', 'name'],
                     where: {
                         [Op.or]: [
                             { name: { [Op.like]: `%${req.params.id}%` } },
@@ -235,6 +237,68 @@ module.exports = {
                     count: teknik.length,
                     teknik_benar: nilai.length,
                     data: teknik
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
+    controllerAddExam: async (req, res) => {
+        const { id_penguji, id_event, id_siswa, tipe_ukt} = req.body
+        const detail = {
+            id_penguji,
+            id_siswa,
+            id_event,
+            tipe_ukt,
+        }
+        const ArrayTeknik = req.body.data
+        console.log("data")
+        console.log(req.body.data)
+        const processDetail = await teknik_detail.create(detail)
+
+        const dataSiswa = await ArrayTeknik.map(item => ({
+            id_teknik_detail: processDetail.id_teknik_detail,
+            id_siswa,
+            id_teknik: item.id_teknik,
+            predikat: item.predikat
+        }));
+        console.log("array teknik")
+        console.log(dataSiswa)
+
+        await teknik_siswa.bulkCreate(dataSiswa)
+        const baik = dataSiswa.filter(i => i.predikat === "BAIK").length
+        const cukup = dataSiswa.filter(i => i.predikat === "CUKUP").length
+        const kurang = dataSiswa.filter(i => i.predikat === "KURANG").length
+
+        // -- redefine nilai -- //
+        const newBaik = baik * 3;
+        const newCukup = cukup * 2;
+        const newKurang = kurang;
+        // -- ukt siswa  -- //
+        const nilaiUkt = (newBaik + newCukup + newKurang);
+        const nilaiTeknik = ((100 / (dataSiswa.length * 3)) * nilaiUkt).toFixed(2)
+        const result1 = {
+            baik: newBaik,
+            cukup: newCukup,
+            kurang: newKurang,
+            total: nilaiTeknik
+        }
+        await ukt_siswa.update(
+            {
+                teknik: nilaiTeknik
+            },
+            {
+                where: {
+                    id_siswa
+                }
+            }
+        )
+            .then(result => {
+                res.json({
+                    message: "data has been inserted",
+                    data: result1,
                 })
             })
             .catch(error => {

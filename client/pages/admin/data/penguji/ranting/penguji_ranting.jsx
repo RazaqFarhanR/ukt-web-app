@@ -17,7 +17,7 @@ const siswa = () => {
     // state
     const [dataRanting, setDataRanting] = useState([])
     const [showModalCSV, setShowModalCSV] = useState(false);
-    const [dataPenguji, setDataPenguji] = useState ([])
+    const [dataPenguji, setDataPenguji] = useState([])
 
 
     // function get data ranting
@@ -35,15 +35,15 @@ const siswa = () => {
 
     // function get data penguji
     const getDataPenguji = () => {
-        const token = localStorage.getItem ('token')
+        const token = localStorage.getItem('token')
 
-        axios.get (BASE_URL + `penguji`, {headers : {Authorization : `Bearer ${token}`}})
-        .then (res => {
-            setDataPenguji (res.data.data)
-        })
-        .catch (err => {
-            console.log(err.message);
-        })
+        axios.get(BASE_URL + `penguji/count/penguji`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+                setDataPenguji(res.data.data)
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
     }
 
     // function go to detail siswa
@@ -98,7 +98,7 @@ const siswa = () => {
                         <div className="grid grid-cols-4 gap-x-5 gap-y-3">
 
                             {/* card ranting */}
-                            {dataRanting?.map((item, index) => (
+                            {dataPenguji?.map((item, index) => (
                                 <button onClick={() => goToDetailSiswa(item)} key={index + 1} href={'./' + item.id_ranting} className="bg-navy hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5">
 
                                     {/* inner bg */}
@@ -108,7 +108,8 @@ const siswa = () => {
                                         <h1 className='text-green text-lg'>Ranting {item.id_ranting}</h1>
 
                                         {/* ranting data count and add button */}
-                                        <h1 className='text-white text-3xl font-semibold tracking-wider'>{dataPenguji.filter (a => a.id_ranting === `${item.id_ranting}` && a.id_role === 'penguji ranting').length}</h1>
+                                        <h1 className='text-white text-3xl font-semibold tracking-wider'>{item.count_active}</h1>
+                                        <h1 className='text-gray text-3xl font-semibold tracking-wider'>{item.count_disabled}</h1>
                                     </div>
                                 </button>
                             ))}

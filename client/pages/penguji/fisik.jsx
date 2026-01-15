@@ -16,7 +16,6 @@ const fisik = () => {
     // state
     const [alert, setAlert] = useState(false)
     const [dataSiswa, setDataSiswa] = useState([])
-    const [dataStandartFisik, setDataStandartFisik] = useState([])
     const [mft, setMft] = useState(0);
     const [pushUp, setPushUp] = useState(0);
     const [spirPA, setSpirPA] = useState(0);
@@ -51,60 +50,21 @@ const fisik = () => {
             setShowModalAlert(false);
         }
     }, [alert])
-
-    // function get data standart fisik
-    const getDataStandartFisik = () => {
-        const token = localStorage.getItem('tokenPenguji')
-        const dataSiswa1 = JSON.parse(localStorage.getItem('dataSiswa'));
-        const tipe_ukt = dataSiswa1.tipe_ukt;
-        console.log(dataSiswa1);
-        const peserta = dataSiswa1.peserta;
-        axios.post(BASE_URL + `standar_fisik/peserta`, {
-            tipe_ukt: tipe_ukt,
-            peserta: peserta
-        }, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                console.log(res.data);
-                setDataStandartFisik(res.data);
-            })
-            .catch(err => {
-                console.log(err.message);
-            })
-    }
     const handleSave = async () => {
         const socket = getSocket();
 
         setShowModalAlert(true)
         if (alert) {
-            // -- data detail -- //
-            const uktSiswa = JSON.parse(localStorage.getItem('dataUktSiswa'))
             const token = localStorage.getItem('tokenPenguji')
             const dataPenguji = JSON.parse(localStorage.getItem('penguji'))
 
             const primeMft = mft.toFixed(1)
-            const mftNew = ((primeMft / dataStandartFisik.mft) * 100)
-            const pushUpNew = (pushUp / dataStandartFisik.push_up) * 100
-            const spirPANew = (spirPA / dataStandartFisik.spir_perut_atas) * 100
-            const spirPBNew = (spirPB / dataStandartFisik.spir_perut_bawah) * 100
-            const spirDadaNew = ((spirDada / dataStandartFisik.spir_dada) * 100)
-            let spirPahaNew = ((spirPaha / dataStandartFisik.spir_paha) * 100)
-            let plankNew = ((plank / dataStandartFisik.plank) * 100)
-
-            if (plankNew > 100) {
-                plankNew = 100
-            }
-
-            if (spirPahaNew > 100) {
-                spirPahaNew = 100
-            }
-
-            console.log(plankNew);
-            console.log(spirPahaNew);
-            
             const data = {
                 id_penguji: dataPenguji.id_penguji,
                 id_event: dataSiswa.id_event,
                 id_siswa: dataSiswa.id_siswa,
+                peserta: dataSiswa.peserta,
+                tipe_ukt: dataSiswa.tipe_ukt,
                 mft: primeMft,
                 push_up: pushUp,
                 spir_perut_atas: spirPA,
@@ -113,38 +73,23 @@ const fisik = () => {
                 spir_paha: spirPaha,
                 plank: plank
             }
-            axios.post(BASE_URL + `fisik`, data, { headers: { Authorization: `Bearer ${token}` } },)
+            axios.post(BASE_URL + `fisik/exam`, data, { headers: { Authorization: `Bearer ${token}` } },)
                 .then((res) => {
-                    console.log(res);
-                })
-                .catch((error) => {
-                    console.log(error.message);
-                });
-            // -- ukt siswa  -- //
-            const nilaiUkt = ((mftNew + pushUpNew + spirPANew + spirPBNew + spirDadaNew + spirPahaNew + plankNew) / 7).toFixed(2)
-            console.log(nilaiUkt);
-            
-            await axios.put(BASE_URL + `ukt_siswa/${uktSiswa.id_ukt_siswa}`, {
-                fisik: nilaiUkt
-            }, { headers: { Authorization: `Bearer ${token}` } })
-                .then(res => {
-                    console.log(res)
                     socket.emit('submit_nilai', {
                         event_id: dataSiswa.id_event
                     });
                     router.back()
                 })
-                .catch(err => {
-                    console.log(err.message);
-                })
+                .catch((error) => {
+                    console.log(error.message);
+                });
         } else {
             null
         }
     }
     useEffect(() => {
         getDataSiswa()
-        getDataStandartFisik()
-        const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
+         const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
 
         const socket = getSocket();
 
@@ -160,10 +105,6 @@ const fisik = () => {
             socket.disconnect();
         };
     }, [])
-
-    useEffect(() => {
-        console.log(mft)
-    }, [mft])
 
     // function untuk timer
     useEffect(() => {
@@ -397,7 +338,7 @@ const fisik = () => {
                                 </button>
                             </div>
                         </div>
-                        
+
 
                         {/* wrapper Plank */}
                         <div className="bg-navy rounded-md p-2 text-center text-white space-y-3 mb-3">
@@ -476,17 +417,17 @@ const fisik = () => {
                         {/* wrapper timer */}
                         <div className="fixed bottom-0 left-0 w-full bg-navy text-white px-4 py-2">
                             <div className="flex justify-center items-center">
+                                <div className="flex items-center space-x-3">
+                                    <button className="bg-green rounded-md text-center text-2xl font-bold px-4 py-2" onClick={handleRestart}>⥀</button>
                                     <div className="flex items-center space-x-3">
-                                        <button className="bg-green rounded-md text-center text-2xl font-bold px-4 py-2" onClick={handleRestart}>⥀</button>
-                                        <div className="flex items-center space-x-3">
                                         <div className="text-center text-white text-3xl font-bold">{minutes.toString().padStart(2, '0')}:{remainingSeconds.toString().padStart(2, '0')}</div>
-                                        </div>
-                                        {!isRunning ?
-                                            <button className="bg-green rounded-md text-center text-2xl font-bold px-4 py-2" onClick={handleStart}>▶</button>
-                                            :
-                                            <button className="bg-green rounded-md text-center text-2xl font-bold px-4 py-2" onClick={handlePause}>⦷</button>
-                                        }
                                     </div>
+                                    {!isRunning ?
+                                        <button className="bg-green rounded-md text-center text-2xl font-bold px-4 py-2" onClick={handleStart}>▶</button>
+                                        :
+                                        <button className="bg-green rounded-md text-center text-2xl font-bold px-4 py-2" onClick={handlePause}>⦷</button>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>

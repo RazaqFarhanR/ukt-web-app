@@ -1,8 +1,45 @@
-import React from 'react'
-import Link from 'next/link'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios';
 import Header from './components/header'
+import { useRouter } from 'next/router';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const event = () => {
+
+    // deklarasi router
+    const router = useRouter()
+
+    const idTipe = router.query.tipe
+
+
+    // state
+    const [dataEvent, setDataEvent] = useState ([])
+
+    // function get data event
+    const getDataEvent = () => {
+        const token = localStorage.getItem ('tokenPenguji')
+        const penguji = JSON.parse(localStorage.getItem('penguji'))
+        const role = penguji.id_role
+        const link = role !== 'penguji ranting' ? `event/ukt/${idTipe}` : `event/ukt/${idTipe}/${penguji.id_ranting}`
+        axios.get (BASE_URL + link, { headers: { Authorization: `Bearer ${token}`}})
+        .then (res => {
+            setDataEvent (res.data.data)
+        })
+        .catch (err => {
+            console.log(err.message);
+        })
+    }
+
+    // function go to detail event
+    const goToDetailEvent = (item) => {
+        localStorage.setItem ('event', JSON.stringify (item))
+        router.push ('./' + item.name)
+    }
+
+    useEffect (() => {
+        getDataEvent ()
+    }, [idTipe])
+
     return (
         <>
             <div className="font-lato">
@@ -18,14 +55,16 @@ const event = () => {
                     <div className="min-h-full bg-darkBlue px-10 py-8">
                         
                         {/* card event */}
-                        <Link href={'/penguji/detail_event'}>
-                            <div className="hover:scale-105 transition ease-in-out duration-500 hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5 mb-4">
-                                <div className="bg-navy shadow drop-shadow-lg rounded-md p-5 text-center">
-                                    <h1 className='text-xl font-semibold text-green tracking-wide'>UKT Jambon</h1>
-                                    <h1 className='text-white tracking-wider'>117 Siswa</h1>
+                        {dataEvent.map((item, index) => (
+                            <button className='w-full' onClick={() => goToDetailEvent(item)} key={index + 1}>
+                                <div className="hover:scale-105 transition ease-in-out duration-500 hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5 mb-4">
+                                    <div className="bg-navy shadow drop-shadow-lg rounded-md p-5 text-center">
+                                        <h1 className='text-xl font-semibold text-green tracking-wide'>{item.name}</h1>
+                                        <h1 className='text-white tracking-wider'>{item.jumlah_siswa}</h1>
+                                    </div>
                                 </div>
-                            </div>
-                        </Link>
+                            </button> 
+                        ))}
                     </div>
                 </div>
             </div>

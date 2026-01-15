@@ -2,7 +2,11 @@ const models = require('../../models/index');
 const ukt_siswa = models.ukt_siswa;
 
 const { Sequelize, Op, or } = require("sequelize");
-
+function formatNumber(number) {
+        return (number % 1 === 0)
+            ? number
+            : number.toLocaleString('id', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 module.exports = {
     controllerGetAll: async (req, res) => {
         ukt_siswa.findAll()
@@ -43,19 +47,19 @@ module.exports = {
                 id_event: req.params.id
             }
         })
-          .then(data => {
-            const transformedData = data.map(item => ({
-                label: item.rayon,
-                value: item.rayon
-            }));
-            res.json({
-                count: transformedData.length,
-                data: transformedData
+            .then(data => {
+                const transformedData = data.map(item => ({
+                    label: item.rayon,
+                    value: item.rayon
+                }));
+                res.json({
+                    count: transformedData.length,
+                    data: transformedData
+                });
+            })
+            .catch(err => {
+                console.error('Error fetching distinct rayons:', err);
             });
-          })
-          .catch(err => {
-            console.error('Error fetching distinct rayons:', err);
-          });
     },
     controllerGetByEventFiltered: async (req, res) => {
         const { jenis, updown, event, ranting, rayon } = req.body;
@@ -64,16 +68,16 @@ module.exports = {
         let noRayon = {
             id_event: event
         };
-        
+
         let withRayon = {
             id_event: event,
             rayon: {
                 [Op.in]: rayon
             }
         };
-        
+
         let whereCriteria = rayon.length === 0 ? noRayon : withRayon;
-        
+
 
         switch (jenis) {
             case 'senam':
@@ -141,7 +145,7 @@ module.exports = {
             });
     },
     controllerGetByRantingFiltered: async (req, res) => {
-        const { jenis, updown, event } = req.body;
+        const { jenis, updown, event, tipeUkt } = req.body;
         const rantings = req.body.ranting || ['BENDUNGAN', 'DONGKO', 'DURENAN', 'GANDUSARI', 'KAMPAK', 'KARANGAN', 'MUNJUNGAN', 'PANGGUL', 'POGALAN', 'PULE', 'SURUH', 'TRENGGALEK', 'TUGU', 'WATULIMO']
         let orderCriteria = [];
 
@@ -161,12 +165,24 @@ module.exports = {
             case 'sambung':
                 orderCriteria.push(['sambung', updown === 'downToUp' ? 'ASC' : 'DESC']);
                 break;
+            case 'belati':
+                orderCriteria.push(['belati', updown === 'downToUp' ? 'ASC' : 'DESC']);
+                break;
+            case 'kripen':
+                orderCriteria.push(['kripen', updown === 'downToUp' ? 'ASC' : 'DESC']);
+                break;
+            case 'jurus_toya':
+                orderCriteria.push(['jurus_toya', updown === 'downToUp' ? 'ASC' : 'DESC']);
+                break;
+            case 'senam_toya':
+                orderCriteria.push(['senam_toya', updown === 'downToUp' ? 'ASC' : 'DESC']);
+                break;
             case 'keshan':
                 orderCriteria.push(['keshan', updown === 'downToUp' ? 'ASC' : 'DESC']);
                 break;
             case 'all':
                 orderCriteria.push([
-                    Sequelize.literal('(COALESCE(senam, 0) + COALESCE(jurus, 0) + COALESCE(fisik, 0) + COALESCE(teknik, 0) + COALESCE(sambung, 0) + COALESCE(keshan, 0))/6'),
+                    Sequelize.literal('(COALESCE(senam, 0) + COALESCE(jurus, 0) + COALESCE(fisik, 0) + COALESCE(teknik, 0) + COALESCE(sambung, 0) + COALESCE(belati, 0) + COALESCE(kripen, 0) + COALESCE(senam_toya, 0) + COALESCE(jurus_toya, 0) + COALESCE(keshan, 0))/10'),
                     updown === 'downToUp' ? 'ASC' : 'DESC'
                 ]);
                 break;
@@ -175,12 +191,19 @@ module.exports = {
                 res.status(400).send('Invalid jenis value');
                 return;
         }
+        const tipe = tipeUkt == "UKCW"
+            ? 2 : tipeUkt == "UKT Putih"
+                ? 2 : 1
+        const attribute1 = ['id_ukt_siswa', 'id_siswa', 'nomor_urut', 'name', 'ranting', 'keshan', 'senam', 'jurus', 'teknik', 'fisik', 'sambung']
+        const attribute2 = ['id_ukt_siswa', 'id_siswa', 'nomor_urut', 'name', 'ranting', 'keshan', 'senam', 'senam_toya', 'jurus', 'jurus_toya', 'teknik', 'fisik', 'belati', 'kripen', 'sambung']
+        const attribute = tipe == 1 ? attribute1 : attribute2
         ukt_siswa.findAll({
+            attribute: attribute,
             include: [
                 {
                     model: models.siswa,
                     as: "siswa_ukt_siswa",
-                    attributes: ['name', 'tingkatan', 'nomor_urut'],
+                    attributes: ['name', 'nomor_urut'],
                     where: {
                         id_ranting: {
                             [Op.in]: rantings
@@ -201,10 +224,72 @@ module.exports = {
             order: orderCriteria,
         })
             .then(ukt_siswa => {
+                const data = ukt_siswa.map(item => {
+                    if (!item.siswa_ukt_siswa) return null; // safety
+
+                    if (tipe === 1) {
+                        return {
+                            id_ukt_siswa: item.id_ukt_siswa,
+                            id_siswa: item.id_siswa,
+                            nomor_urut: item.siswa_ukt_siswa?.nomor_urut,
+                            name: item.siswa_ukt_siswa?.name,
+                            ranting: item.rayon,
+                            keshan: item.keshan,
+                            senam: item.senam,
+                            jurus: item.jurus,
+                            teknik: formatNumber(item.teknik),
+                            fisik: item.fisik,
+                            sambung: item.sambung,
+                            total: (
+                                (
+                                    item.keshan +
+                                    item.senam +
+                                    item.jurus +
+                                    item.teknik +
+                                    item.fisik +
+                                    item.sambung
+                                ) / 6
+                            ).toFixed(2)
+                        }
+                    }
+
+                    return {
+                        id_ukt_siswa: item.id_ukt_siswa,
+                        id_siswa: item.id_siswa,
+                        nomor_urut: item.siswa_ukt_siswa?.nomor_urut,
+                        name: item.siswa_ukt_siswa?.name,
+                        ranting: item.rayon,
+                        keshan: item.keshan,
+                        senam: item.senam,
+                        senam_toya: item.senam_toya,
+                        jurus: item.jurus,
+                        jurus_toya: item.jurus_toya,
+                        teknik: formatNumber(item.teknik),
+                        fisik: item.fisik,
+                        sambung: item.sambung,
+                        belati: item.belati,
+                        kripen: item.kripen,
+                        total: (
+                            (
+                                item.keshan +
+                                item.senam +
+                                item.senam_toya +
+                                item.jurus +
+                                item.jurus_toya +
+                                item.teknik +
+                                item.fisik +
+                                item.sambung +
+                                item.belati +
+                                item.kripen
+                            ) / 10
+                        ).toFixed(2)
+                    }
+                }).filter(Boolean)
+
                 res.json({
-                    count: ukt_siswa.length,
-                    data: ukt_siswa
-                });
+                    count: data.length,
+                    data
+                })
             })
             .catch(error => {
                 res.json({
@@ -437,7 +522,7 @@ module.exports = {
                 {
                     model: models.siswa,
                     as: "siswa_ukt_siswa",
-                    attributes: ['id_ranting','id_event'],
+                    attributes: ['id_ranting', 'id_event'],
                 }
             ],
             where: {
@@ -626,7 +711,7 @@ module.exports = {
                 {
                     model: models.siswa,
                     as: "siswa_ukt_siswa",
-                    attributes: ['id_ranting','id_event'],
+                    attributes: ['id_ranting', 'id_event'],
                 }
             ],
             where: {

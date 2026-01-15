@@ -4,6 +4,7 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const path = require('path');
+const fs = require('fs');
 const { Server } = require('socket.io');
 const setupSockets = require('./src/sockets');
 
@@ -152,6 +153,23 @@ app.use("/ukt/sambung", sambung)
 //endpoint Nilai Sambung
 const nilaiSambung = require('./src/api/nilai_sambung/nilai_sambung.router');
 app.use("/ukt/nilai_sambung", nilaiSambung)
+
+//endpoint Belati
+const belati = require('./src/api/kategori/belati/belati/belati.router');
+app.use("/ukt/belati", belati)
+
+//endpoint Belati Detail
+const belatiDetail = require('./src/api/kategori/belati/belati_detail/belati_detail.router');
+app.use("/ukt/belati_detail", belatiDetail)
+//endpoint Belati Detail
+const kripenDetail = require('./src/api/kategori/kripen/kripen_detail/kripen_detail.router');
+app.use("/ukt/kripen_detail", kripenDetail)
+//endpoint Belati Detail
+const jurusToyaDetail = require('./src/api/kategori/jurus_toya/jurus_toya_detail/jurus_toya_detail.router');
+app.use("/ukt/jurus_toya_detail", jurusToyaDetail)
+//endpoint senam toya Detail
+const senamToyaDetail = require('./src/api/kategori/senam_toya/senam_toya_detail/senam_toya_detail.router');
+app.use("/ukt/senam_toya_detail", senamToyaDetail)
 
 //run server
 server.listen(process.env.PORT, () => {

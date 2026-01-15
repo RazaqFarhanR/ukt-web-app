@@ -51,6 +51,22 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "id_siswa",
         as: "gerakan_siswa"
       })
+      this.hasMany(models.belati_detail, {
+        foreignKey: "id_siswa",
+        as: "belati_siswa"
+      })
+      this.hasMany(models.kripen_detail, {
+        foreignKey: "id_siswa",
+        as: "kripen_siswa"
+      })
+      this.hasMany(models.jurus_toya_detail, {
+        foreignKey: "id_siswa",
+        as: "jurus_toya_siswa"
+      })
+      this.hasMany(models.senam_toya_detail, {
+        foreignKey: "id_siswa",
+        as: "senam_toya_siswa"
+      })
     }
   }
   siswa.init({
@@ -73,7 +89,8 @@ module.exports = (sequelize, DataTypes) => {
     tipe_ukt: DataTypes.ENUM('UKT Jambon','UKT Hijau','UKT Putih','UKCW'),
     id_ranting: DataTypes.STRING,
     rayon: DataTypes.STRING,
-    tingkatan: DataTypes.STRING
+    tingkatan: DataTypes.STRING,
+    active: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'siswa',

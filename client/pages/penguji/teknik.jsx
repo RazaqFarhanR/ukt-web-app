@@ -103,64 +103,21 @@ const teknik = () => {
         if (alert == true) {
 
             // -- data detail -- //
-            const uktSiswa = JSON.parse(localStorage.getItem('dataUktSiswa'))
             const token = localStorage.getItem('tokenPenguji')
             const dataPenguji = JSON.parse(localStorage.getItem('penguji'))
             const dataDetail = {
                 id_penguji: dataPenguji.id_penguji,
                 id_siswa: dataSiswa.id_siswa,
                 id_event: dataSiswa.id_event,
-                tipe_ukt: dataSiswa.tipe_ukt
+                tipe_ukt: dataSiswa.tipe_ukt,
+                data: newData
             }
 
 
-            axios.post(BASE_URL + `teknik_detail`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
+            axios.post(BASE_URL + `teknik_detail/exam`, dataDetail, { headers: { Authorization: `Bearer ${token}` } })
                 .then(async res => {
-                    console.log(res.data.data)
-
-                    const id_teknik_detail = res.data.data.id_teknik_detail;
-                    let baik = [];
-                    let cukup = [];
-                    let kurang = [];
-
-                    for (let i = 0; i < newData.length; i++) {
-                        if (newData[i].predikat == 'BAIK') {
-                            baik.push('1');
-                        } else if (newData[i].predikat == 'CUKUP') {
-                            cukup.push('1');
-                        } else if (newData[i].predikat == 'KURANG') {
-                            kurang.push('1');
-                        }
-                        try {
-                            const res = await axios.post(BASE_URL + `teknik_siswa`, {
-                                id_teknik_detail: id_teknik_detail,
-                                id_teknik: newData[i].id_teknik,
-                                predikat: newData[i].predikat
-                            }, { headers: { Authorization: `Bearer ${token}` } });
-                            console.log(res);
-                        } catch (error) {
-                            console.log(error.message);
-                        }
-                    }
-                    // -- redefine nilai -- //
-                    const newBaik = baik.length * 3;
-                    const newCukup = cukup.length * 2;
-                    const newKurang = kurang.length;
-                    // -- ukt siswa  -- //
-                    const nilaiUkt = newBaik + newCukup + newKurang;
-                    await axios.put(BASE_URL + `ukt_siswa/${uktSiswa.id_ukt_siswa}`, {
-                        teknik: ((100 / (newData.length * 3)) * nilaiUkt)
-                    }, { headers: { Authorization: `Bearer ${token}` } })
-                        .then(res => {
-                            console.log(res)
-                            socket.emit('submit_nilai', {
-                                event_id: dataSiswa.id_event
-                            });
-                            router.back()
-                        })
-                        .catch(err => {
-                            console.log(err.message);
-                        })
+                    socket.emit('pushRekap')
+                    router.back()
                 })
         } else {
             null

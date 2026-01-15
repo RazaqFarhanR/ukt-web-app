@@ -1,6 +1,7 @@
 require('dotenv').config();
 const fs = require("fs");
 const csv = require('csv-parser');
+const ExcelJS = require('exceljs');
 const bcrypt = require("bcrypt");
 const salt = bcrypt.genSaltSync(10);
 
@@ -121,31 +122,88 @@ module.exports = {
         }
     },
     controllerGetCountPenguji: async (req, res) => {
-        penguji.findAll({
-            where: { createdAt: { [Op.gt]: d } },
-            attributes: ['id_ranting',  [Sequelize.fn('COUNT', Sequelize.col('id_ranting')), 'count']],
-            group: ['id_ranting']
-        })
-            .then(result => {
-                res.json({
-                    count: result.length,
-                    data: result
-                });
+        try {
+            const result = await penguji.findAll({
+                where: {
+                    createdAt: { [Op.gt]: d }
+                },
+                attributes: [
+                    'id_ranting',
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = true THEN 1 ELSE 0 END)`
+                        ),
+                        'count_active'
+                    ],
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = false THEN 1 ELSE 0 END)`
+                        ),
+                        'count_disabled'
+                    ]
+                ],
+                group: ['id_ranting']
             })
-            .catch(error => {
-                res.json({
-                    message: error.message
-                })
+
+            res.json({
+                count: result.length,
+                data: result
             })
+        } catch (error) {
+            res.json({ message: error.message })
+        }
+    },
+    controllerGetTemplatePenguji: async (req, res) => {
+        try {
+            const result = await penguji.findAll({
+                where: {
+                    createdAt: { [Op.gt]: d }
+                },
+                attributes: [
+                    'id_ranting',
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = true THEN 1 ELSE 0 END)`
+                        ),
+                        'count_active'
+                    ],
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = false THEN 1 ELSE 0 END)`
+                        ),
+                        'count_disabled'
+                    ]
+                ],
+                group: ['id_ranting']
+            })
+
+            res.json({
+                count: result.length,
+                data: result
+            })
+        } catch (error) {
+            res.json({ message: error.message })
+        }
     },
     controllerGetByRanting: async (req, res) => {
         try {
-            let result = await penguji.findAll({
-                where: {
-                    id_ranting: req.body.id_ranting,
-                    id_role: req.body.id_role,
-                    createdAt: { [Op.gt]: d }   
-                }
+            const { id_ranting, id_role, name } = req.body;
+
+            let whereClause = {
+                id_ranting,
+                id_role,
+                createdAt: { [Op.gt]: d }
+            };
+
+            // only add name filter if name is not empty
+            if (name && name.trim() !== "") {
+                whereClause.name = {
+                    [Op.like]: `%${name}%`
+                };
+            }
+
+            const result = await penguji.findAll({
+                where: whereClause
             });
             if (result) {
                 res.json({
@@ -217,6 +275,32 @@ module.exports = {
                 });
             });
     },
+    controllerDisabledById: async (req, res) => {
+        try {
+            const { id, tipe } = req.body;
+            const data = tipe == 'individu' ? {
+                id_penguji: id
+            } : { id_ranting: id }
+            const [updated] = await penguji.update(
+                { active: 0 },
+                { where: data }
+            );
+            if (updated === 0) {
+                return res.status(404).json({
+                    message: "Penguji not found"
+                });
+            }
+
+            res.status(200).json({
+                message: `Penguji disabled successfully`,
+                id
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
     controllerAdd: async (req, res) => {
         const Ranting = models.ranting;
         const hash = await bcrypt.hash(req.body.password, salt);
@@ -271,6 +355,125 @@ module.exports = {
         }
     },
 
+    controllerDownloadTemplateExcel: async (req, res) => {
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Template Penguji');
+
+            // Define columns (header + width)
+            worksheet.columns = [
+                { header: 'NIW', key: 'NIW', width: 20 },
+                { header: 'Name', key: 'name', width: 25 },
+                { header: 'ID Role', key: 'id_role', width: 15 },
+                { header: 'ID Ranting', key: 'id_ranting', width: 15 },
+                { header: 'ID Cabang', key: 'id_cabang', width: 15 },
+                { header: 'Username', key: 'username', width: 20 },
+                { header: 'Foto', key: 'foto', width: 20 },
+                { header: 'Password', key: 'password', width: 20 },
+                { header: 'No WA', key: 'no_wa', width: 20 }
+            ];
+
+            // Style header row
+            worksheet.getRow(1).font = { bold: true };
+            worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            // Sample row with defaults
+            worksheet.addRow({
+                NIW: '',
+                name: '',
+                id_role: '',
+                id_ranting: '',
+                id_cabang: 'jatim',
+                username: '',
+                foto: 'default.png',
+                password: '',
+                no_wa: ''
+            });
+
+            // Set response headers
+            res.setHeader(
+                'Content-Type',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            );
+            res.setHeader(
+                'Content-Disposition',
+                'attachment; filename=template_penguji.xlsx'
+            );
+
+            // Send workbook
+            await workbook.xlsx.write(res);
+            res.end();
+
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
+    controllerExcel: async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'File is required' });
+            }
+
+            const filePath = localStorage + req.file.filename;
+            const workbook = new ExcelJS.Workbook();
+
+            await workbook.xlsx.readFile(filePath);
+
+            const worksheet = workbook.getWorksheet(1); // first sheet
+            const rows = worksheet.getRows(2, worksheet.rowCount - 1);
+
+            const bulkData = await Promise.all(
+                rows
+                    .filter(row => row && row.getCell(1).value)
+                    .map(async (row) => {
+                        const hash = await bcrypt.hash(String(row.getCell(8).value || ''), salt);
+
+                        return {
+                            NIW: String(row.getCell(1).value).trim(),
+                            name: String(row.getCell(2).value || '').trim(),
+                            id_role: String(row.getCell(3).value || '').trim(),
+                            id_ranting: String(row.getCell(4).value || '').trim(),
+                            id_cabang: String(row.getCell(5).value || 'jatim').trim(),
+                            username: String(row.getCell(6).value || '').trim(),
+                            foto: row.getCell(7).value || 'default.png',
+                            password: hash,
+                            no_wa: String(row.getCell(9).value || '').trim(),
+                            active: true
+                        };
+                    })
+            );
+
+            console.log('bulkData')
+            console.log(bulkData)
+            if (bulkData.length === 0) {
+                return res.status(400).json({ message: 'No valid data found in Excel' });
+            }
+
+            // Batch insert (FAST)
+            await penguji.bulkCreate(bulkData, {
+                validate: true,
+                individualHooks: false
+            });
+
+            // Delete uploaded file
+            fs.unlink(filePath, (err) => {
+                if (err) console.error('Failed to delete excel:', err);
+            });
+
+            res.json({
+                message: 'Excel data successfully inserted',
+                total: bulkData.length
+            });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
     controllerCsv: async (req, res) => {
         let results = []
         fs.createReadStream(localStorage + req.file.filename)
@@ -278,7 +481,7 @@ module.exports = {
             .on('data', (data) => results.push(data))
             .on('end', async () => {
                 const promises = [];
-                
+
                 for (const data of results) {
                     const values = Object.values(data);
                     const hash = await bcrypt.hash(values[7], salt);
@@ -290,7 +493,7 @@ module.exports = {
                         id_cabang: 'jatim',
                         username: values[5],
                         foto: "default.png",
-                        password:  hash,
+                        password: hash,
                         no_wa: values[8],
                     };
                     promises.push(penguji.create(newData));
@@ -316,66 +519,68 @@ module.exports = {
 
     controllerAuth: async (req, res) => {
         try {
-          const { username, password } = req.body;
-      
-          // Validasi input
-          if (!username || !password) {
-            return res.status(400).json({ message: "Username dan password wajib diisi" });
-          }
-      
-          const users = await penguji.findAll({
-            where: { 
-              username,
-              createdAt: { [Op.gt]: d }
-            },
-            include: [
-              {
-                model: ranting,
-                as: "penguji_ranting",
-                attributes: ["name"],
-              },
-            ],
-          });
-      
-          if (!users || users.length === 0) {
-            return res.status(401).json({ message: "Username tidak ditemukan" });
-          }
-      
-          let matchedUser = null;
-          for (let user of users) {
-            const match = await bcrypt.compare(password, user.password);
-            if (match) {
-              matchedUser = user;
-              break;
+            const { username, password } = req.body;
+
+            // Validasi input
+            if (!username || !password) {
+                return res.status(400).json({ message: "Username dan password wajib diisi" });
             }
-          }
-      
-          if (!matchedUser) {
-            return res.status(401).json({ message: "Password salah" });
-          }
-      
-          const allowedRoles = ["penguji cabang", "penguji ranting"];
-          if (!allowedRoles.includes(matchedUser.id_role)) {
-            return res.status(403).json({ message: "Kamu bukan penguji yang berwenang" });
-          }
-      
-          const token = jwt.sign(
-            { idUser: matchedUser.id_penguji, role: matchedUser.id_role },
-            process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "1d" }
-          );
-      
-          return res.json({
-            logged: true,
-            data: matchedUser,
-            token,
-          });
-      
+
+            const users = await penguji.findAll({
+                where: {
+                    username,
+                    createdAt: { [Op.gt]: d }
+                },
+                include: [
+                    {
+                        model: ranting,
+                        as: "penguji_ranting",
+                        attributes: ["name"],
+                    },
+                ],
+            });
+
+            if (!users || users.length === 0) {
+                return res.status(401).json({ message: "Username tidak ditemukan" });
+            }
+
+            let matchedUser = null;
+            for (let user of users) {
+                const match = await bcrypt.compare(password, user.password);
+                if (match) {
+                    matchedUser = user;
+                    break;
+                }
+            }
+            if (!matchedUser) {
+                return res.status(401).json({ message: "Password salah" });
+            }
+
+            const allowedRoles = ["penguji cabang", "penguji ranting"];
+            if (!allowedRoles.includes(matchedUser.id_role)) {
+                return res.status(403).json({ message: "Kamu bukan penguji yang berwenang" });
+            }
+            if (matchedUser.active === false) {
+                return res.status(403).json({ message: "Kamu bukan penguji yang berwenang" });
+            }
+
+            const token = jwt.sign(
+                { idUser: matchedUser.id_penguji, role: matchedUser.id_role },
+                process.env.ACCESS_TOKEN_SECRET,
+                { expiresIn: "1d" }
+            );
+
+            return res.json({
+                logged: true,
+                data: matchedUser,
+                token,
+            });
+
         } catch (error) {
-          console.error("Login error:", error);
-          return res.status(500).json({ message: "Terjadi kesalahan pada server" });
+            console.error("Login error:", error);
+            return res.status(500).json({ message: "Terjadi kesalahan pada server" });
         }
-    },      
+    },
     controllerEdit: async (req, res) => {
         const password = req.body.password == null ? 'check' : req.body.password
         const hash = await bcrypt.hash(password, salt);
@@ -412,11 +617,11 @@ module.exports = {
                 }
                 if (req.file) {
                     const oldImagePath = localStorage + result[0].foto;
-                    
+
                     if (result[0].foto !== 'default.png') {
                         fs.unlink(oldImagePath, (err) => {
                             if (err) {
-                                console.error(err); 
+                                console.error(err);
                                 return;
                             }
                             // console.log('User image deleted successfully');
@@ -481,38 +686,38 @@ module.exports = {
         penguji.findOne({
             where: param
         })
-        .then(result => {
-            if (result.foto) {
-                const oldImagePath = localStorage + result.foto;
-                
-                if (result.foto !== 'default.png') {                    
-                    fs.unlink(oldImagePath, (err) => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                        // console.log('User image deleted successfully');
-                    });
-                } else {
-                    // console.log('Skipping delete for default.png');
+            .then(result => {
+                if (result.foto) {
+                    const oldImagePath = localStorage + result.foto;
+
+                    if (result.foto !== 'default.png') {
+                        fs.unlink(oldImagePath, (err) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            // console.log('User image deleted successfully');
+                        });
+                    } else {
+                        // console.log('Skipping delete for default.png');
+                    }
                 }
-            }
-            penguji.destroy({ where: param })
-                .then(result => {                    
-                    res.json({
-                        massege: "data has been deleted"
+                penguji.destroy({ where: param })
+                    .then(result => {
+                        res.json({
+                            massege: "data has been deleted"
+                        })
                     })
-                })
-                .catch(error => {
-                    res.json({
-                        message: error.message
+                    .catch(error => {
+                        res.json({
+                            message: error.message
+                        })
                     })
-                })
-        })
-        .catch(error => {
-            res.json({
-                message: error.message
             })
-        })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
     },
 }

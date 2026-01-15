@@ -141,7 +141,7 @@ const detail_event = () => {
                 } else {
                     searchSiswa();
                 }
-            }, 1000); // Adjust the interval time (in milliseconds) as per your requirement
+            }, 1000); 
         };
 
         delayedSearch();
@@ -169,7 +169,6 @@ const detail_event = () => {
                         {/* card siswa information */}
                         {(() => {
                             if (dataPenguji.id_role === 'penguji cabang') {
-                                console.log('penguji cabang');
                                 return (
                                     <>
                                         {dataSiswa.filter(a => a.id_event === dataEvent.id_event).map((item, index) => (
@@ -184,7 +183,6 @@ const detail_event = () => {
                                     </>
                                 )
                             } else if (dataPenguji.id_role === 'penguji ranting') {
-                                console.log('penguji ranting');
                                 return (
                                     <>
                                         {/* {dataSiswa.filter(dataEvent.tipe_ukt === 'UKCW' ? (a => a.id_event === dataEvent.id_event) : (a => a.id_ranting === dataPenguji.id_ranting && a.id_event === dataEvent.id_event)).map((item, index) => ( */}
@@ -229,7 +227,7 @@ const detail_event = () => {
                         </svg>
                     </button>
                 </div>
-                <MainNavigation active={active} setActive={setActive}/>
+                <MainNavigation active={active} setActive={setActive} tipeUkt={dataEvent.tipe_ukt}/>
                 </div>
             </div>
             
