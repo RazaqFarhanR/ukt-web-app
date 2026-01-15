@@ -4,6 +4,26 @@ import React from 'react'
 
 const index = () => {
     const router = useRouter()
+
+    const tipeUkt = [
+        {
+            name: "UKT JAMBON",
+            link: "/siswa/ukt jambon"
+        },
+        {
+            name: "UKT HIJAU",
+            link: "/siswa/ukt hijau",
+        },
+        {
+            name: "UKT PUTIH",
+            link: "/siswa/ukt putih",
+        },
+        {
+            name: "UKCW",
+            link: "/siswa/ukcw"
+        }
+    ]
+
     return (
         <>
             <div className="font-lato">
@@ -20,37 +40,21 @@ const index = () => {
 
                             {/* title */}
                             <h1 className='text-xl font-semibold mb-12 tracking-wider'>
-                                UJI KENAIKAN TINGKAT<br/>
-                                PERSAUDARAAN SETIA HATI TERATE<br/>
-                                CABANG TRENGGALEK<br/>
+                                UJI KENAIKAN TINGKAT<br />
+                                PERSAUDARAAN SETIA HATI TERATE<br />
+                                CABANG TRENGGALEK<br />
                             </h1>
 
                         </div>
-                        <div className='flex justify-between mx-10'>
-                            <button 
-                                className='bg-[#1B2537] w-[20%] py-24 rounded-xl active:bg-[#192334]' 
-                                onClick={() => router.push("/siswa/ukt jambon")}
-                            >
-                                <h1 className='text-[#42C6A3] text-2xl text-center font-bold tracking-wider'>UKT JAMBON</h1>
-                            </button>
-                            <button 
-                                className='bg-[#1B2537] w-[20%] py-24 rounded-xl active:bg-[#192334]'
-                                onClick={() => router.push("/siswa/ukt hijau")}
-                            >
-                                <h1 className='text-[#42C6A3] text-2xl text-center font-bold tracking-wider'>UKT HIJAU</h1>
-                            </button>
-                            <button 
-                                className='bg-[#1B2537] w-[20%] py-24 rounded-xl active:bg-[#192334]'
-                                onClick={() => router.push("/siswa/ukt putih")}
-                            >
-                                <h1 className='text-[#42C6A3] text-2xl text-center font-bold tracking-wider'>UKT PUTIH</h1>
-                            </button>
-                            <button 
-                                className='bg-[#1B2537] w-[20%] py-24 rounded-xl active:bg-[#192334]'
-                                onClick={() => router.push("/siswa/ukcw")}
-                            >
-                                <h1 className='text-[#42C6A3] text-2xl text-center font-bold tracking-wider'>UKCW</h1>
-                            </button>
+                        <div className='flex flex-col md:flex-row justify-between mx-10'>
+                            {tipeUkt.map(item => (
+                                <button
+                                    className='bg-[#1B2537] w-full md:w-[20%] py-12 md:py-24 my-2 rounded-xl active:bg-[#192334]'
+                                    onClick={() => router.push(item.link)}
+                                >
+                                    <h1 className='text-[#42C6A3] text-2xl text-center font-bold tracking-wider'>{item.name}</h1>
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </div>

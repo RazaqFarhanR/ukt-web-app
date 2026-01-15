@@ -23,14 +23,9 @@ const Modal_CSV_Penguji = () => {
         const token = localStorage.getItem('token')
 
         let form = new FormData()
-        form.append ('csvFile', fileCSV)
-        // let form = {
-        //     csvFile: fileCSV,
-        //     id_event: event.id,
-        //     tipe_ukt: event.tipe_ukt
-        // }
+        form.append ('excelFile', fileCSV)
 
-        axios.post(BASE_URL + `penguji/csv`, form, { headers: { Authorization: `Bearer ${token}` } })
+        axios.post(BASE_URL + `penguji/excel`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setShowModalCSV(false)
                 console.log(res.data.message);
@@ -40,8 +35,36 @@ const Modal_CSV_Penguji = () => {
             })
     }
 
+    const downloadTemplate = async () => {
+    try {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.get(
+            BASE_URL + 'penguji/download/template',
+            {
+                responseType: 'blob', // IMPORTANT
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        // Create downloadable link
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'template_penguji.xlsx');
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+    } catch (error) {
+        console.error('Failed to download template:', error);
+    }
+};
+
     useEffect(() => {
-        console.log(fileCSV);
     }, [fileCSV])
 
     return (
@@ -60,7 +83,7 @@ const Modal_CSV_Penguji = () => {
                                     {/* Modal header */}
                                     <div className="flex justify-center p-4">
                                         <h1 className="text-2xl font-semibold text-gray-900 text-center">
-                                            Tambah Penguji by CSV
+                                            Tambah Penguji
                                         </h1>
                                         <button onClick={() => setShowModalCSV(false)} type="button" className="p-1.5 inline-flex items-center absolute right-5">
                                             <svg className="w-7 h-7 fill-white hover:fill-purple duration-300" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -76,7 +99,7 @@ const Modal_CSV_Penguji = () => {
                                         {/* Input csv */}
                                         <div className="flex flex-row space-x-3 w-full">
                                             <div className="w-2/6 flex justify-between">
-                                                <span>csv</span>
+                                                <span>File</span>
                                                 <span>:</span>
                                             </div>
                                             <div className="w-4/6">
@@ -91,9 +114,16 @@ const Modal_CSV_Penguji = () => {
                                     </div>
 
                                     {/* Modal footer */}
-                                    <div className="flex items-center justify-end p-6 space-x-2">
-                                        <button onClick={() => setShowModalCSV(false)} className="text-red hover:text-white bg-white hover:bg-red duration-300 font-medium rounded-lg px-5 py-2.5 text-center">Cancel</button>
-                                        <button type='submit' className="text-green hover:text-white bg-white hover:bg-green duration-300 rounded-lg font-medium px-5 py-2.5 focus:z-10">Tambah</button>
+                                    <div className="flex items-center p-6 space-x-2">
+                                        <div className='w-1/2 '>
+                                            <button 
+                                            type='button'
+                                            onClick={downloadTemplate} className="text-green hover:text-white bg-white hover:bg-green duration-300 font-medium rounded-lg px-5 py-2.5 text-center">Template</button>
+                                        </div>
+                                        <div className='w-1/2 flex justify-end space-x-2'>
+                                            <button onClick={() => setShowModalCSV(false)} className="text-red hover:text-white bg-white hover:bg-red duration-300 font-medium rounded-lg px-5 py-2.5 text-center">Cancel</button>
+                                            <button type='submit' className="text-green hover:text-white bg-white hover:bg-green duration-300 rounded-lg font-medium px-5 py-2.5 focus:z-10">Tambah</button>
+                                        </div>
                                     </div>
                                 </form>
 

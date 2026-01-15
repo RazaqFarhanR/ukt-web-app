@@ -7,7 +7,7 @@ import Footer from '../components/footer'
 import Modal_ukt_fisik from '../components/modal_ukt_fisik'
 
 const detail_fisik = () => {
-
+    
     // state modal
     const [showModalUktFisik, setShowModalUktFisik] = useState (false)
 

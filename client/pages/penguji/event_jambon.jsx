@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
 import axios from 'axios';
 import Header from './components/header'
 import { useRouter } from 'next/router';
@@ -17,8 +16,9 @@ const event = () => {
     const getDataEvent = () => {
         const token = localStorage.getItem ('tokenPenguji')
         const penguji = JSON.parse(localStorage.getItem('penguji'))
-
-        axios.get (BASE_URL + `event/ukt/UKT Jambon/${penguji.id_ranting}`, { headers: { Authorization: `Bearer ${token}`}})
+        const role = penguji.id_role
+        const link = role !== 'penguji ranting' ? 'event/ukt/UKT Jambon' : `event/ukt/UKT Jambon/${penguji.id_ranting}`
+        axios.get (BASE_URL + link, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataEvent (res.data.data)
         })
@@ -57,7 +57,7 @@ const event = () => {
                                 <div className="hover:scale-105 transition ease-in-out duration-500 hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5 mb-4">
                                     <div className="bg-navy shadow drop-shadow-lg rounded-md p-5 text-center">
                                         <h1 className='text-xl font-semibold text-green tracking-wide'>{item.name}</h1>
-                                        <h1 className='text-white tracking-wider'>30 Siswa</h1>
+                                        <h1 className='text-white tracking-wider'>{item.jumlah_siswa}</h1>
                                     </div>
                                 </div>
                             </button> 

@@ -54,15 +54,6 @@ const teknik = () => {
 
                             {/* page name */}
                             <h1 className='text-2xl tracking-wider uppercase font-bold'>Materi - Teknik</h1>
-
-                            {/* search */}
-                            <div className="bg-purple rounded-md px-5 py-2 flex items-center gap-x-2 w-72">
-                                <svg className='z-50' width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                <input className='bg-transparent placeholder:text-white placeholder:tracking-wider placeholder:text-sm w-full focus:outline-none' placeholder='Search' type="text" />
-                            </div>
                         </div>
                                                 
                         {/* data count */}
@@ -81,9 +72,6 @@ const teknik = () => {
                                             <rect width="77" height="77" rx="3" fill="#FF32DE"/>
                                         </svg>
                                     </div>
-
-                                    {/* data count */}
-                                    <h1 className='text-white text-4xl font-semibold tracking-wider'>1180</h1>
                                 </div>
                             </Link>
 
@@ -100,9 +88,6 @@ const teknik = () => {
                                             <rect width="77" height="77" rx="3" fill="#0B8800"/>
                                         </svg>
                                     </div>
-
-                                    {/* data count */}
-                                    <h1 className='text-white text-4xl font-semibold tracking-wider'>1180</h1>
                                 </div>
                             </Link>
 
@@ -119,9 +104,6 @@ const teknik = () => {
                                             <rect width="77" height="77" rx="3" fill="#FFFFFF"/>
                                         </svg>
                                     </div>
-
-                                    {/* data count */}
-                                    <h1 className='text-white text-4xl font-semibold tracking-wider'>1180</h1>
                                 </div>
                             </Link>
 
@@ -139,9 +121,6 @@ const teknik = () => {
                                         </svg>
 
                                     </div>
-
-                                    {/* data count */}
-                                    <h1 className='text-white text-4xl font-semibold tracking-wider'>1180</h1>
                                 </div>
                             </Link>
 

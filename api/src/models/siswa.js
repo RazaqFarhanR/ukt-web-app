@@ -89,7 +89,8 @@ module.exports = (sequelize, DataTypes) => {
     tipe_ukt: DataTypes.ENUM('UKT Jambon','UKT Hijau','UKT Putih','UKCW'),
     id_ranting: DataTypes.STRING,
     rayon: DataTypes.STRING,
-    tingkatan: DataTypes.STRING
+    tingkatan: DataTypes.STRING,
+    active: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'siswa',

@@ -31,9 +31,9 @@ router.get('/paket/:tipe_ukt/:paket', Auth, verifyRoles("admin", "super admin", 
 router.get('/tipe/:tipe_ukt', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByTipe)
 router.get('/tipe/kunci/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetAnswerByLembarSoal)
 router.get('/lembar_soal/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetExamQuestion)
-router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerAdd)
-router.post('/kunci_jawaban', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerAdd)
-router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerEdit)
-router.delete('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDelete)
+router.post('/', Auth, verifyRoles("admin", "super admin", "admin cabang",), controllerAdd)
+router.post('/kunci_jawaban', Auth, verifyRoles("admin", "super admin", "admin cabang",), controllerAdd)
+router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin cabang",), controllerEdit)
+router.delete('/:id', Auth, verifyRoles("admin", "super admin", "admin cabang",), controllerDelete)
 
 module.exports = router;
