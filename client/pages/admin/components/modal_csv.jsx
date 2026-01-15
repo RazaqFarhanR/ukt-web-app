@@ -24,7 +24,7 @@ const Modal_CSV = () => {
             .then(res => {
                 console.log(dataUser)
                 const data = res.data.data
-                if(dataUser.id_role == 'admin ranting'){
+                if (dataUser.id_role == 'admin ranting') {
                     setDataEvent(data.filter(item => item.tipe_ukt !== 'UKCW' && item.is_active === true))
                 } else {
                     setDataEvent(data.filter(item => item.is_active === true))
@@ -51,9 +51,9 @@ const Modal_CSV = () => {
         const token = localStorage.getItem('token')
 
         let form = new FormData()
-        form.append ('csvFile', fileCSV)
-        form.append ('id_event', event.id)
-        form.append ('tipe_ukt', event.tipe_ukt)
+        form.append('csvFile', fileCSV)
+        form.append('id_event', event.id)
+        form.append('tipe_ukt', event.tipe_ukt)
         // let form = {
         //     csvFile: fileCSV,
         //     id_event: event.id,
@@ -154,9 +154,14 @@ const Modal_CSV = () => {
                                     </div>
 
                                     {/* Modal footer */}
-                                    <div className="flex items-center justify-end p-6 space-x-2">
-                                        <button onClick={() => setShowModalCSV(false)} className="text-red hover:text-white bg-white hover:bg-red duration-300 font-medium rounded-lg px-5 py-2.5 text-center">Cancel</button>
-                                        <button type='submit' className="text-green hover:text-white bg-white hover:bg-green duration-300 rounded-lg font-medium px-5 py-2.5 focus:z-10">Tambah</button>
+                                    <div className="flex items-center p-6 space-x-2">
+                                        <div className='w-1/2 '>
+                                            <button onClick={() => setShowModalCSV(false)} className="text-green hover:text-white bg-white hover:bg-green duration-300 font-medium rounded-lg px-5 py-2.5 text-center">Template</button>
+                                        </div>
+                                        <div className='w-1/2 flex justify-end space-x-2'>
+                                            <button onClick={() => setShowModalCSV(false)} className="text-red hover:text-white bg-white hover:bg-red duration-300 font-medium rounded-lg px-5 py-2.5 text-center">Cancel</button>
+                                            <button type='submit' className="text-green hover:text-white bg-white hover:bg-green duration-300 rounded-lg font-medium px-5 py-2.5 focus:z-10">Tambah</button>
+                                        </div>
                                     </div>
                                 </form>
 

@@ -37,6 +37,8 @@ const {
     controllerGetRantingFiltered,
     controllerAuth,
     controllerDisabledById,
+    controllerDownloadTemplateExcel,
+    controllerExcel,
 } = require('./penguji.controller');
 
 
@@ -46,6 +48,7 @@ router.get('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admi
 router.get('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetById )
 router.patch('/non_aktifkan', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDisabledById)
 router.get('/count/penguji', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountPenguji)
+router.get('/download/template', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDownloadTemplateExcel)
 router.post('/pengujiperranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByRanting )
 router.get('/name_dan_ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByNameAndRanting )
 router.post('/ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetRantingFiltered )
@@ -54,6 +57,7 @@ router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "adm
 router.post('/auth', controllerAuth )
 
 router.post('/csv', upload2.single("csvFile"), controllerCsv )
+router.post('/excel', upload2.single("excelFile"), controllerExcel )
 router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), upload2.single("foto"), controllerEdit )
 router.delete('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDelete )
 

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const fs = require("fs");
 const csv = require('csv-parser');
+const ExcelJS = require('exceljs');
 const bcrypt = require("bcrypt");
 const salt = bcrypt.genSaltSync(10);
 
@@ -121,6 +122,38 @@ module.exports = {
         }
     },
     controllerGetCountPenguji: async (req, res) => {
+        try {
+            const result = await penguji.findAll({
+                where: {
+                    createdAt: { [Op.gt]: d }
+                },
+                attributes: [
+                    'id_ranting',
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = true THEN 1 ELSE 0 END)`
+                        ),
+                        'count_active'
+                    ],
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = false THEN 1 ELSE 0 END)`
+                        ),
+                        'count_disabled'
+                    ]
+                ],
+                group: ['id_ranting']
+            })
+
+            res.json({
+                count: result.length,
+                data: result
+            })
+        } catch (error) {
+            res.json({ message: error.message })
+        }
+    },
+    controllerGetTemplatePenguji: async (req, res) => {
         try {
             const result = await penguji.findAll({
                 where: {
@@ -322,6 +355,124 @@ module.exports = {
         }
     },
 
+    controllerDownloadTemplateExcel: async (req, res) => {
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Template Penguji');
+
+            // Define columns (header + width)
+            worksheet.columns = [
+                { header: 'NIW', key: 'NIW', width: 20 },
+                { header: 'Name', key: 'name', width: 25 },
+                { header: 'ID Role', key: 'id_role', width: 15 },
+                { header: 'ID Ranting', key: 'id_ranting', width: 15 },
+                { header: 'ID Cabang', key: 'id_cabang', width: 15 },
+                { header: 'Username', key: 'username', width: 20 },
+                { header: 'Foto', key: 'foto', width: 20 },
+                { header: 'Password', key: 'password', width: 20 },
+                { header: 'No WA', key: 'no_wa', width: 20 }
+            ];
+
+            // Style header row
+            worksheet.getRow(1).font = { bold: true };
+            worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            // Sample row with defaults
+            worksheet.addRow({
+                NIW: '',
+                name: '',
+                id_role: '',
+                id_ranting: '',
+                id_cabang: 'jatim',
+                username: '',
+                foto: 'default.png',
+                password: '',
+                no_wa: ''
+            });
+
+            // Set response headers
+            res.setHeader(
+                'Content-Type',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            );
+            res.setHeader(
+                'Content-Disposition',
+                'attachment; filename=template_penguji.xlsx'
+            );
+
+            // Send workbook
+            await workbook.xlsx.write(res);
+            res.end();
+
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
+    controllerExcel: async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'File is required' });
+            }
+
+            const filePath = localStorage + req.file.filename;
+            const workbook = new ExcelJS.Workbook();
+
+            await workbook.xlsx.readFile(filePath);
+
+            const worksheet = workbook.getWorksheet(1); // first sheet
+            const rows = worksheet.getRows(2, worksheet.rowCount - 1);
+
+            const bulkData = await Promise.all(
+                rows
+                    .filter(row => row && row.getCell(1).value)
+                    .map(async (row) => {
+                        const hash = await bcrypt.hash(String(row.getCell(8).value || ''), salt);
+
+                        return {
+                            NIW: String(row.getCell(1).value).trim(),
+                            name: String(row.getCell(2).value || '').trim(),
+                            id_role: String(row.getCell(3).value || '').trim(),
+                            id_ranting: String(row.getCell(4).value || '').trim(),
+                            id_cabang: String(row.getCell(5).value || 'jatim').trim(),
+                            username: String(row.getCell(6).value || '').trim(),
+                            foto: row.getCell(7).value || 'default.png',
+                            password: hash,
+                            no_wa: String(row.getCell(9).value || '').trim()
+                        };
+                    })
+            );
+
+            console.log('bulkData')
+            console.log(bulkData)
+            if (bulkData.length === 0) {
+                return res.status(400).json({ message: 'No valid data found in Excel' });
+            }
+
+            // Batch insert (FAST)
+            await penguji.bulkCreate(bulkData, {
+                validate: true,
+                individualHooks: false
+            });
+
+            // Delete uploaded file
+            fs.unlink(filePath, (err) => {
+                if (err) console.error('Failed to delete excel:', err);
+            });
+
+            res.json({
+                message: 'Excel data successfully inserted',
+                total: bulkData.length
+            });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
     controllerCsv: async (req, res) => {
         let results = []
         fs.createReadStream(localStorage + req.file.filename)
