@@ -29,6 +29,7 @@ module.exports = {
                 'id_event',
                 'name',
                 'tipe_ukt',
+                'id_ranting',
                 [fn('COUNT', col('siswa_event.id_siswa')), 'jumlah_siswa']
             ],
             include: [
@@ -91,7 +92,23 @@ module.exports = {
             where: {
                 tipe_ukt: req.params.id,
                 is_active: true
-            }
+            },
+            attributes: [
+                'id_event',
+                'name',
+                'tipe_ukt',
+                'id_ranting',
+                [fn('COUNT', col('siswa_event.id_siswa')), 'jumlah_siswa']
+            ],
+            include: [
+                {
+                    model: siswa,
+                    attributes: [], // IMPORTANT: prevent row duplication
+                    required: false,
+                    as: "siswa_event"
+                }
+            ],
+            group: ['event.id_event']
         })
             .then(event => {
                 res.json({

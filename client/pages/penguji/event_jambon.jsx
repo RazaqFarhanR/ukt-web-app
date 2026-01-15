@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
 import axios from 'axios';
 import Header from './components/header'
 import { useRouter } from 'next/router';
@@ -17,8 +16,9 @@ const event = () => {
     const getDataEvent = () => {
         const token = localStorage.getItem ('tokenPenguji')
         const penguji = JSON.parse(localStorage.getItem('penguji'))
-
-        axios.get (BASE_URL + `event/ukt/UKT Jambon/${penguji.id_ranting}`, { headers: { Authorization: `Bearer ${token}`}})
+        const role = penguji.id_role
+        const link = role !== 'penguji ranting' ? 'event/ukt/UKT Jambon' : `event/ukt/UKT Jambon/${penguji.id_ranting}`
+        axios.get (BASE_URL + link, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataEvent (res.data.data)
         })
