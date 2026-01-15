@@ -1,133 +1,105 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import axios from 'axios'
 import { globalState } from '@/context/context'
-import Sidebar from '../../../components/sidebar'
-import Header from '../../../components/header'
-import Footer from '../../../components/footer'
-import Modal_penguji_ranting from '../../../components/modal_penguji_ranting'
-import Modal_delete from '../../../components/modal_delete'
 import { useRouter } from 'next/router'
-import ModalFilterPengujiRanting from '../../../components/modal_filter_penguji_ranting'
+import axios from 'axios'
+import Sidebar from '../../../../../components/sidebar'
+import Header from '../../../../../components/header'
+import Footer from '../../../../../components/footer'
+import Modal_siswa from '../../../../../components/modal_siswa'
+import Modal_delete from '../../../../../components/modal_delete'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
 
-const penguji_ranting = () => {
+const detail_siswa = () => {
 
     // state pathname
     const router = useRouter()
-    const { web } = router.query
+    const { eventId, name } = router.query
+    const idRanting = router.query.ranting
+    const idTipe = router.query.tipe
 
     // state modal
-    const [showModalPengujiRanting, setShowModalPengujiRanting] = useState(false)
+    const [showModalSiswa, setShowModalSiswa] = useState(false)
     const [showModalDelete, setShowModalDelete] = useState(false)
 
     // state
-    const [dataPengujiRanting, setDataPengujiRanting] = useState([])
-    const [dataRanting, setDataRanting] = useState([])
-    const [modalFilter, setModalFilter] = useState(false)
-    const [newWeb, setNewWeb] = useState('')
-    const [search, setSearch] = useState('')
-    const [loading, setLoading] = useState(false);
-
-
+    const [dataSiswa, setDataSiswa] = useState([])
     const [action, setAction] = useState('')
-    const [active, setActive] = useState(0)
-    const [idPengujiRanting, setIdPengujiRanting] = useState('')
-    const [niw, setNiw] = useState('')
-    const [name, setName] = useState('')
+    const [idSiswa, setIdSiswa] = useState('')
+    const [noUrut, setNoUrut] = useState('')
+    const [siswaName, setSiswaName] = useState('')
     const [ranting, setRanting] = useState('')
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const [noWa, setNoWa] = useState('')
-    const [adminRole, setAdminRole] = useState('')
-    const [role, setRole] = useState('')
-    const [foto, setFoto] = useState('')
+    const [rayon, setRayon] = useState('')
+    const [jenisKelamin, setJenisKelamin] = useState('')
+    const [jenisLatihan, setJenisLatihan] = useState('')
+    const [ukt, setUkt] = useState('')
+    const [event, setEvent] = useState('')
+    const [dataEvent, setDataEvent] = useState('')
+    const [search, setSearch] = useState('')
 
-    // function get data penguji cabang
-    const getDataPengujiRanting = async () => {
+    // function get data siswa
+    const getDataSiswa = () => {
         const token = localStorage.getItem('token')
-        // console.log('webquery')
-        // console.log(web)
-        // const web1 = web ? web : null
-        setNewWeb(web)
-        const form = {
-            id_ranting: web ? web : newWeb,
-            id_role: 'penguji ranting'
-        }
-        axios.post(BASE_URL + `penguji/pengujiperranting`, form, { headers: { Authorization: `Bearer ${token}` } })
-        .then(res => {
-            setDataPengujiRanting(res.data.data)
-        })
-        .catch(err => {
-            console.log(err.message);
-        })
-    }
-    
-    const searchPenguji = (e) => {
-        e.preventDefault(); 
-        const token = localStorage.getItem('token')
-        setNewWeb(web)
-        const form = {
-            id_ranting: web ? web : newWeb,
-            name: search,
-            id_role: 'penguji ranting'
-        }
-        axios.post(BASE_URL + `penguji/pengujiperranting`, form, { headers: { Authorization: `Bearer ${token}` } })
+
+        axios.get(BASE_URL + `siswa/event/new/${eventId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                setDataPengujiRanting(res.data.data)
+                setDataSiswa(res.data.data)
             })
             .catch(err => {
                 console.log(err.message);
             })
-    };
-
-    const getRole = () => {
-        const role = JSON.parse(localStorage.getItem('admin'))
-        setAdminRole(role.id_role)
     }
 
     // function modal add
     const addModal = () => {
-        setShowModalPengujiRanting(true)
+        setShowModalSiswa(true)
         setAction('insert')
-        setNiw('')
-        setName('')
-        setRanting(web)
-        setUsername('')
-        setPassword('')
-        setNoWa('')
-        setRole('penguji ranting')
-        setActive(0)
-        setFoto()
+        setNoUrut('')
+        setSiswaName('')
+        if (dataEvent.tipe_ukt == "UKCW") {
+            setRanting('')
+        } else {
+            setRanting(dataEvent.id_ranting)
+        }
+        setRayon('')
+        setJenisKelamin('')
+        setJenisLatihan('')
+        setUkt(dataEvent.tipe_ukt)
+        setEvent(dataEvent.id_event)
+    }
+
+    const nonAktifkanAll = () => {
+        const token = localStorage.getItem('token')
+        axios.get(BASE_URL + `siswa/event/non_aktifkan/${eventId}`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
     }
 
     // function modal edit
     const editModal = (selectedItem) => {
-        setShowModalPengujiRanting(true)
+        setShowModalSiswa(true)
         setAction('update')
-        setIdPengujiRanting(selectedItem.id_penguji)
-        setNiw(selectedItem.NIW)
-        setName(selectedItem.name)
+        setIdSiswa(selectedItem.id_siswa)
+        setNoUrut(selectedItem.nomor_urut)
+        setSiswaName(selectedItem.name)
         setRanting(selectedItem.id_ranting)
-        setUsername(selectedItem.username)
-        setPassword(selectedItem.password)
-        setNoWa(selectedItem.no_wa)
-        setRole('penguji ranting')
-        setActive(1)
-        setFoto(selectedItem.foto)
+        setRayon(selectedItem.rayon)
+        setJenisKelamin(selectedItem.jenis_kelamin)
+        setJenisLatihan(selectedItem.jenis_latihan)
+        setUkt(selectedItem.tipe_ukt)
+        setEvent(selectedItem.id_event)
     }
 
     // function modal delete
     const deleteModal = (selectedId) => {
         setShowModalDelete(true)
-        setAction('deletePengujiRanting')
-        setIdPengujiRanting(selectedId)
-    }
-    const deleteRantingModal = () => {
-        setShowModalDelete(true)
-        setAction('deletePengujiRantingTipeRanting')
-        setIdPengujiRanting(newWeb)
+        setAction('deleteSiswa')
+        setIdSiswa(selectedId)
+        setRanting(ranting)
     }
 
     // function login checker
@@ -137,11 +109,29 @@ const penguji_ranting = () => {
         }
     }
 
+    // function go to detail siswa
+    const goBack = () => {
+        router.push({
+            pathname: `/admin/data/siswa/ranting/event`,
+            query: { tipe: idTipe, ranting: idRanting }
+        });
+    }
+    const searchSiswa = (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token')
+        axios.get(BASE_URL + `siswa/event/new/${eventId}/${search}`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+                setDataSiswa(res.data.data)
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
+    };
     useEffect(() => {
-        setNewWeb(web)
-        getDataPengujiRanting()
+        const event = JSON.parse(localStorage.getItem('event'))
+        setDataEvent(event)
+        getDataSiswa()
         isLogged()
-        getRole()
     }, [router.isReady])
 
     return (
@@ -172,14 +162,12 @@ const penguji_ranting = () => {
 
                             {/* page name and button back */}
                             <div className="flex justify-center items-center gap-x-3">
-                                {adminRole != "admin ranting" &&
-                                    <Link href={'./penguji_ranting'} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
-                                        <svg className='-translate-x-0.5 fill-white group-hover:fill-purple' width="13" height="22" viewBox="0 0 14 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
-                                        </svg>
-                                    </Link>
-                                }
-                                <h1 className='text-2xl tracking-wider uppercase font-bold'>Penguji Ranting</h1>
+                                <button type='button' onClick={goBack} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
+                                    <svg className='-translate-x-0.5 fill-white group-hover:fill-purple' width="13" height="22" viewBox="0 0 14 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
+                                    </svg>
+                                </button>
+                                <h1 className='text-2xl tracking-wider uppercase font-bold'>{idTipe} - {name}</h1>
                             </div>
 
                             {/* search and button add data */}
@@ -189,7 +177,7 @@ const penguji_ranting = () => {
                                         <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
-                                    <form onSubmit={searchPenguji}>
+                                    <form onSubmit={searchSiswa}>
                                         <input
                                             type="text"
                                             value={search}
@@ -200,11 +188,13 @@ const penguji_ranting = () => {
                                     </form>
                                 </div>
 
+                                {/* button add data */}
                                 <button onClick={() => addModal()} className="bg-purple hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
                                     <h1>Tambah Data</h1>
                                 </button>
-                                <button onClick={() => deleteRantingModal()} className="bg-red hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
-                                    <h1>Non Aktifkan Semua</h1>
+                                {/* button add data */}
+                                <button onClick={() => nonAktifkanAll()} className="bg-red hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
+                                    <h1>nonaktifkan Data</h1>
                                 </button>
                             </div>
                         </div>
@@ -216,45 +206,39 @@ const penguji_ranting = () => {
                             <table className='w-full table-fixed'>
                                 <thead>
                                     <tr className='text-green'>
-                                        <th className='py-3 w-[5%]'>No</th>
-                                        <th className='w-[13%]'>NIW</th>
-                                        <th>Nama</th>
-                                        <th className='w-[13%]'>Ranting</th>
-                                        <th className='w-[13%]'>Username</th>
-                                        <th className='w-[13%]'>No WA</th>
-                                        <th className='w-[13%]'>Foto</th>
-                                        <th className='w-[15%]'>Aksi</th>
+                                        <th className='py-3 w-[3%]'>No</th>
+                                        <th className='w-[16%]'>No Urut</th>
+                                        <th className='w-[35%]'>Nama</th>
+                                        <th className='w-[18%]'>Rayon</th>
+                                        <th className='w-[10%]'>Jenis Kelamin</th>
+                                        <th className='w-[10%]'>Jenis Latihan</th>
+                                        <th className='w-[8%]'>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {dataPengujiRanting.filter(a => a.id_role === 'penguji ranting').map((item, index) => (
-                                        <tr key={index + 1} className={`text-center ${item.active ? 'text-white': 'text-red'}`}>
+                                    {dataSiswa.map((item, index) => (
+                                        <tr key={index + 1} className='text-white text-center'>
                                             <td className='border-b-2 py-3 border-gray'>{index + 1}</td>
-                                            <td className='border-b-2 border-gray'>{item.NIW}</td>
-                                            <td className='border-b-2 border-gray'>{item.name}</td>
-                                            <td className='border-b-2 border-gray'>{item.id_ranting}</td>
-                                            <td className='border-b-2 border-gray'>{item.username}</td>
-                                            <td className='border-b-2 border-gray'>{item.no_wa}</td>
-                                            <td className='border-b-2 border-gray p-3'>
-                                                <img className='rounded-lg object-cover h-28 w-28' src={IMAGE_URL + item?.foto} alt="" />
-                                            </td>
+                                            <td className='border-b-2 border-gray'>{item.nomor_urut}</td>
+                                            <td className='border-b-2 border-gray text-left'>{item.name}</td>
+                                            <td className='border-b-2 border-gray'>{item.rayon}</td>
+                                            <td className='border-b-2 border-gray'>{item.jenis_kelamin}</td>
+                                            <td className='border-b-2 border-gray'>{item.jenis_latihan}</td>
                                             <td className='border-b-2 border-gray'>
                                                 <div className="flex gap-x-2">
-                                                    <button onClick={() => editModal(item)} className="bg-green hover:bg-white text-white hover:text-green py-2 rounded-md w-28 flex justify-center items-center space-x-1 mx-auto group duration-300">
+                                                    <button onClick={() => editModal(item)} className="bg-green hover:bg-white text-white hover:text-green py-2 w-full rounded-md flex justify-center items-center space-x-1 mx-auto group duration-300">
                                                         <svg className='stroke-white group-hover:stroke-green duration-300' width="24" height="24" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M19 31.6667H33.25" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                                                             <path d="M26.125 5.54166C26.7549 4.91177 27.6092 4.55791 28.5 4.55791C28.9411 4.55791 29.3778 4.64478 29.7853 4.81358C30.1928 4.98237 30.5631 5.22977 30.875 5.54166C31.1869 5.85355 31.4343 6.22382 31.6031 6.63132C31.7719 7.03883 31.8588 7.47559 31.8588 7.91666C31.8588 8.35774 31.7719 8.7945 31.6031 9.202C31.4343 9.60951 31.1869 9.97977 30.875 10.2917L11.0833 30.0833L4.75 31.6667L6.33333 25.3333L26.125 5.54166Z" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                                                         </svg>
-                                                        <h1>Edit</h1>
                                                     </button>
-                                                    <button onClick={() => deleteModal(item.id_penguji)} className="bg-red hover:bg-white text-white hover:text-red py-2 rounded-md w-28 flex justify-center items-center space-x-[1px] mx-auto group duration-300">
+                                                    <button onClick={() => deleteModal(item.id_siswa)} className="bg-red hover:bg-white text-white hover:text-red py-2 rounded-md w-full flex justify-center items-center space-x-[1px] mx-auto group duration-300">
                                                         <svg className='stroke-white group-hover:stroke-red duration-300' width="22" height="22" viewBox="0 0 29 33" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M4.1543 5.76929L5.64468 29.6154C5.71547 30.9933 6.71776 32.0001 8.0293 32.0001H21.7408C23.0576 32.0001 24.0412 30.9933 24.1255 29.6154L25.6158 5.76929" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                             <path d="M1.76953 5.76929H28.0003H1.76953Z" fill="black" />
                                                             <path d="M1.76953 5.76929H28.0003" strokeWidth="2" strokeLinecap="round" />
                                                             <path d="M10.1157 5.76924V2.78847C10.115 2.55341 10.1608 2.32054 10.2504 2.10324C10.3401 1.88594 10.4718 1.68851 10.638 1.5223C10.8042 1.35609 11.0016 1.22438 11.2189 1.13474C11.4362 1.04511 11.6691 0.999319 11.9041 1.00001H17.8657C18.1007 0.999319 18.3336 1.04511 18.5509 1.13474C18.7682 1.22438 18.9656 1.35609 19.1319 1.5223C19.2981 1.68851 19.4298 1.88594 19.5194 2.10324C19.609 2.32054 19.6548 2.55341 19.6541 2.78847V5.76924M14.8849 10.5385V27.2308M9.51953 10.5385L10.1157 27.2308M20.2503 10.5385L19.6541 27.2308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                         </svg>
-                                                        <h1>Delete</h1>
                                                     </button>
                                                 </div>
                                             </td>
@@ -275,19 +259,15 @@ const penguji_ranting = () => {
             </div>
 
             {/*memanggil modal  */}
-            <globalState.Provider value={{ showModalPengujiRanting, setShowModalPengujiRanting, dataPengujiRanting, setDataPengujiRanting, action, setAction, idPengujiRanting, setIdPengujiRanting, niw, setNiw, name, setName, ranting, setRanting, username, setUsername, password, setPassword, noWa, setNoWa, role, setRole, foto, setFoto, newWeb, setNewWeb }}>
-                <Modal_penguji_ranting />
+            <globalState.Provider value={{ showModalSiswa, setShowModalSiswa, dataSiswa, setDataSiswa, action, setAction, idSiswa, setIdSiswa, noUrut, setNoUrut, siswaName, setSiswaName, ranting, setRanting, rayon, setRayon, jenisKelamin, setJenisKelamin, jenisLatihan, setJenisLatihan, ukt, setUkt, event, setEvent }}>
+                <Modal_siswa />
             </globalState.Provider>
 
-            <globalState.Provider value={{ modalFilter, setModalFilter, dataRanting, setDataRanting }}>
-                <ModalFilterPengujiRanting />
-            </globalState.Provider>
-
-            <globalState.Provider value={{ showModalDelete, setShowModalDelete, dataPengujiRanting, setDataPengujiRanting, action, setAction, idPengujiRanting }}>
+            <globalState.Provider value={{ showModalDelete, setShowModalDelete, action, setDataSiswa, idSiswa, ranting }}>
                 <Modal_delete />
             </globalState.Provider>
         </>
     )
 }
 
-export default penguji_ranting
+export default detail_siswa

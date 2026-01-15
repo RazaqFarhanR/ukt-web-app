@@ -59,7 +59,7 @@ const penguji = () => {
     } catch (error) {
         console.error('Failed to download template:', error);
     }
-};
+    };
 
     const getRole = () => {
         const role = JSON.parse(localStorage.getItem('admin'))

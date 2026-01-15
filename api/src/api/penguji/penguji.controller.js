@@ -439,7 +439,8 @@ module.exports = {
                             username: String(row.getCell(6).value || '').trim(),
                             foto: row.getCell(7).value || 'default.png',
                             password: hash,
-                            no_wa: String(row.getCell(9).value || '').trim()
+                            no_wa: String(row.getCell(9).value || '').trim(),
+                            active: true
                         };
                     })
             );

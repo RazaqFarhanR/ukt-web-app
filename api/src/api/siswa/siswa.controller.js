@@ -40,22 +40,150 @@ module.exports = {
                 })
             })
     },
-    controllerGetCount: async (req, res) => {
-        siswa.findAll({
-            attributes: ['id_ranting', [Sequelize.fn('COUNT', Sequelize.col('id_ranting')), 'count']],
-            group: ['id_ranting']
-        })
-            .then(result => {
-                res.json({
-                    count: result.length,
-                    data: result
-                });
+    controllerGetCountSiswa: async (req, res) => {
+        try {
+            const result = await siswa.findAll({
+                attributes: [
+                    'id_ranting',
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = true THEN 1 ELSE 0 END)`
+                        ),
+                        'count_active'
+                    ],
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = false THEN 1 ELSE 0 END)`
+                        ),
+                        'count_disabled'
+                    ]
+                ],
+                group: ['id_ranting']
             })
-            .catch(error => {
-                res.json({
-                    message: error.message
-                })
+
+            res.json({
+                count: result.length,
+                data: result
             })
+        } catch (error) {
+            res.json({ message: error.message })
+        }
+    },
+    controllerGetCountSiswaTipeRantingbyEvent: async (req, res) => {
+        try {
+            const tipe = req.params.tipe
+            const ranting = req.params.ranting
+            const result = await siswa.findAll({
+                where: {
+                    tipe_ukt: tipe,
+                    id_ranting: ranting
+                },
+                attributes: [
+                    'id_event',
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = true THEN 1 ELSE 0 END)`
+                        ),
+                        'count_active'
+                    ],
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = false THEN 1 ELSE 0 END)`
+                        ),
+                        'count_disabled'
+                    ]
+                ],
+                include: [
+                    {
+                        model: event,
+                        as: "siswa_event",
+                        attributes: ['name'],
+                        required: false
+                    }
+                ],
+                group: ['id_event']
+            })
+
+            res.json({
+                count: result.length,
+                data: result
+            })
+        } catch (error) {
+            res.json({ message: error.message })
+        }
+    },
+    controllerGetCountSiswaTipe: async (req, res) => {
+        try {
+            const tipe = req.params.tipe
+
+            const result = await siswa.findAll({
+                where: {
+                    tipe_ukt: tipe
+                },
+                attributes: [
+                    'id_ranting',
+
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN siswa.active = true THEN 1 ELSE 0 END)`
+                        ),
+                        'count_active'
+                    ],
+
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN siswa.active = false THEN 1 ELSE 0 END)`
+                        ),
+                        'count_disabled'
+                    ],
+                ],
+                include: [
+                    {
+                        model: event,
+                        as: 'siswa_event',
+                        attributes: [],
+                        required: false
+                    }
+                ],
+                group: ['siswa.id_ranting']
+            })
+            const eventCount = await event.findAll({
+                where: { tipe_ukt: tipe },
+                attributes: ['id_ranting',
+                    [Sequelize.fn('COUNT',
+                        Sequelize.fn('DISTINCT', Sequelize.col('id_event'))),
+                        'count_event']],
+                group: ['id_ranting']
+            })
+            const ranting = await models.ranting.findAll({
+                attributes: ['id_ranting']
+            })
+            const siswaData = result.map(r => r.get({ plain: true }))
+            const eventData = eventCount.map(e => e.get({ plain: true }))
+            const rantingData = ranting.map(r => r.get({ plain: true }))
+
+            // merge based on ranting
+            const dataResult = rantingData.map(rantingRow => {
+                const matchSiswa = siswaData.find(s => s.id_ranting === rantingRow.id_ranting)
+                const matchEvent = eventData.find(e => e.id_ranting === rantingRow.id_ranting)
+
+                return {
+                    id_ranting: rantingRow.id_ranting,
+                    count_active: matchSiswa ? matchSiswa.count_active : 0,
+                    count_disabled: matchSiswa ? matchSiswa.count_disabled : 0,
+                    count_event: matchEvent ? matchEvent.count_event : 0
+                }
+            })
+
+            res.json({
+                count: dataResult.length,
+                data: dataResult
+            })
+
+
+        } catch (error) {
+            res.json({ message: error.message })
+        }
     },
     controllerGetByEvent: async (req, res) => {
         siswa.findAll({
@@ -63,14 +191,37 @@ module.exports = {
                 id_event: req.params.id
             },
             attributes: ['id_siswa', 'nomor_urut', 'name', 'rayon', 'jenis_kelamin', 'jenis_latihan'],
-            include: [
+        })
+            .then(siswa => {
+                res.json({
+                    count: siswa.length,
+                    data: siswa
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
+    controllerGetByEventSearchName: async (req, res) => {
+        siswa.findAll({
+            where: {
+                id_event: req.params.id,
+                [Op.or]: [
                 {
-                    model: event,
-                    as: "siswa_event",
-                    attributes: ['name'],
-                    required: false
+                    name: {
+                        [Op.like]: `%${req.params.name}%`
+                    }
                 },
+                {
+                    nomor_urut: {
+                        [Op.like]: `%${req.params.name}%`
+                    }
+                }
             ]
+            },
+            attributes: ['id_siswa', 'nomor_urut', 'name', 'rayon', 'jenis_kelamin', 'jenis_latihan'],
         })
             .then(siswa => {
                 res.json({

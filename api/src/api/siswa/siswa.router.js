@@ -39,16 +39,22 @@ const {
     controllerGetSearch,
     controllerAddByCsv,
     controllerAuth,
-    controllerGetCount,
+    controllerGetCountSiswa,
     controllerDisabledByEvent,
+    controllerGetCountSiswaTipe,
+    controllerGetCountSiswaTipeRantingbyEvent,
+    controllerGetByEventSearchName,
 } = require('./siswa.controller');
 
 
 const verifyRoles = require("../../middleware/verifyRoles")
 
 router.get('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetAll)
-router.get('/count', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCount)
+router.get('/count/siswa', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountSiswa)
+router.get('/count/siswa/:tipe', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountSiswaTipe)
+router.get('/count/siswa/:tipe/:ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountSiswaTipeRantingbyEvent)
 router.get('/event/new/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEvent)
+router.get('/event/new/:id/:name', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEventSearchName)
 router.get('/event/non_aktifkan/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDisabledByEvent)
 router.get('/event/:id/:action', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEventFiltered)
 router.get('/ranting/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByRanting)
