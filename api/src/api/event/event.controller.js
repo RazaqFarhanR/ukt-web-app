@@ -29,6 +29,7 @@ module.exports = {
                 'id_event',
                 'name',
                 'tipe_ukt',
+                'is_active',
                 'id_ranting',
                 [fn('COUNT', col('siswa_event.id_siswa')), 'jumlah_siswa']
             ],
@@ -152,6 +153,26 @@ module.exports = {
         event.findAll({
             where: {
                 tipe_ukt: req.params.id,
+                is_active: true
+            }
+        })
+            .then(event => {
+                res.json({
+                    count: event.length,
+                    data: event
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
+    controllerGetByTipeUktRantingPUBLIC: async (req, res) => {
+        event.findAll({
+            where: {
+                tipe_ukt: req.params.id,
+                id_ranting: req.params.ranting,
                 is_active: true
             }
         })

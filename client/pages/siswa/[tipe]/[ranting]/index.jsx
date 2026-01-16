@@ -10,7 +10,7 @@ const index = () => {
     const router = useRouter()
 
     //param value
-    const {tipe} = router.query
+    const {tipe, ranting} = router.query
 
     //state
     const [events,setEvents] = useState([])
@@ -22,7 +22,7 @@ const index = () => {
     }
 
     const getEvents = async () => {
-        await axios.get(BASE_URL + `event/siswa/ukt/${router.query.tipe}`)
+        await axios.get(BASE_URL + `event/siswa/ukt/${tipe}/${ranting}`)
         .then(res => {
             setEvents(res.data.data)
         })
@@ -36,7 +36,7 @@ const index = () => {
             return;
         }
         getEvents()
-    }, [tipe])
+    }, [tipe, ranting])
     
 
     return (

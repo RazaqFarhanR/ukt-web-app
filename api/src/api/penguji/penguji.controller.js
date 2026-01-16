@@ -320,6 +320,7 @@ module.exports = {
                         foto: req.file?.filename,
                         password: hash,
                         no_wa: req.body.no_wa,
+                        active: false
                     };
                     const result = await penguji.create(data);
                     res.json({
@@ -340,6 +341,7 @@ module.exports = {
                     username: req.body.username,
                     password: req.body.password,
                     no_wa: req.body.no_wa,
+                    active: false
                 };
                 const result = await penguji.create(data);
                 res.json({
@@ -354,7 +356,6 @@ module.exports = {
             res.json(error);
         }
     },
-
     controllerDownloadTemplateExcel: async (req, res) => {
         try {
             const workbook = new ExcelJS.Workbook();
@@ -581,6 +582,31 @@ module.exports = {
             return res.status(500).json({ message: "Terjadi kesalahan pada server" });
         }
     },
+    controllerEditVerificaiton: async (req, res) => {
+        try {
+            let param = {
+                id_penguji: req.params.id,
+            };
+            const data = {
+                active: true
+            }
+            penguji
+                .update(data, { where: param })
+                .then((result) => {
+                    res.json({
+                        message: "admin has verified this penguji"
+                    });
+                })
+                .catch((error) => {
+                    res.json({
+                        message: error.message,
+                    });
+                });
+
+        } catch (error) {
+            res.status(404).json({ message: error.message });
+        }
+    },
     controllerEdit: async (req, res) => {
         const password = req.body.password == null ? 'check' : req.body.password
         const hash = await bcrypt.hash(password, salt);
@@ -679,6 +705,19 @@ module.exports = {
             res.status(404).json({ message: error.message });
         }
     },
+    // const newData = {
+    //     id_event: req.body.id_event,
+    //     nomor_urut: values[0],
+    //     name: values[1],
+    //     id_role: idRole,
+    //     jenis_kelamin: dataKelamin,
+    //     jenis_latihan: values[3],
+    //     peserta: values[3] + ' - ' + dataKelamin,
+    //     tipe_ukt: req.body.tipe_ukt,
+    //     id_ranting: values[4],
+    //     rayon: values[5],
+    //     tingkatan: values[6],
+    // };
     controllerDelete: async (req, res) => {
         let param = {
             id_penguji: req.params.id

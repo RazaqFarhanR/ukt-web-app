@@ -1,5 +1,6 @@
 const fs = require("fs");
 const csv = require('csv-parser');
+const ExcelJS = require('exceljs');
 const { Sequelize, Op } = require("sequelize");
 const localStorage = process.env.LOCAL_STORAGE + "/";
 
@@ -67,6 +68,58 @@ module.exports = {
             })
         } catch (error) {
             res.json({ message: error.message })
+        }
+    },
+    controllerDisabledById: async (req, res) => {
+        try {
+            const { id, tipe } = req.body;
+            const data = tipe == 'individu' ? {
+                id_siswa: id
+            } : { id_event: id }
+            const [updated] = await siswa.update(
+                { active: 0 },
+                { where: data }
+            );
+            if (updated === 0) {
+                return res.status(404).json({
+                    message: "Siswa not found"
+                });
+            }
+
+            res.status(200).json({
+                message: `Siswa disabled successfully`,
+                id
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
+    controllerActivatedById: async (req, res) => {
+        try {
+            const { id, tipe } = req.body;
+            const data = tipe == 'individu' ? {
+                id_siswa: id
+            } : { id_event: id }
+            const [updated] = await siswa.update(
+                { active: 1 },
+                { where: data }
+            );
+            if (updated === 0) {
+                return res.status(404).json({
+                    message: "Siswa not found"
+                });
+            }
+
+            res.status(200).json({
+                message: `Siswa disabled successfully`,
+                id
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
         }
     },
     controllerGetCountSiswaTipeRantingbyEvent: async (req, res) => {
@@ -190,7 +243,7 @@ module.exports = {
             where: {
                 id_event: req.params.id
             },
-            attributes: ['id_siswa', 'nomor_urut', 'name', 'rayon', 'jenis_kelamin', 'jenis_latihan'],
+            attributes: ['id_siswa', 'nomor_urut', 'name', 'rayon', 'jenis_kelamin', 'jenis_latihan', 'active'],
         })
             .then(siswa => {
                 res.json({
@@ -209,17 +262,17 @@ module.exports = {
             where: {
                 id_event: req.params.id,
                 [Op.or]: [
-                {
-                    name: {
-                        [Op.like]: `%${req.params.name}%`
+                    {
+                        name: {
+                            [Op.like]: `%${req.params.name}%`
+                        }
+                    },
+                    {
+                        nomor_urut: {
+                            [Op.like]: `%${req.params.name}%`
+                        }
                     }
-                },
-                {
-                    nomor_urut: {
-                        [Op.like]: `%${req.params.name}%`
-                    }
-                }
-            ]
+                ]
             },
             attributes: ['id_siswa', 'nomor_urut', 'name', 'rayon', 'jenis_kelamin', 'jenis_latihan'],
         })
@@ -732,6 +785,127 @@ module.exports = {
                         res.json({ message: error.message })
                     })
             });
+    },
+    controllerExcel: async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'File is required' });
+            }
+
+            const filePath = localStorage + req.file.filename;
+            const workbook = new ExcelJS.Workbook();
+
+            await workbook.xlsx.readFile(filePath);
+
+            const worksheet = workbook.getWorksheet(1); // first sheet
+            const rows = worksheet.getRows(2, worksheet.rowCount - 1);
+
+            const bulkData = await Promise.all(
+                rows
+                    .filter(row => row && row.getCell(1).value)
+                    .map(async (row) => {
+                        let dataKelamin = '';
+                        if (String(row.getCell(3).value) === 'L') {
+                            dataKelamin = 'Laki laki';
+                        } else if (String(row.getCell(3).value) === 'P') {
+                            dataKelamin = 'Perempuan';
+                        }
+                        let peserta = String(row.getCell(4).value).trim() + ' - ' + dataKelamin
+                        return {
+                            id_event: req.body.id_event,
+                            tipe_ukt: req.body.tipe_ukt,
+                            nomor_urut: String(row.getCell(1).value).trim(),
+                            name: String(row.getCell(2).value || '').trim(),
+                            id_role: 'siswa',
+                            jenis_kelamin: dataKelamin,
+                            jenis_latihan: String(row.getCell(4).value).trim(),
+                            peserta: peserta,
+                            id_ranting: String(row.getCell(5).value || '').trim(),
+                            id_cabang: 'jatim',
+                            rayon: String(row.getCell(6).value).trim(),
+                            tingkatan: String(row.getCell(7).value).trim(),
+                            active: true,
+                        };
+                    })
+            );
+
+            if (bulkData.length === 0) {
+                return res.status(400).json({ message: 'No valid data found in Excel' });
+            }
+
+            // Batch insert (FAST)
+            await siswa.bulkCreate(bulkData, {
+                validate: true,
+                individualHooks: false
+            });
+
+            // Delete uploaded file
+            fs.unlink(filePath, (err) => {
+                if (err) console.error('Failed to delete excel:', err);
+            });
+
+            res.json({
+                message: 'Excel data successfully inserted',
+                total: bulkData.length
+            });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
+    controllerDownloadTemplateExcel: async (req, res) => {
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Template Siswa');
+
+            // Define columns (header + width)
+            worksheet.columns = [
+                { header: 'Nomor Urut', key: 'nomor_urut', width: 20 },
+                { header: 'Name', key: 'name', width: 25 },
+                { header: 'Jenis Kelamin', key: 'jenis_kelamin', width: 25 },
+                { header: 'Jenis Latihan', key: 'jenis_latihan', width: 25 },
+                { header: 'Ranting', key: 'id_ranting', width: 15 },
+                { header: 'Rayon', key: 'rayon', width: 20 },
+                { header: 'tingkatan', key: 'tingkatan', width: 20 },
+            ];
+
+            // Style header row
+            worksheet.getRow(1).font = { bold: true };
+            worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            // Sample row with defaults
+            worksheet.addRow({
+                nomor_urut: '',
+                name: '',
+                jenis_kelamin: 'L / P',
+                jenis_latihan: 'Privat / Remaja',
+                id_ranting: '',
+                rayon: '',
+                tingkatan: '',
+            });
+
+            // Set response headers
+            res.setHeader(
+                'Content-Type',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            );
+            res.setHeader(
+                'Content-Disposition',
+                'attachment; filename=template_penguji.xlsx'
+            );
+
+            // Send workbook
+            await workbook.xlsx.write(res);
+            res.end();
+
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
     },
     controllerEdit: async (req, res) => {
         let param = {

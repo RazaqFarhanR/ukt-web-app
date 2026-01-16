@@ -217,7 +217,7 @@ const modal_delete = () => {
                     console.log(err.message);
                 })
         } else if (action === 'deleteSiswa') {
-            axios.delete(BASE_URL + `siswa/${idSiswa}`, { headers: { Authorization: `Bearer ${token}` } })
+            axios.patch(BASE_URL + `siswa/non_aktifkan`,{id: idSiswa, tipe: 'individu'},{ headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     getDataSiswa()
                     setShowModalDelete(false)
@@ -226,7 +226,17 @@ const modal_delete = () => {
                 .catch(err => {
                     console.log(err.message);
                 })
-        } else if (action === 'deleteEvent') {
+        } else if (action === 'deleteSiswaEvent') {
+            axios.patch(BASE_URL + `siswa/non_aktifkan`,{id: idSiswa, tipe: 'event'},{ headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                    getDataSiswa()
+                    setShowModalDelete(false)
+                    // console.log(res.data.message);
+                })
+                .catch(err => {
+                    console.log(err.message);
+                })
+        }else if (action === 'deleteEvent') {
             axios.delete(BASE_URL + `event/${idEvent}`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     getDataEvent()
