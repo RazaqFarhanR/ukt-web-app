@@ -98,7 +98,7 @@ const index = () => {
                                                         key={index + 1}
                                                         onClick={() =>
                                                             router.push({
-                                                                pathname: `/siswa/${router.query.tipe}/${item.name.toLowerCase()}`
+                                                                pathname: `/siswa/${router.query.tipe}/${item.name}`
                                                             })
                                                         }
                                                         className="w-full bg-[#1B2537] py-5"

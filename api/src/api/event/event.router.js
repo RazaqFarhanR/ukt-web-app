@@ -17,6 +17,7 @@ const {
     controllerDelete,
     controllerGetByTipeUktPUBLIC,
     controllerGetForPengujiPage,
+    controllerGetByTipeUktRantingPUBLIC,
 } = require('./event.controller');
 
 
@@ -28,6 +29,7 @@ router.get('/siswaCount/:id', Auth, verifyRoles("admin", "super admin", "admin r
 router.get('/ukt/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByTipeUkt)
 router.get('/ukt/:id/:ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByTipeUktRanting)
 router.get('/siswa/ukt/:id', controllerGetByTipeUktPUBLIC)
+router.get('/siswa/ukt/:id/:ranting', controllerGetByTipeUktRantingPUBLIC)
 router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerAdd)
 router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerEdit)
 router.delete('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDelete)

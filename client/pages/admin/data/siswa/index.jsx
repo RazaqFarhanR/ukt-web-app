@@ -7,6 +7,7 @@ import Sidebar from '../../components/sidebar'
 import Header from '../../components/header'
 import Footer from '../../components/footer'
 import Modal_CSV from '../../components/modal_csv'
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const siswa = () => {
@@ -69,7 +70,7 @@ const siswa = () => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'template_penguji.xlsx');
+            link.setAttribute('download', 'template_siswa.xlsx');
 
             document.body.appendChild(link);
             link.click();

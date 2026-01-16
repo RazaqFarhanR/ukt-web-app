@@ -136,13 +136,25 @@ const penguji_ranting = () => {
             router.push('/admin/login')
         }
     }
+    const handleVerification = (e) => {
+        const token = localStorage.getItem('token')
 
+        axios.patch(BASE_URL + `penguji/verification/${e.id_penguji}`, {}, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+                setShowModalPengujiRanting(false)
+                getDataPengujiRanting()
+                // console.log(res.data.data.message);
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
+    }
     useEffect(() => {
         setNewWeb(web)
         getDataPengujiRanting()
         isLogged()
         getRole()
-    }, [router.isReady])
+    }, [router.isReady, web])
 
     return (
         <>
@@ -240,6 +252,13 @@ const penguji_ranting = () => {
                                             </td>
                                             <td className='border-b-2 border-gray'>
                                                 <div className="flex gap-x-2">
+                                                    <button onClick={() => handleVerification(item)} className="bg-yellow hover:bg-white text-white hover:text-green py-2 rounded-md w-28 flex justify-center items-center space-x-1 mx-auto group duration-300">
+                                                        <svg className='stroke-white group-hover:stroke-green duration-300' width="24" height="24" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M19 31.6667H33.25" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                                            <path d="M26.125 5.54166C26.7549 4.91177 27.6092 4.55791 28.5 4.55791C28.9411 4.55791 29.3778 4.64478 29.7853 4.81358C30.1928 4.98237 30.5631 5.22977 30.875 5.54166C31.1869 5.85355 31.4343 6.22382 31.6031 6.63132C31.7719 7.03883 31.8588 7.47559 31.8588 7.91666C31.8588 8.35774 31.7719 8.7945 31.6031 9.202C31.4343 9.60951 31.1869 9.97977 30.875 10.2917L11.0833 30.0833L4.75 31.6667L6.33333 25.3333L26.125 5.54166Z" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                        <h1>Verify</h1>
+                                                    </button>
                                                     <button onClick={() => editModal(item)} className="bg-green hover:bg-white text-white hover:text-green py-2 rounded-md w-28 flex justify-center items-center space-x-1 mx-auto group duration-300">
                                                         <svg className='stroke-white group-hover:stroke-green duration-300' width="24" height="24" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M19 31.6667H33.25" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
