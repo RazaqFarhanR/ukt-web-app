@@ -44,6 +44,10 @@ const {
     controllerGetCountSiswaTipe,
     controllerGetCountSiswaTipeRantingbyEvent,
     controllerGetByEventSearchName,
+    controllerDisabledById,
+    controllerActivatedById,
+    controllerDownloadTemplateExcel,
+    controllerExcel,
 } = require('./siswa.controller');
 
 
@@ -52,6 +56,9 @@ const verifyRoles = require("../../middleware/verifyRoles")
 router.get('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetAll)
 router.get('/count/siswa', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountSiswa)
 router.get('/count/siswa/:tipe', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountSiswaTipe)
+router.patch('/non_aktifkan', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDisabledById)
+router.patch('/aktifkan', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerActivatedById)
+router.get('/download/template', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDownloadTemplateExcel)
 router.get('/count/siswa/:tipe/:ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountSiswaTipeRantingbyEvent)
 router.get('/event/new/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEvent)
 router.get('/event/new/:id/:name', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEventSearchName)
@@ -65,6 +72,7 @@ router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "adm
 router.post('/event', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEventNew)
 router.post('/auth', controllerAuth)
 router.post('/csv', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), upload2.single("csvFile"), controllerAddByCsv)
+router.post('/excel', upload2.single("excelFile"), controllerExcel )
 router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "	penguji cabang", "penguji ranting"), controllerEdit)
 router.delete('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDelete)
 
