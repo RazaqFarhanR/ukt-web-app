@@ -51,7 +51,7 @@ const Modal_CSV = () => {
         const token = localStorage.getItem('token')
 
         let form = new FormData()
-        form.append('csvFile', fileCSV)
+        form.append('excelFile', fileCSV)
         form.append('id_event', event.id)
         form.append('tipe_ukt', event.tipe_ukt)
         // let form = {
@@ -60,7 +60,7 @@ const Modal_CSV = () => {
         //     tipe_ukt: event.tipe_ukt
         // }
 
-        axios.post(BASE_URL + `siswa/csv`, form, { headers: { Authorization: `Bearer ${token}` } })
+        axios.post(BASE_URL + `siswa/excel`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setShowModalCSV(false)
                 console.log(res.data.message);

@@ -8,19 +8,23 @@ const index = () => {
     const tipeUkt = [
         {
             name: "UKT JAMBON",
-            link: "/siswa/ukt jambon"
+            link: "/siswa/ukt jambon",
+            fill: "bg-[#FF32DE]"
         },
         {
             name: "UKT HIJAU",
             link: "/siswa/ukt hijau",
+            fill: "bg-[#0B8800]"
         },
         {
             name: "UKT PUTIH",
             link: "/siswa/ukt putih",
+            fill: "bg-[#FFFFFF]"
         },
         {
             name: "UKCW",
-            link: "/siswa/ukcw"
+            link: "/siswa/ukcw",
+            fill: 'bg-[#2D3844]'
         }
     ]
 
@@ -49,10 +53,10 @@ const index = () => {
                         <div className='flex flex-col md:flex-row justify-between mx-10'>
                             {tipeUkt.map(item => (
                                 <button
-                                    className='bg-[#1B2537] w-full md:w-[20%] py-12 md:py-24 my-2 rounded-xl active:bg-[#192334]'
+                                    className={`${item.fill} w-full md:w-[20%] py-12 md:py-24 my-2 rounded-xl active:bg-[#192334]`}
                                     onClick={() => router.push(item.link)}
                                 >
-                                    <h1 className='text-[#42C6A3] text-2xl text-center font-bold tracking-wider'>{item.name}</h1>
+                                    <h1 className={`text-navy text-2xl text-center font-bold tracking-wider`}>{item.name}</h1>
                                 </button>
                             ))}
                         </div>
