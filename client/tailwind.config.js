@@ -19,7 +19,8 @@ module.exports = {
         green : '#42C6A3',
         yellow : '#E49F2F',
         red : '#CA3030',
-        gray : '#585884'
+        gray : '#585884',
+        blue: '#0577FF',
       },
       fontFamily : {
         'lato' : ['Lato', 'sans-serif'],

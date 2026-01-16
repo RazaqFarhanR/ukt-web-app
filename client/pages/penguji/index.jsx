@@ -90,7 +90,7 @@ const index = () => {
                         </Link>
 
                         {/* card ukt Putih */}
-                        <Link href={'/penguji/event?tipe=UKT+Jambon'}>
+                        <Link href={'/penguji/event?tipe=UKT+Putih'}>
                             <div className="hover:scale-105 transition ease-in-out duration-500 hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5  mt-4">
                                 <div className="bg-navy shadow drop-shadow-lg rounded-md p-5 text-center">
                                     <h1 className='text-xl font-semibold text-green tracking-wide'>UKT Putih</h1>

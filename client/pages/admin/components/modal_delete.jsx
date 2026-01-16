@@ -176,7 +176,7 @@ const modal_delete = () => {
                 })
         } else if (action === 'deletePengujiRanting') {
             axios.patch(
-                BASE_URL + `penguji/non_aktifkan`,{id: idPengujiRanting, tipe:'individu'}, { headers: { Authorization: `Bearer ${token}` } })
+                BASE_URL + `penguji/non_aktifkan`,{id: idPengujiRanting, tipe:'individu', active:0}, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     getDataPengujiRanting();
                     setShowModalDelete(false);
@@ -185,9 +185,20 @@ const modal_delete = () => {
                 .catch(err => {
                     console.log(err.response?.data || err.message);
                 });
-        }else if (action === 'deletePengujiRantingTipeRanting') {
+        } else if (action === 'deletePengujiRantingTipeRanting') {
             axios.patch(
-                BASE_URL + `penguji/non_aktifkan`,{id: idPengujiRanting, tipe:'ranting'}, { headers: { Authorization: `Bearer ${token}` } })
+                BASE_URL + `penguji/non_aktifkan`,{id: idPengujiRanting, tipe:'ranting', active:0}, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                    getDataPengujiRanting();
+                    setShowModalDelete(false);
+                    // console.log(res.data.message);
+                })
+                .catch(err => {
+                    console.log(err.response?.data || err.message);
+                });
+        } else if (action === 'deletePengujiRantingNull') {
+            axios.patch(
+                BASE_URL + `penguji/non_aktifkan`,{id: idPengujiRanting, tipe:'individu', active:null}, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     getDataPengujiRanting();
                     setShowModalDelete(false);

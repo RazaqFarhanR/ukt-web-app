@@ -192,7 +192,10 @@ module.exports = {
             let whereClause = {
                 id_ranting,
                 id_role,
-                createdAt: { [Op.gt]: d }
+                createdAt: { [Op.gt]: d },
+                active: {
+                    [Op.ne]: null
+                }
             };
 
             // only add name filter if name is not empty
@@ -277,12 +280,12 @@ module.exports = {
     },
     controllerDisabledById: async (req, res) => {
         try {
-            const { id, tipe } = req.body;
+            const { id, tipe, active } = req.body;
             const data = tipe == 'individu' ? {
                 id_penguji: id
             } : { id_ranting: id }
             const [updated] = await penguji.update(
-                { active: 0 },
+                { active: null },
                 { where: data }
             );
             if (updated === 0) {
@@ -369,7 +372,6 @@ module.exports = {
                 { header: 'ID Ranting', key: 'id_ranting', width: 15 },
                 { header: 'ID Cabang', key: 'id_cabang', width: 15 },
                 { header: 'Username', key: 'username', width: 20 },
-                { header: 'Foto', key: 'foto', width: 20 },
                 { header: 'Password', key: 'password', width: 20 },
                 { header: 'No WA', key: 'no_wa', width: 20 }
             ];
@@ -386,7 +388,53 @@ module.exports = {
                 id_ranting: '',
                 id_cabang: 'jatim',
                 username: '',
-                foto: 'default.png',
+                password: '',
+                no_wa: ''
+            });
+
+            // Set response headers
+            res.setHeader(
+                'Content-Type',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            );
+            res.setHeader(
+                'Content-Disposition',
+                'attachment; filename=template_penguji.xlsx'
+            );
+
+            // Send workbook
+            await workbook.xlsx.write(res);
+            res.end();
+
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
+    controllerDownloadTemplateExcelRanting: async (req, res) => {
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Template Penguji');
+
+            // Define columns (header + width)
+            worksheet.columns = [
+                { header: 'NIW', key: 'NIW', width: 20 },
+                { header: 'Name', key: 'name', width: 25 },
+                { header: 'Username', key: 'username', width: 20 },
+                { header: 'Password', key: 'password', width: 20 },
+                { header: 'No WA', key: 'no_wa', width: 20 }
+            ];
+
+            // Style header row
+            worksheet.getRow(1).font = { bold: true };
+            worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+            // Sample row with defaults
+            worksheet.addRow({
+                NIW: '',
+                name: '',
+                username: '',
                 password: '',
                 no_wa: ''
             });
@@ -441,6 +489,71 @@ module.exports = {
                             foto: row.getCell(7).value || 'default.png',
                             password: hash,
                             no_wa: String(row.getCell(9).value || '').trim(),
+                            active: true
+                        };
+                    })
+            );
+
+            console.log('bulkData')
+            console.log(bulkData)
+            if (bulkData.length === 0) {
+                return res.status(400).json({ message: 'No valid data found in Excel' });
+            }
+
+            // Batch insert (FAST)
+            await penguji.bulkCreate(bulkData, {
+                validate: true,
+                individualHooks: false
+            });
+
+            // Delete uploaded file
+            fs.unlink(filePath, (err) => {
+                if (err) console.error('Failed to delete excel:', err);
+            });
+
+            res.json({
+                message: 'Excel data successfully inserted',
+                total: bulkData.length
+            });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
+    controllerExcelRanting: async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'File is required' });
+            }
+
+            const filePath = localStorage + req.file.filename;
+            const ranting = req.body.ranting
+            const workbook = new ExcelJS.Workbook();
+
+            await workbook.xlsx.readFile(filePath);
+
+            const worksheet = workbook.getWorksheet(1); // first sheet
+            const rows = worksheet.getRows(2, worksheet.rowCount - 1);
+
+            const bulkData = await Promise.all(
+                rows
+                    .filter(row => row && row.getCell(1).value)
+                    .map(async (row) => {
+                        const hash = await bcrypt.hash(String(row.getCell(4).value || ''), salt);
+
+                        return {
+                            NIW: String(row.getCell(1).value).trim(),
+                            name: String(row.getCell(2).value || '').trim(),
+                            id_role: 'penguji ranting',
+                            id_ranting: ranting,
+                            id_cabang: 'jatim',
+                            username: String(row.getCell(3).value || '').trim(),
+                            foto: 'default.png',
+                            password: hash,
+                            no_wa: String(row.getCell(5).value || '').trim(),
                             active: true
                         };
                     })

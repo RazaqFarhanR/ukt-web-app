@@ -41,9 +41,12 @@ const siswa = () => {
         });
     }
     const goBack = () => {
+        const role = JSON.parse(localStorage.getItem('admin'))
+        const path = role?.id_role === 'admin ranting' ? '/admin/data/siswa' : '/admin/data/siswa/ranting'
+        const query = role?.id_role == 'admin ranting' ? {} : { tipe: idTipe }
         router.push({
-            pathname: `/admin/data/siswa/ranting`,
-            query: { tipe: idTipe }
+            pathname: path,
+            query: query
         });
     }
     // function login checker
@@ -54,7 +57,6 @@ const siswa = () => {
     }
 
     useEffect(() => {
-        console.log(idTipe)
         getDatasiswa()
         isLogged()
     }, [idTipe])
@@ -91,7 +93,7 @@ const siswa = () => {
                                     <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
                                 </svg>
                             </button>
-                            <h1 className='text-2xl tracking-wider uppercase font-bold'>Data siswa</h1>
+                            <h1 className='text-2xl tracking-wider uppercase font-bold'>Data {idTipe} - {idRanting}</h1>
 
                         </div>
                         {/* ranting data count wrapper */}
