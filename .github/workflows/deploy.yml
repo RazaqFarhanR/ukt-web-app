@@ -114,10 +114,17 @@ jobs:
             echo "Deploying Client..."
 
             # Tentukan folder & container sesuai branch
-            APP_DIR=/srv/apps/ukt-${GITHUB_REF_NAME}
-            CLIENT_CONTAINER=ukt_client_${GITHUB_REF_NAME}
-            CLIENT_IMAGE=ukt-client:${GITHUB_REF_NAME}
-            CLIENT_PORT=$([[ "${GITHUB_REF_NAME}" == "main" ]] && echo 3000 || echo 3001)
+            if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+              APP_DIR=/srv/apps/ukt-prod
+              CLIENT_CONTAINER=ukt_client_prod
+              CLIENT_IMAGE=ukt-client:prod
+              CLIENT_PORT=3000
+            else
+              APP_DIR=/srv/apps/ukt-dev
+              CLIENT_CONTAINER=ukt_client_dev
+              CLIENT_IMAGE=ukt-client:dev
+              CLIENT_PORT=3001
+            fi
 
             cd $APP_DIR
             git fetch origin
