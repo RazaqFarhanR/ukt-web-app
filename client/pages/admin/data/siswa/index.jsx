@@ -86,9 +86,15 @@ const siswa = () => {
 
     // function go to detail siswa
     const goToRantingSiswa = (item) => {
+        const role = JSON.parse(localStorage.getItem('admin'))
+        const path = role.id_role == 'admin ranting' ? `./siswa/ranting/event` : `./siswa/ranting`
+        const query = role.id_role == 'admin ranting' ? {
+            tipe: item,
+            ranting: role.id_ranting
+        } : { tipe: item}
         router.push({
-            pathname: `./siswa/ranting`,
-            query: { tipe: item }
+            pathname: path,
+            query: query
         });
     }
 

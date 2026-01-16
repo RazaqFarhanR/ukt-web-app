@@ -151,7 +151,10 @@ module.exports = {
                         model: event,
                         as: "siswa_event",
                         attributes: ['name'],
-                        required: false
+                        required: true,
+                        where: {
+                            is_active: true
+                        }
                     }
                 ],
                 group: ['id_event']

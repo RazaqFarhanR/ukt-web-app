@@ -128,8 +128,8 @@ const jurus_toya = () => {
 
         const data =
             dataSiswa.tipe_ukt === "UKCW"
-                ? shuffleArray(dataUKCW).slice(0, 8)
-                : shuffleArray(dataUktPutih).slice(0, 4)
+                ? dataUKCW
+                : dataUktPutih
 
         setSelectedButton(data)
     }, [])

@@ -207,7 +207,8 @@ module.exports = {
                     where: {
                         id_ranting: {
                             [Op.in]: rantings
-                        }
+                        },
+                        active: true
                     },
                     include: [
                         {

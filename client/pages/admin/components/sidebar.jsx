@@ -275,7 +275,7 @@ const sidebar = () => {
                                 </Link>
 
                                 {/* ---------- PENGUJI ---------- */}
-                                <Link href={role.id_role !== 'admin ranting' ? '/admin/data/penguji/penguji' : `/admin/data/penguji/penguji`} className={splitLoc[1] && splitLoc[1].startsWith("data/penguji") || splitLoc[1] === 'data/penguji_cabang' || splitLoc[1] === 'data/penguji_ranting' ?
+                                <Link href={role.id_role !== 'admin ranting' ? '/admin/data/penguji/penguji' : `/admin/data/penguji/ranting/${dataAdmin.id_ranting}`} className={splitLoc[1] && splitLoc[1].startsWith("data/penguji") || splitLoc[1] === 'data/penguji_cabang' || splitLoc[1] === 'data/penguji_ranting' ?
 
                                     // clicked
                                     `${showSideBar ? 'px-5 py-2 gap-x-3' : 'justify-center p-2'} bg-white shadow-md shadow-purple rounded-lg flex items-center text-purple`

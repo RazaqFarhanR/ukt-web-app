@@ -56,8 +56,9 @@ const navLinks2 = [
 function MainNavigation(props) {
   const { active, setActive, tipeUkt } = props;
   const dataEvent = tipeUkt
+  console.log(dataEvent)
   const data = dataEvent == "UKCW"
-    ? navLinks2 : dataEvent == "UKT PUTIH"
+    ? navLinks2 : dataEvent == "UKT Putih"
       ? navLinks2 : navLinks1
   const chunkArray = (arr, size) => {
     const chunks = [];
