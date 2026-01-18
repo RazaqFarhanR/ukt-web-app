@@ -16,6 +16,26 @@ module.exports = {
                 })
             })
     },
+    controllerGetAllSelect: async (req, res) => {
+        ranting.findAll(
+            { attributes: ['id_ranting', 'name'] }
+        )
+            .then(ranting => {
+                ranting.map(r => {
+                    r.dataValues.label = r.name;
+                    r.dataValues.value = r.id_ranting;
+                })
+                res.json({
+                    count: ranting.length,
+                    data: ranting
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
     controllerGetAllPublic: async (req, res) => {
         ranting.findAll(
             {
