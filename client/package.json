@@ -14,6 +14,7 @@
     "next": "13.2.4",
     "react": "18.2.0",
     "react-apexcharts": "^1.4.0",
+    "react-avatar-editor": "^14.0.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.2.0",
