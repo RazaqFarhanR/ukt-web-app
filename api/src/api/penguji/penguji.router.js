@@ -42,6 +42,9 @@ const {
     controllerEditVerificaiton,
     controllerDownloadTemplateExcelRanting,
     controllerExcelRanting,
+    controllerGetByUsername,
+    controllerAddSignUp,
+    controllerCheckVerificationById,
 } = require('./penguji.controller');
 
 
@@ -49,6 +52,8 @@ const verifyRoles = require("../../middleware/verifyRoles")
 
 router.get('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetAll )
 router.get('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetById )
+router.get('/cek_username/:username', controllerGetByUsername )
+router.get('/cek_verification/:id', controllerCheckVerificationById )
 router.patch('/non_aktifkan', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "ranting", "penguji cabang", "penguji ranting"), controllerDisabledById)
 router.get('/count/penguji', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountPenguji)
 router.get('/download/template', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDownloadTemplateExcel)
@@ -58,12 +63,14 @@ router.get('/name_dan_ranting', Auth, verifyRoles("admin", "super admin", "admin
 router.post('/ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetRantingFiltered )
 router.post('/NIW/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByNIW )
 router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), upload2.single("foto"), controllerAdd )
+router.post('/daftar', controllerAddSignUp )
 router.post('/auth', controllerAuth )
 
 router.post('/csv', upload2.single("csvFile"), controllerCsv )
 router.post('/excel', upload2.single("excelFile"), controllerExcel )
 router.post('/excel_ranting', upload2.single("excelFile"), controllerExcelRanting )
 router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), upload2.single("foto"), controllerEdit )
+router.patch('/profile_picture/:id', upload2.single("foto"), controllerEdit )
 router.patch('/verification/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerEditVerificaiton )
 router.delete('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDelete )
 

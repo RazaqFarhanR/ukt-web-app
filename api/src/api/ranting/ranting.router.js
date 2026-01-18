@@ -13,7 +13,8 @@ const {
     controllerEdit,
     controllerDelete,
     controllerGetById,
-    controllerGetAllPublic
+    controllerGetAllPublic,
+    controllerGetAllSelect
 } = require('./ranting.controller');
 
 
@@ -23,6 +24,7 @@ const verifyRoles = require("../../middleware/verifyRoles")
 router.get('/public', controllerGetAllPublic)
 
 router.get('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetAll )
+router.get('/select', controllerGetAllSelect )
 router.get('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetById )
 router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerAdd )
 router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerEdit )

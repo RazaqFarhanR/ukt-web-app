@@ -93,6 +93,61 @@ module.exports = {
                 });
             });
     },
+    controllerGetByUsername: async (req, res) => {
+        try {
+            const data = await penguji.findOne({
+                where: {
+                    username: req.params.username
+                },
+                attributes: ['id_penguji', 'username']
+            });
+
+            if (!data) {
+                return res.json({
+                    exists: false,
+                    message: "Username tersedia"
+                });
+            }
+
+            return res.json({
+                exists: true,
+                message: "Username sudah digunakan"
+            });
+
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
+    controllerCheckVerificationById: async (req, res) => {
+        try {
+            const data = await penguji.findOne({
+                where: {
+                    id_penguji: req.params.id
+                },
+                attributes: ['id_penguji', 'username', 'active', 'foto', 'id_ranting']
+            });
+
+            if (!data) {
+                return res.json({
+                    exists: false,
+                    message: "Username tersedia"
+                });
+            }
+
+            return res.json({
+                message: "Berhasil cek verification",
+                data: data,
+            });
+
+        } catch (error) {
+            res.status(500).json({
+                message: error.message
+            });
+        }
+    },
+
     controllerGetByNIW: async (req, res) => {
         try {
             let result = await penguji.findAll({
@@ -285,7 +340,7 @@ module.exports = {
                 id_penguji: id
             } : { id_ranting: id }
             const [updated] = await penguji.update(
-                { active: null },
+                { active: active },
                 { where: data }
             );
             if (updated === 0) {
@@ -355,6 +410,45 @@ module.exports = {
                     message: "error"
                 })
             }
+        } catch (error) {
+            res.json(error);
+        }
+    },
+    controllerAddSignUp: async (req, res) => {
+        const hash = await bcrypt.hash(req.body.password, salt);
+        try {
+            const data = {
+                NIW: req.body.niw,
+                name: req.body.name,
+                id_role: 'penguji ranting',
+                id_ranting: req.body.id_ranting,
+                id_cabang: 'jatim',
+                username: req.body.username,
+                foto: 'default.png',
+                password: hash,
+                no_wa: req.body.no_wa,
+                active: false
+            };
+            const result = await penguji.create(data);
+            res.json({
+                message: "Penguji has been successfully registered, wait for admin verification",
+                data: result
+            });
+        } catch (error) {
+            res.json(error);
+        }
+    },
+    controllerEditUploadProfilePicture: async (req, res) => {
+        try {
+            const data = {
+                foto: req.file?.filename,
+            }
+            console.log(data)
+            await penguji.update(data, {
+                where: {
+                    id_penguji: req.params.id
+                }
+            });
         } catch (error) {
             res.json(error);
         }
@@ -493,9 +587,6 @@ module.exports = {
                         };
                     })
             );
-
-            console.log('bulkData')
-            console.log(bulkData)
             if (bulkData.length === 0) {
                 return res.status(400).json({ message: 'No valid data found in Excel' });
             }
@@ -558,9 +649,6 @@ module.exports = {
                         };
                     })
             );
-
-            console.log('bulkData')
-            console.log(bulkData)
             if (bulkData.length === 0) {
                 return res.status(400).json({ message: 'No valid data found in Excel' });
             }
@@ -818,19 +906,6 @@ module.exports = {
             res.status(404).json({ message: error.message });
         }
     },
-    // const newData = {
-    //     id_event: req.body.id_event,
-    //     nomor_urut: values[0],
-    //     name: values[1],
-    //     id_role: idRole,
-    //     jenis_kelamin: dataKelamin,
-    //     jenis_latihan: values[3],
-    //     peserta: values[3] + ' - ' + dataKelamin,
-    //     tipe_ukt: req.body.tipe_ukt,
-    //     id_ranting: values[4],
-    //     rayon: values[5],
-    //     tingkatan: values[6],
-    // };
     controllerDelete: async (req, res) => {
         let param = {
             id_penguji: req.params.id
