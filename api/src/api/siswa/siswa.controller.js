@@ -126,39 +126,56 @@ module.exports = {
         try {
             const tipe = req.params.tipe
             const ranting = req.params.ranting
-            const result = await siswa.findAll({
+            const result = await event.findAll({
                 where: {
                     tipe_ukt: tipe,
-                    id_ranting: ranting
+                    id_ranting: ranting,
+                    is_active: true
                 },
                 attributes: [
                     'id_event',
+                    'name',
                     [
-                        Sequelize.literal(
-                            `SUM(CASE WHEN active = true THEN 1 ELSE 0 END)`
-                        ),
+                        Sequelize.literal(`
+                COALESCE(
+                    SUM(
+                        CASE 
+                            WHEN siswa_event.active = true 
+                            THEN 1 
+                            ELSE 0 
+                        END
+                    ), 
+                0)
+            `),
                         'count_active'
                     ],
                     [
-                        Sequelize.literal(
-                            `SUM(CASE WHEN active = false THEN 1 ELSE 0 END)`
-                        ),
+                        Sequelize.literal(`
+                COALESCE(
+                    SUM(
+                        CASE 
+                            WHEN siswa_event.active IS NOT TRUE
+                            THEN 1 
+                            ELSE 0 
+                        END
+                    ), 
+                0)
+            `),
                         'count_disabled'
                     ]
                 ],
                 include: [
                     {
-                        model: event,
-                        as: "siswa_event",
-                        attributes: ['name'],
-                        required: true,
-                        where: {
-                            is_active: true
-                        }
+                        model: siswa,
+                        as: 'siswa_event',
+                        attributes: [],
+                        required: false
                     }
                 ],
-                group: ['id_event']
-            })
+                group: ['event.id_event'] // ✅ REQUIRED
+            });
+
+
 
             res.json({
                 count: result.length,
