@@ -108,7 +108,7 @@ const siswa = () => {
 
                                         {/* ranting name */}
                                         <div className='flex justify-between'>
-                                            <h1 className='text-green text-lg'>{item.siswa_event.name}</h1>
+                                            <h1 className='text-green text-lg'>{item?.name}</h1>
                                         </div>
 
                                         <h1 className='text-yellow text-3xl'>{item.count_event}</h1>
