@@ -1,7 +1,7 @@
 const fs = require("fs");
 const csv = require('csv-parser');
 const ExcelJS = require('exceljs');
-const { Sequelize, Op } = require("sequelize");
+const { Sequelize, Op, where } = require("sequelize");
 const localStorage = process.env.LOCAL_STORAGE + "/";
 
 const jwt = require("jsonwebtoken");
@@ -363,6 +363,14 @@ module.exports = {
             whereClause["$siswa_teknik.id_siswa$"] = { [Op.is]: null };
         } else if (action == 'sambung') {
             whereClause["$sambung_siswa.id_siswa$"] = { [Op.is]: null };
+        } else if (action == 'senam_toya') {
+            whereClause["$senam_toya_siswa.id_siswa$"] = { [Op.is]: null };
+        } else if (action == 'jurus_toya') {
+            whereClause["$jurus_toya_siswa.id_siswa$"] = { [Op.is]: null };
+        } else if (action == 'kripen') {
+            whereClause["$kripen_siswa.id_siswa$"] = { [Op.is]: null };
+        } else if (action == 'belati') {   
+            whereClause["$belati_siswa.id_siswa$"] = { [Op.is]: null };
         }
         siswa.findAll({
             include: [
@@ -405,6 +413,30 @@ module.exports = {
                 {
                     model: models.detail_sambung,
                     as: "sambung_siswa",
+                    required: false,
+                    attributes: ['id_siswa']
+                },
+                {
+                    model: models.senam_toya_detail,
+                    as: "senam_toya_siswa",
+                    required: false,
+                    attributes: ['id_siswa']
+                },
+                {
+                    model: models.jurus_toya_detail,
+                    as: "jurus_toya_siswa",
+                    required: false,
+                    attributes: ['id_siswa']
+                },
+                {
+                    model: models.belati_detail,
+                    as: "belati_siswa",
+                    required: false,
+                    attributes: ['id_siswa']
+                },
+                {
+                    model: models.kripen_detail,
+                    as: "kripen_siswa",
                     required: false,
                     attributes: ['id_siswa']
                 },
