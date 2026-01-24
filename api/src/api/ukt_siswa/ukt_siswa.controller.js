@@ -3,10 +3,10 @@ const ukt_siswa = models.ukt_siswa;
 
 const { Sequelize, Op, or } = require("sequelize");
 function formatNumber(number) {
-        return (number % 1 === 0)
-            ? number
-            : number.toLocaleString('id', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+    return (number % 1 === 0)
+        ? number
+        : number.toLocaleString('id', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 module.exports = {
     controllerGetAll: async (req, res) => {
         ukt_siswa.findAll()
@@ -1349,7 +1349,13 @@ module.exports = {
             })
     },
     controllerGetByName: async (req, res) => {
-        ukt_siswa.findAll({
+        const getEvent = await models.event.findOne({
+            where: {
+                id_event: req.params.event
+            }
+        });
+        const tipe = getEvent.tipe_ukt;
+        const dataUkt = await ukt_siswa.findAll({
             include: [
                 {
                     model: models.siswa,
@@ -1372,8 +1378,69 @@ module.exports = {
             },
         })
             .then(result => {
+                const data = result.map(item => {
+                    if (!item.siswa_ukt_siswa) return null; // safety
+
+                    if (tipe === "UKT Hijau" || tipe === "UKT Jambon") {
+                        return {
+                            id_ukt_siswa: item.id_ukt_siswa,
+                            id_siswa: item.id_siswa,
+                            nomor_urut: item.siswa_ukt_siswa?.nomor_urut,
+                            name: item.siswa_ukt_siswa?.name,
+                            ranting: item.rayon,
+                            keshan: item.keshan,
+                            senam: item.senam,
+                            jurus: item.jurus,
+                            teknik: formatNumber(item.teknik),
+                            fisik: item.fisik,
+                            sambung: item.sambung,
+                            total: (
+                                (
+                                    item.keshan +
+                                    item.senam +
+                                    item.jurus +
+                                    item.teknik +
+                                    item.fisik +
+                                    item.sambung
+                                ) / 6
+                            ).toFixed(2)
+                        }
+                    }
+
+                    return {
+                        id_ukt_siswa: item.id_ukt_siswa,
+                        id_siswa: item.id_siswa,
+                        nomor_urut: item.siswa_ukt_siswa?.nomor_urut,
+                        name: item.siswa_ukt_siswa?.name,
+                        ranting: item.rayon,
+                        keshan: item.keshan,
+                        senam: item.senam,
+                        senam_toya: item.senam_toya,
+                        jurus: item.jurus,
+                        jurus_toya: item.jurus_toya,
+                        teknik: formatNumber(item.teknik),
+                        fisik: item.fisik,
+                        sambung: item.sambung,
+                        belati: item.belati,
+                        kripen: item.kripen,
+                        total: (
+                            (
+                                item.keshan +
+                                item.senam +
+                                item.senam_toya +
+                                item.jurus +
+                                item.jurus_toya +
+                                item.teknik +
+                                item.fisik +
+                                item.sambung +
+                                item.belati +
+                                item.kripen
+                            ) / 10
+                        ).toFixed(2)
+                    }
+                }).filter(Boolean)
                 res.json({
-                    data: result
+                    data: data
                 })
             })
             .catch(error => {
