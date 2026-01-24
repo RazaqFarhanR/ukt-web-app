@@ -160,7 +160,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
 
     useEffect(() => {
         getDataUktFiltered()
-    }, [`${dataRanting}`, jenis, updown, rayon, idRanting])
+    }, [`${dataRanting}`, jenis, updown, rayon, idRanting, name])
 
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {
