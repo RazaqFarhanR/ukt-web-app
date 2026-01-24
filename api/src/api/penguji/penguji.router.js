@@ -45,6 +45,7 @@ const {
     controllerGetByUsername,
     controllerAddSignUp,
     controllerCheckVerificationById,
+    controllerGetCountPengujiRole,
 } = require('./penguji.controller');
 
 
@@ -56,6 +57,7 @@ router.get('/cek_username/:username', controllerGetByUsername )
 router.get('/cek_verification/:id', controllerCheckVerificationById )
 router.patch('/non_aktifkan', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "ranting", "penguji cabang", "penguji ranting"), controllerDisabledById)
 router.get('/count/penguji', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountPenguji)
+router.get('/count/penguji/role', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang"), controllerGetCountPengujiRole)
 router.get('/download/template', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDownloadTemplateExcel)
 router.get('/download/template_ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDownloadTemplateExcelRanting)
 router.post('/pengujiperranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByRanting )

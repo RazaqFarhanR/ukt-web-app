@@ -208,6 +208,38 @@ module.exports = {
             res.json({ message: error.message })
         }
     },
+    controllerGetCountPengujiRole: async (req, res) => {
+        try {
+            const result = await penguji.findAll({
+                where: {
+                    createdAt: { [Op.gt]: d }
+                },
+                attributes: [
+                    'id_role',
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = true THEN 1 ELSE 0 END)`
+                        ),
+                        'count_active'
+                    ],
+                    [
+                        Sequelize.literal(
+                            `SUM(CASE WHEN active = false THEN 1 ELSE 0 END)`
+                        ),
+                        'count_disabled'
+                    ]
+                ],
+                group: ['id_role']
+            })
+
+            res.json({
+                count: result.length,
+                data: result
+            })
+        } catch (error) {
+            res.json({ message: error.message })
+        }
+    },
     controllerGetTemplatePenguji: async (req, res) => {
         try {
             const result = await penguji.findAll({
