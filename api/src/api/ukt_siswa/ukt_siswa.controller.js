@@ -147,8 +147,18 @@ module.exports = {
     controllerGetByRantingFiltered: async (req, res) => {
         const { jenis, updown, event, tipeUkt } = req.body;
         const rantings = req.body.ranting || ['BENDUNGAN', 'DONGKO', 'DURENAN', 'GANDUSARI', 'KAMPAK', 'KARANGAN', 'MUNJUNGAN', 'PANGGUL', 'POGALAN', 'PULE', 'SURUH', 'TRENGGALEK', 'TUGU', 'WATULIMO']
+        const rayons = req.body.rayon || []
         let orderCriteria = [];
-
+        const where1 = {
+            id_event: event,
+            rayon: {
+                [Op.in]: rayons
+            }
+        }
+        const where2 = {
+            id_event: event,
+        }
+        const whereClause = rayons?.length === 0 ? where2 : where1;
         switch (jenis) {
             case 'senam':
                 orderCriteria.push(['senam', updown === 'downToUp' ? 'ASC' : 'DESC']);
@@ -198,6 +208,7 @@ module.exports = {
         const attribute2 = ['id_ukt_siswa', 'id_siswa', 'nomor_urut', 'name', 'ranting', 'keshan', 'senam', 'senam_toya', 'jurus', 'jurus_toya', 'teknik', 'fisik', 'belati', 'kripen', 'sambung']
         const attribute = tipe == 1 ? attribute1 : attribute2
         ukt_siswa.findAll({
+            where: whereClause,
             attribute: attribute,
             include: [
                 {
@@ -219,9 +230,6 @@ module.exports = {
                     ]
                 }
             ],
-            where: {
-                id_event: event,
-            },
             order: orderCriteria,
         })
             .then(ukt_siswa => {
@@ -232,9 +240,10 @@ module.exports = {
                         return {
                             id_ukt_siswa: item.id_ukt_siswa,
                             id_siswa: item.id_siswa,
+                            ranting: item.siswa_ukt_siswa?.siswa_ranting?.name,
                             nomor_urut: item.siswa_ukt_siswa?.nomor_urut,
                             name: item.siswa_ukt_siswa?.name,
-                            ranting: item.rayon,
+                            rayon: item.rayon,
                             keshan: item.keshan,
                             senam: item.senam,
                             jurus: item.jurus,
@@ -257,9 +266,10 @@ module.exports = {
                     return {
                         id_ukt_siswa: item.id_ukt_siswa,
                         id_siswa: item.id_siswa,
+                        ranting: item.siswa_ukt_siswa?.siswa_ranting?.name,
                         nomor_urut: item.siswa_ukt_siswa?.nomor_urut,
                         name: item.siswa_ukt_siswa?.name,
-                        ranting: item.rayon,
+                        rayon: item.rayon,
                         keshan: item.keshan,
                         senam: item.senam,
                         senam_toya: item.senam_toya,

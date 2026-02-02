@@ -43,7 +43,9 @@ const rekap_nilai_ukt_ukt_hijau = () => {
     // deklarasi router
     const router = useRouter()
     // / Get the value of 'eventId' parameter
-    const { eventId, idRanting, nameEvent } = router.query
+    const { nameEvent } = router.query
+    const eventId = router.query.eventId;
+    const idRanting = router.query.idRanting;
 
     const [dataUkt, setDataUkt] = useState([])
 
@@ -76,7 +78,7 @@ const rekap_nilai_ukt_ukt_hijau = () => {
     }
     useEffect(() => {
         getDataRayon();
-    }, [])
+    }, [eventId, idRanting])
 
     const getDataUktFiltered = async () => {
         const token = localStorage.getItem('token')
@@ -86,10 +88,11 @@ const rekap_nilai_ukt_ukt_hijau = () => {
             tipeUkt: event.tipe_ukt,
             jenis: jenis,
             updown: updown,
-            ranting: [idRanting]
+            id_ranting: idRanting,
+            rayon: [rayonSelect.map(item => item.value)].flat(),
         }
         setLoading(true);
-        
+
         await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataUkt(res.data.data)
@@ -165,7 +168,7 @@ const rekap_nilai_ukt_ukt_hijau = () => {
 
     useEffect(() => {
         getDataUktFiltered()
-    }, [`${dataRanting}`, jenis, updown, rayon, idRanting])
+    }, [`${dataRanting}`, jenis, updown, rayon, idRanting, name, router.query])
 
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {
@@ -218,7 +221,7 @@ const rekap_nilai_ukt_ukt_hijau = () => {
 
                             {/* page name and button back */}
                             <div className="flex justify-center items-center gap-x-3">
-                                <Link href={'../?ranting=' + idRanting+'&ukt=UKT+HIJAU&tipe=ukt_hijau'} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
+                                <Link href={'../?ranting=' + idRanting + '&ukt=UKT+HIJAU&tipe=ukt_hijau'} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
                                     <svg className='-translate-x-0.5 fill-white group-hover:fill-purple' width="13" height="22" viewBox="0 0 14 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
                                     </svg>
@@ -355,7 +358,7 @@ const rekap_nilai_ukt_ukt_hijau = () => {
                                                 <tr key={index + 1} className={'text-white text-center even:bg-darkBlue border-t border-gray-100 border font-bold'}>
                                                     <td className='border-b-2 py-3 border-gray text-purple font-bold border'>{index + 1}</td>
                                                     <td className='border-b-2 border-gray text-left border px-2'>{item?.name} [{item?.nomor_urut}]</td>
-                                                    <td className='border-b-2 border-gray border text-xs'>{item?.ranting}</td>
+                                                    <td className='border-b-2 border-gray border text-xs'>{item?.rayon}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.keshan < 50 && 'text-[#ca3030]'} ${item?.keshan > 89.99 && 'text-[#7dff5d]'}`}>{(item?.keshan)}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.senam < 50 && 'text-[#ca3030]'} ${item?.senam > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.senam)}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.jurus < 50 && 'text-[#ca3030]'} ${item?.jurus > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.jurus)}</td>
