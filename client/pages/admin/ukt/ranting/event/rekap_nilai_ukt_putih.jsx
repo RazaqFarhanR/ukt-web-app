@@ -43,7 +43,9 @@ const rekap_nilai_ukt_ukt_putih = () => {
     // deklarasi router
     const router = useRouter()
     // / Get the value of 'eventId' parameter
-    const { eventId, idRanting, nameEvent } = router.query
+    const { nameEvent } = router.query
+    const eventId = router.query.eventId;
+    const idRanting = router.query.idRanting;        
 
     const [dataUkt, setDataUkt] = useState([])
 
@@ -76,7 +78,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
     }
     useEffect(() => {
         getDataRayon();
-    }, [])
+    }, [eventId, idRanting])
 
     const getDataUktFiltered = async () => {
         const token = localStorage.getItem('token')
@@ -86,7 +88,8 @@ const rekap_nilai_ukt_ukt_putih = () => {
             tipeUkt: event.tipe_ukt,
             jenis: jenis,
             updown: updown,
-            ranting: [idRanting]
+            id_ranting: idRanting,
+            rayon: [rayonSelect.map(item => item.value)].flat(),
         }
         setLoading(true);
 
@@ -160,7 +163,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
 
     useEffect(() => {
         getDataUktFiltered()
-    }, [`${dataRanting}`, jenis, updown, rayon, idRanting, name])
+    }, [`${dataRanting}`, jenis, updown, rayon, idRanting, name, router.query])
 
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {
@@ -266,7 +269,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
                                         <tr className='text-white text-center bg-purple'>
                                             <th className='py-3 w-[5%] border font-oswald'>Rank</th>
                                             <th className='w-[30%] border font-oswald' >Nama</th>
-                                            <th className='w-[10%] border font-oswald'>Ranting</th>
+                                            <th className='w-[10%] border font-oswald'>Rayon</th>
                                             <th className='text-base border font-oswald'>KESHAN {jenis == 'keshan' && updown == 'upToDown'
                                                 ? <button className='rounded-md bg-gray text-lg' onClick={() => {
                                                     setJenis('keshan');
@@ -394,7 +397,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
                                                 <tr key={index + 1} className={'text-white text-center even:bg-darkBlue border-t border-gray-100 border font-bold'}>
                                                     <td className='border-b-2 py-3 border-gray text-purple font-bold border'>{index + 1}</td>
                                                     <td className='border-b-2 border-gray text-left border px-2'>{item?.name} [{item?.nomor_urut}]</td>
-                                                    <td className='border-b-2 border-gray border text-xs'>{item?.ranting}</td>
+                                                    <td className='border-b-2 border-gray border text-xs'>{item?.rayon}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.keshan < 50 && 'text-[#ca3030]'} ${item?.keshan > 89.99 && 'text-[#7dff5d]'}`}>{(item?.keshan)}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.senam < 50 && 'text-[#ca3030]'} ${item?.senam > 89.99 && 'text-[#7dff5d]'}`}>{item?.senam}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.senam_toya < 50 && 'text-[#ca3030]'} ${item?.senam_toya > 89.99 && 'text-[#7dff5d]'}`}>{item?.senam_toya || ""}</td>
