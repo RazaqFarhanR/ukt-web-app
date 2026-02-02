@@ -73,52 +73,49 @@ function MainNavigation(props) {
         const rows = chunkArray(navItem.links, 7);
 
         return (
-          <nav key={navIndex} className="w-full">
-            {rows.map((row, rowIndex) => (
-              <ul key={rowIndex} className="flex gap-6 justify-center">
-                {row.map((link, index) => (
-                  <li
-                    key={index}
-                    onClick={() => setActive(link.link)}
-                  >
-                    <div className="flex flex-col px-1 pt-4 py-2 w-12 items-center justify-center capitalize">
-                      <div
-                        style={{
-                          background:
-                            active === link.link ? "#d4d5d6" : "#ffffff",
-                        }}
-                        className="flex rounded-full items-center justify-center transition-all duration-200 ease-linear"
-                      >
-                        <div className="p-2">
-                          <div
-                            className={
-                              active === link.link
-                                ? "text-black text-xl rounded-full"
-                                : "text-gray text-xl rounded-full"
-                            }
-                          >
-                            {active === link.link
-                              ? link.icon2
-                              : link.icon}
-                          </div>
+          <nav className="w-full overflow-x-auto">
+            <ul className="flex flex-nowrap gap-4 px-4 min-w-max">
+              {navItem.links.map((link, index) => (
+                <li
+                  key={index}
+                  onClick={() => setActive(link.link)}
+                  className="shrink-0"
+                >
+                  <div className="flex flex-col pt-4 py-2 w-12 items-center justify-center capitalize">
+                    <div
+                      style={{
+                        background: active === link.link ? "#d4d5d6" : "#ffffff",
+                      }}
+                      className="flex rounded-full items-center justify-center transition-all duration-200 ease-linear"
+                    >
+                      <div className="p-2">
+                        <div
+                          className={
+                            active === link.link
+                              ? "text-black text-xl"
+                              : "text-gray text-xl"
+                          }
+                        >
+                          {active === link.link ? link.icon2 : link.icon}
                         </div>
                       </div>
-
-                      <div
-                        className={
-                          active === link.link
-                            ? "text-sm text-center text-black"
-                            : "text-sm text-center text-gray"
-                        }
-                      >
-                        {link.label}
-                      </div>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            ))}
+
+                    <div
+                      className={
+                        active === link.link
+                          ? "text-sm text-center text-black"
+                          : "text-sm text-center text-gray"
+                      }
+                    >
+                      {link.label}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </nav>
+
         );
       })}
     </header>
