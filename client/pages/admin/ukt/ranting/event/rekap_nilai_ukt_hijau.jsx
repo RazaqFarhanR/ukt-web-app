@@ -170,6 +170,53 @@ const rekap_nilai_ukt_ukt_hijau = () => {
         getDataUktFiltered()
     }, [`${dataRanting}`, jenis, updown, rayon, idRanting, name, router.query])
 
+    const COLORS = [
+        '#E57373', // red
+        '#64B5F6', // blue
+        '#81C784', // green
+        '#FFD54F', // yellow
+        '#BA68C8', // purple
+        '#4DB6AC', // teal
+    ];
+
+    const customStyles = {
+        valueContainer: (provided) => ({
+            ...provided,
+            maxHeight: '80px',
+            overflowY: 'auto',
+        }),
+
+        multiValue: (provided, state) => {
+            const values = state.selectProps.value || [];
+            const index = values.findIndex(
+                (v) => v.value === state.data.value
+            );
+
+            const color = COLORS[index % COLORS.length];
+
+            return {
+                ...provided,
+                backgroundColor: color,
+                borderRadius: '6px',
+            };
+        },
+
+        multiValueLabel: (provided) => ({
+            ...provided,
+            color: 'white',
+            fontWeight: 500,
+        }),
+
+        multiValueRemove: (provided) => ({
+            ...provided,
+            color: 'white',
+            ':hover': {
+                backgroundColor: 'rgba(0,0,0,0.2)',
+                color: 'white',
+            },
+        }),
+    };
+
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {
     //         getDataUktFiltered()
@@ -234,7 +281,7 @@ const rekap_nilai_ukt_ukt_hijau = () => {
                             <div className="flex gap-x-2">
 
                                 <Select
-                                    className='w-72'
+                                    className='w-72 text-black'
                                     onChange={handleChangeRayon}
                                     options={dataRayon}
                                     value={rayonSelect}
