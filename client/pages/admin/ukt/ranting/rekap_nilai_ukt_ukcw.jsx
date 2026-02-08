@@ -1,4 +1,4 @@
-import React, { useState, createContext, useRef, useEffect, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import Sidebar from '../../components/sidebar'
@@ -6,10 +6,10 @@ import Header from '../../components/header'
 import Footer from '../../components/footer'
 import { globalState } from '@/context/context'
 import Modal_Filter from '../../components/modal_filter';
-import event from '@/pages/penguji/event'
 import Image from 'next/image';
 import { useRouter } from 'next/router'
 import { getSocket } from '../../../../lib/socket';
+import Select from 'react-select';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -22,13 +22,17 @@ const rekap_nilai_ukt_ukcw = () => {
 
     // state modal
     const [dataEvent, setDataEvent] = useState([])
+    const [dataEventSelect, setDataEventSelect] = useState([])
     const [dataRanting, setDataRanting] = useState(null)
     const [modalFilter, setModalFilter] = useState(false)
     const [name, setName] = useState(null);
     const [loading, setLoading] = useState(false);
     const [jenis, setJenis] = useState('all')
     const [updown, setUpDown] = useState('upToDown')
-
+    const [search, setSearch] = useState(null)
+    const handleChange = selectedOption => {
+        setSearch(selectedOption);
+    };
     const getDataUktFiltered = async () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
@@ -40,7 +44,7 @@ const rekap_nilai_ukt_ukcw = () => {
             ranting: dataRanting
         }
         setLoading(true);
-        
+
         await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataUkt(res.data.data)
@@ -64,6 +68,28 @@ const rekap_nilai_ukt_ukcw = () => {
         if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
             router.push('/admin/login')
         }
+    }
+    useEffect(() => {
+        localStorage.removeItem('filterRanting')
+        isLogged()
+    }, [])
+    const dataEventSelect1 = [
+        { value: 'event1', label: 'Event 1' },
+        { value: 'event2', label: 'Event 2' },
+        { value: 'event3', label: 'Event 3' },
+    ]
+    const getDataSelect = async () => {
+        const token = localStorage.getItem('token')
+        axios.get(BASE_URL + `event/select/tipe/UKCW`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+                console.log(res.data.data);
+                setDataEventSelect(res.data.data)
+                // setDataEvent(dataEventSelect1)
+            })
+            .catch(err => {
+                console.log(err.message);
+                console.log(err.response.data);
+            })
     }
 
     const getDataByName = () => {
@@ -101,10 +127,7 @@ const rekap_nilai_ukt_ukcw = () => {
 
 
 
-    useEffect(() => {
-        localStorage.removeItem('filterRanting')
-        isLogged()
-    }, [])
+
 
     useEffect(() => {
         const event = JSON.parse(localStorage.getItem('event'));
@@ -115,27 +138,32 @@ const rekap_nilai_ukt_ukcw = () => {
         if (!socket.connected) {
             socket.connect();
             socket.emit('join_event', {
-            role: 'pengurus',
-            event_id: event.id_event,
+                role: 'pengurus',
+                event_id: event.id_event,
             });
         }
-    
+
         const handleUpdate = (data) => {
             getDataUktFiltered()
         };
-    
+
         socket.on('update_rekap', handleUpdate);
-    
+
         return () => {
             socket.off('update_rekap', handleUpdate);
             socket.disconnect();
         };
     }, [`${dataRanting}`, jenis, updown])
-    
+
+    // useEffect(() => {
+    //     getDataSelect()
+    // }, [])
 
     useEffect(() => {
+        getDataSelect()
         getDataUktFiltered()
     }, [`${dataRanting}`, jenis, updown])
+
 
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {
@@ -149,6 +177,9 @@ const rekap_nilai_ukt_ukcw = () => {
     //         socket.emit('pushRekap')
     //     }, 3000)
     // }, [])
+
+
+
     return (
         <>
             {loading
@@ -193,12 +224,20 @@ const rekap_nilai_ukt_ukcw = () => {
                                         <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
                                     </svg>
                                 </Link>
-                                <h1 className='text-2xl tracking-wider uppercase font-bold'>Rekap Nilai - {dataEvent.tipe_ukt} - {dataEvent.name}</h1>
+                                <h1 className='text-2xl tracking-wider uppercase font-bold'>Rekap Nilai - {dataEvent?.tipe_ukt} - {dataEvent?.name}</h1>
                             </div>
 
                             {/* wrapper search and filter */}
                             <div className="flex gap-x-2">
-
+                                <div className='w-72 text-black'>
+                                    <Select
+                                    isMulti
+                                    name='colors'
+                                        value={search}
+                                        onChange={handleChange}
+                                        options={dataEventSelect}
+                                    />
+                                </div>
                                 {/* search */}
                                 <div className="bg-purple rounded-md px-5 py-2 flex items-center gap-x-2 w-72">
                                     <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
