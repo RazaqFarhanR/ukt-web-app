@@ -6,44 +6,70 @@ import Header from '../../../components/header'
 import Footer from '../../../components/footer'
 import { globalState } from '@/context/context'
 import Modal_Filter from '../../../components/modal_filter';
-import event from '@/pages/penguji/event'
 import Image from 'next/image';
-import SocketIo from 'socket.io-client'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic';
-
+import Select from 'react-select';
 
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
 // const socket = SocketIo(SOCKET_URL)
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-const Select = dynamic(() => import('react-select'));
+const COLORS = [
+    '#E57373', // red
+    '#64B5F6', // blue
+    '#81C784', // green
+    '#FFD54F', // yellow
+    '#BA68C8', // purple
+    '#4DB6AC', // teal
+];
 
 const customStyles = {
-    control: (provided) => ({
+    valueContainer: (provided) => ({
         ...provided,
-        background: 'white',
-        colors: 'black',
-        // display: 'flex',
-        // flexWrap: 'nowrap',
-        // borderColor: 'hsl(0deg 78.56% 55.56%);',
-        // width: '7em'
+        maxHeight: '80px',
+        overflowY: 'auto',
     }),
-    menu: (provided) => ({
+
+    multiValue: (provided, state) => {
+        const values = state.selectProps.value || [];
+        const index = values.findIndex(
+            (v) => v.value === state.data.value
+        );
+
+        const color = COLORS[index % COLORS.length];
+
+        return {
+            ...provided,
+            backgroundColor: color,
+            borderRadius: '6px',
+        };
+    },
+
+    multiValueLabel: (provided) => ({
         ...provided,
-        background: 'white',
-        color: 'grey', // Set text color to black
-        width: '8rem'
+        color: 'white',
+        fontWeight: 500,
+    }),
+
+    multiValueRemove: (provided) => ({
+        ...provided,
+        color: 'white',
+        ':hover': {
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            color: 'white',
+        },
     }),
 };
+
 
 const rekap_nilai_ukt_ukt_hijau = () => {
 
     // deklarasi router
     const router = useRouter()
     // / Get the value of 'eventId' parameter
-    const { nameEvent } = router.query
+    const nameEvent = router.query.nameEvent
     const eventId = router.query.eventId;
     const idRanting = router.query.idRanting;
 
@@ -51,8 +77,10 @@ const rekap_nilai_ukt_ukt_hijau = () => {
 
     // state modal
     const [dataEvent, setDataEvent] = useState([])
+    const [dataEventSelect, setDataEventSelect] = useState([])
     const [dataRayon, setDataRayon] = useState([])
     const [rayonSelect, setRayonSelect] = useState([])
+    const [eventSelect, setEventSelect] = useState([])
     const [rayon, setRayon] = useState([])
     const [dataRanting, setDataRanting] = useState([])
     const [modalFilter, setModalFilter] = useState(false)
@@ -60,8 +88,7 @@ const rekap_nilai_ukt_ukt_hijau = () => {
     const [loading, setLoading] = useState(false);
     const [jenis, setJenis] = useState('all')
     const [updown, setUpDown] = useState('upToDown')
-
-    // get data rayo
+    // get data rayo select
     const getDataRayon = async () => {
         const token = localStorage.getItem('token')
         await axios.get(BASE_URL + `ukt_siswa/rayon/${eventId}`, { headers: { Authorization: `Bearer ${token}` } })
@@ -76,15 +103,50 @@ const rekap_nilai_ukt_ukt_hijau = () => {
                 setLoading(false);
             });
     }
+    // get data event select
+    const getDataEventSelect = async () => {
+        const event = JSON.parse(localStorage.getItem('event'));
+        const token = localStorage.getItem('token')
+        console.log('eventId', eventId);
+        await
+            axios.get(BASE_URL + `event/select/tipe/Ukt Hijau`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                    setDataEventSelect(res.data.data)
+                    if (eventSelect.length == 0) {
+                        handleChangeEvent([{ value: event.id_event, label: event.name }])
+                    }
+                })
+                .catch(err => {
+                    console.log(err.message);
+                    console.log(err.response.data);
+                })
+    }
     useEffect(() => {
         getDataRayon();
-    }, [eventId, idRanting])
+        getDataEventSelect();
+    }, [eventId, idRanting, nameEvent, router.query]);
+
+    const handleChangeRayon = (option) => {
+        const data = option.map(item => item.value);
+
+        setRayonSelect(option)
+        setRayon(data)
+        getDataUktFiltered()
+    };
+    const handleChangeEvent = (option) => {
+        const data = option.map(item => item.value);
+
+        setEventSelect(option)
+        setDataEvent(data)
+        getDataUktFiltered()
+    };
 
     const getDataUktFiltered = async () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
+
         let form = {
-            event: event.id_event,
+            event: eventSelect.length > 0 ? [eventSelect.map(item => item.value)].flat() : [event.id_event],
             tipeUkt: event.tipe_ukt,
             jenis: jenis,
             updown: updown,
@@ -117,14 +179,6 @@ const rekap_nilai_ukt_ukt_hijau = () => {
             router.push('/admin/login')
         }
     }
-
-
-    const handleChangeRayon = (option) => {
-        const data = option.map(item => item.value);
-
-        setRayonSelect(option)
-        setRayon(data)
-    };
 
     const getDataByName = () => {
         const token = localStorage.getItem('token')
@@ -279,7 +333,15 @@ const rekap_nilai_ukt_ukt_hijau = () => {
 
                             {/* wrapper search and filter */}
                             <div className="flex gap-x-2">
-
+                                <Select
+                                    className='w-72 text-black'
+                                    styles={customStyles}
+                                    isMulti
+                                    name='colors'
+                                    value={eventSelect}
+                                    onChange={handleChangeEvent}
+                                    options={dataEventSelect}
+                                />
                                 <Select
                                     className='w-72 text-black'
                                     onChange={handleChangeRayon}
