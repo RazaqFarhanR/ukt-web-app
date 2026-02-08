@@ -18,12 +18,14 @@ const {
     controllerGetByTipeUktPUBLIC,
     controllerGetForPengujiPage,
     controllerGetByTipeUktRantingPUBLIC,
+    controllerGetSelectByTipe,
 } = require('./event.controller');
 
 
 const verifyRoles = require("../../middleware/verifyRoles")
 
 router.get('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetAll)
+router.get('/select/tipe/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetSelectByTipe)
 router.get('/search/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByTipeUktSearch)
 router.get('/siswaCount/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetForPengujiPage)
 router.get('/ukt/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByTipeUkt)

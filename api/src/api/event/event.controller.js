@@ -18,6 +18,35 @@ module.exports = {
                 })
             })
     },
+    controllerGetSelectByTipe: async (req, res) => {
+        event.findAll({
+            where: {
+                tipe_ukt: req.params.id,
+                is_active: true
+            },
+            attributes: [
+                'id_event',
+                'name',
+            ]
+        })
+            .then(event => {
+                const dataEventSelect = event.map(item => {
+                    return {
+                        value: item.id_event,
+                        label: item.name
+                    };
+                });
+                res.json({
+                    count: event.length,
+                    data: dataEventSelect
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
     controllerGetByTipeUktRanting: async (req, res) => {
         event.findAll({
             where: {
