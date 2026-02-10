@@ -21,12 +21,14 @@ module.exports = {
     controllerGetSelectByTipe: async (req, res) => {
         event.findAll({
             where: {
+                id_ranting: req.params.id_ranting,
                 tipe_ukt: req.params.id,
                 is_active: true
             },
             attributes: [
                 'id_event',
                 'name',
+                'is_active'
             ]
         })
             .then(event => {

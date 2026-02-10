@@ -1,4 +1,4 @@
-import React, { useState, createContext, useRef, useEffect, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import Sidebar from '../../../components/sidebar'
@@ -6,7 +6,6 @@ import Header from '../../../components/header'
 import Footer from '../../../components/footer'
 import { globalState } from '@/context/context'
 import Modal_Filter from '../../../components/modal_filter';
-import event from '@/pages/penguji/event'
 import Image from 'next/image';
 import SocketIo from 'socket.io-client'
 import { useRouter } from 'next/router'
@@ -50,10 +49,10 @@ const rekap_nilai_ukt_ukt_putih = () => {
     const [dataUkt, setDataUkt] = useState([])
 
     // state modal
-    const [dataEvent, setDataEvent] = useState([])
+    const [dataEventSelect, setDataEventSelect] = useState([])
     const [dataRayon, setDataRayon] = useState([])
     const [rayonSelect, setRayonSelect] = useState([])
-    const [rayon, setRayon] = useState([])
+    const [eventSelect, setEventSelect] = useState([])
     const [dataRanting, setDataRanting] = useState([])
     const [modalFilter, setModalFilter] = useState(false)
     const [name, setName] = useState(null);
@@ -64,7 +63,10 @@ const rekap_nilai_ukt_ukt_putih = () => {
     // get data rayo
     const getDataRayon = async () => {
         const token = localStorage.getItem('token')
-        await axios.get(BASE_URL + `ukt_siswa/rayon/${eventId}`, { headers: { Authorization: `Bearer ${token}` } })
+        const form = {
+            event: eventSelect.length > 0 ? [eventSelect.map(item => item.value)].flat() : [eventId],
+        }
+        await axios.post(BASE_URL + `ukt_siswa/rayon`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataRayon(res.data.data)
             })
@@ -76,21 +78,61 @@ const rekap_nilai_ukt_ukt_putih = () => {
                 setLoading(false);
             });
     }
+    // get data event select
+    const getDataEventSelect = async () => {
+        const event = JSON.parse(localStorage.getItem('event'));
+        const token = localStorage.getItem('token')
+        await
+            axios.get(BASE_URL + `event/select/tipe/UKT Putih/${idRanting}`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                    setDataEventSelect(res.data.data)
+                    if (eventSelect.length == 0) {
+                        handleChangeEvent([{ value: event.id_event, label: event.name }])
+                    }
+                })
+                .catch(err => {
+                    console.log(err.message);
+                    console.log(err.response.data);
+                })
+    }
     useEffect(() => {
+        if (!router.isReady) return;
+        getDataEventSelect();
+    }, [router.isReady]);
+    useEffect(() => {
+        if (!router.isReady) return;
+        if (eventSelect.length === 0) return;
+
         getDataRayon();
-    }, [eventId, idRanting])
+
+        if (idRanting) {
+            getDataUktFiltered();
+        }
+    }, [router.isReady, eventSelect, rayonSelect, jenis, updown, idRanting]);
+
+    const handleChangeRayon = (option) => {
+        setRayonSelect(option)
+    };
+    const handleChangeEvent = (option) => {
+        setEventSelect(option)
+    };
 
     const getDataUktFiltered = async () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
+        const selectedEvent =
+            eventSelect.length > 0
+                ? eventSelect.map(item => item.value)
+                : [eventId];
+
         let form = {
-            event: event.id_event,
+            event: selectedEvent,
             tipeUkt: event.tipe_ukt,
-            jenis: jenis,
-            updown: updown,
+            jenis,
+            updown,
             id_ranting: idRanting,
-            rayon: [rayonSelect.map(item => item.value)].flat(),
-        }
+            rayon: rayonSelect.map(item => item.value),
+        };
         setLoading(true);
 
         await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
@@ -105,6 +147,11 @@ const rekap_nilai_ukt_ukt_putih = () => {
                 setLoading(false);
             });
     }
+    function formatNumber(number) {
+        return (number % 1 === 0)
+            ? number
+            : number.toLocaleString('id', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
     // function login checker
     const isLogged = () => {
@@ -112,14 +159,6 @@ const rekap_nilai_ukt_ukt_putih = () => {
             router.push('/admin/login')
         }
     }
-
-
-    const handleChangeRayon = (option) => {
-        const data = option.map(item => item.value);
-
-        setRayonSelect(option)
-        setRayon(data)
-    };
 
     const getDataByName = () => {
         const token = localStorage.getItem('token')
@@ -155,15 +194,13 @@ const rekap_nilai_ukt_ukt_putih = () => {
     }, [name]);
 
     useEffect(() => {
-        const event = JSON.parse(localStorage.getItem('event'));
-        setDataEvent(event)
         localStorage.removeItem('filterRanting')
         isLogged()
     }, [])
 
     useEffect(() => {
         getDataUktFiltered()
-    }, [`${dataRanting}`, jenis, updown, rayon, idRanting, name, router.query])
+    }, [`${dataRanting}`, jenis, updown, idRanting, name, router.query])
 
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {
@@ -274,7 +311,15 @@ const rekap_nilai_ukt_ukt_putih = () => {
 
                             {/* wrapper search and filter */}
                             <div className="flex gap-x-2">
-
+                                <Select
+                                    className='w-72 text-black'
+                                    styles={customStyles}
+                                    isMulti
+                                    name='colors'
+                                    value={eventSelect}
+                                    onChange={handleChangeEvent}
+                                    options={dataEventSelect}
+                                />
                                 <Select
                                     className='w-72 text-black'
                                     onChange={handleChangeRayon}
