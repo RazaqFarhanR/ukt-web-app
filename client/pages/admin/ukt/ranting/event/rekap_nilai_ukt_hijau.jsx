@@ -63,7 +63,6 @@ const rekap_nilai_ukt_ukt_jambon = () => {
     const getDataRayon = async () => {
         const token = localStorage.getItem('token')
         const form = {
-            id_ranting: idRanting,
             event: eventSelect.length > 0 ? [eventSelect.map(item => item.value)].flat() : [eventId],
         }
         await axios.post(BASE_URL + `ukt_siswa/rayon`, form, { headers: { Authorization: `Bearer ${token}` } })
@@ -82,8 +81,10 @@ const rekap_nilai_ukt_ukt_jambon = () => {
     const getDataEventSelect = async () => {
         const event = JSON.parse(localStorage.getItem('event'));
         const token = localStorage.getItem('token')
+        const admin = JSON.parse(localStorage.getItem('admin'));
+        const ranting = admin.id_role == 'admin ranting' ? admin.id_ranting : idRanting;
         await
-            axios.get(BASE_URL + `event/select/tipe/Ukt Hijau/${idRanting}`, { headers: { Authorization: `Bearer ${token}` } })
+            axios.get(BASE_URL + `event/select/tipe/UKT Hijau/${ranting}`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     setDataEventSelect(res.data.data)
                     if (eventSelect.length == 0) {
@@ -96,14 +97,19 @@ const rekap_nilai_ukt_ukt_jambon = () => {
                 })
     }
     useEffect(() => {
+        if (!router.isReady) return;
         getDataEventSelect();
-    },[])
+    }, [router.isReady]);
     useEffect(() => {
-        if (eventSelect.length > 0) {
+        if (!router.isReady) return;
+        if (eventSelect.length === 0) return;
+
+        getDataRayon();
+
+        if (idRanting) {
             getDataUktFiltered();
-            getDataRayon();
         }
-    }, [eventSelect, rayonSelect, jenis, updown]);
+    }, [router.isReady, eventSelect, rayonSelect, jenis, updown, idRanting]);
 
     const handleChangeRayon = (option) => {
         setRayonSelect(option)
@@ -195,7 +201,7 @@ const rekap_nilai_ukt_ukt_jambon = () => {
 
     useEffect(() => {
         getDataUktFiltered()
-    }, [`${dataRanting}`, jenis, updown, idRanting, name, router.query])
+     }, [jenis, updown, rayonSelect])
 
     const COLORS = [
         '#E57373', // red
@@ -268,7 +274,7 @@ const rekap_nilai_ukt_ukt_jambon = () => {
                         </h1>
                     </div>
                 </div>
-                : []}
+                : null}
             <div className="flex font-lato">
 
                 {/* sidebar */}
