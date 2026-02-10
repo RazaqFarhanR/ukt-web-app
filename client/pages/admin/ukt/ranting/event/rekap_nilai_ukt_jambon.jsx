@@ -59,7 +59,7 @@ const rekap_nilai_ukt_ukt_jambon = () => {
     const [jenis, setJenis] = useState('all')
     const [updown, setUpDown] = useState('upToDown')
 
-    // get data rayo
+   // get data rayo
     const getDataRayon = async () => {
         const token = localStorage.getItem('token')
         const form = {
@@ -81,9 +81,10 @@ const rekap_nilai_ukt_ukt_jambon = () => {
     const getDataEventSelect = async () => {
         const event = JSON.parse(localStorage.getItem('event'));
         const token = localStorage.getItem('token')
-        console.log('eventselect length:', eventSelect.length);
+        const admin = JSON.parse(localStorage.getItem('admin'));
+        const ranting = admin.id_role == 'admin ranting' ? admin.id_ranting : idRanting;
         await
-            axios.get(BASE_URL + `event/select/tipe/Ukt Jambon`, { headers: { Authorization: `Bearer ${token}` } })
+            axios.get(BASE_URL + `event/select/tipe/UKT Jambon/${ranting}`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     setDataEventSelect(res.data.data)
                     if (eventSelect.length == 0) {
@@ -96,14 +97,19 @@ const rekap_nilai_ukt_ukt_jambon = () => {
                 })
     }
     useEffect(() => {
+        if (!router.isReady) return;
         getDataEventSelect();
-    }, [])
+    }, [router.isReady]);
     useEffect(() => {
-        if (eventSelect.length > 0) {
+        if (!router.isReady) return;
+        if (eventSelect.length === 0) return;
+
+        getDataRayon();
+
+        if (idRanting) {
             getDataUktFiltered();
-            getDataRayon();
         }
-    }, [eventSelect, rayonSelect, jenis, updown]);
+    }, [router.isReady, eventSelect, rayonSelect, jenis, updown, idRanting]);
 
     const handleChangeRayon = (option) => {
         setRayonSelect(option)
@@ -126,24 +132,21 @@ const rekap_nilai_ukt_ukt_jambon = () => {
             jenis,
             updown,
             id_ranting: idRanting,
-            rayon: rayonSelect.map(item => item.value).flat(),
+            rayon: rayonSelect.map(item => item.value),
         };
         setLoading(true);
-        if (selectedEvent[0] != null) {
-            await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
-                .then(res => {
-                    setDataUkt(res.data.data)
-                })
-                .catch(err => {
-                    console.log(err.message);
-                    console.log(err.response.data);
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        } else {
-            setLoading(false);
-        }
+
+        await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+                setDataUkt(res.data.data)
+            })
+            .catch(err => {
+                console.log(err.message);
+                console.log(err.response.data);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }
     function formatNumber(number) {
         return (number % 1 === 0)

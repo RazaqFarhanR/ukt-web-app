@@ -67,23 +67,25 @@ const rekap_nilai_ukt_ukt_putih = () => {
             event: eventSelect.length > 0 ? [eventSelect.map(item => item.value)].flat() : [eventId],
         }
         await axios.post(BASE_URL + `ukt_siswa/rayon`, form, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                setDataRayon(res.data.data)
-            })
-            .catch(err => {
-                console.log(err.message);
-                console.log(err.response.data);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        .then(res => {
+            setDataRayon(res.data.data)
+        })
+        .catch(err => {
+            console.log(err.message);
+            console.log(err.response.data);
+        })
+        .finally(() => {
+            setLoading(false);
+        });
     }
     // get data event select
     const getDataEventSelect = async () => {
         const event = JSON.parse(localStorage.getItem('event'));
         const token = localStorage.getItem('token')
+        const admin = JSON.parse(localStorage.getItem('admin'));
+        const ranting = admin.id_role == 'admin ranting' ? admin.id_ranting : idRanting;
         await
-            axios.get(BASE_URL + `event/select/tipe/UKT Putih/${idRanting}`, { headers: { Authorization: `Bearer ${token}` } })
+            axios.get(BASE_URL + `event/select/tipe/UKT Putih/${ranting}`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     setDataEventSelect(res.data.data)
                     if (eventSelect.length == 0) {
@@ -200,7 +202,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
 
     useEffect(() => {
         getDataUktFiltered()
-    }, [`${dataRanting}`, jenis, updown, idRanting, name, router.query])
+    }, [jenis, updown, rayonSelect])
 
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {
