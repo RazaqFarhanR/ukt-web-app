@@ -1,4 +1,4 @@
-import React, { useState, createContext, useRef, useEffect, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import Sidebar from '../../../components/sidebar'
@@ -9,89 +9,64 @@ import Modal_Filter from '../../../components/modal_filter';
 import Image from 'next/image';
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic';
-import Select from 'react-select';
+
 
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL
 // const socket = SocketIo(SOCKET_URL)
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-const COLORS = [
-    '#E57373', // red
-    '#64B5F6', // blue
-    '#81C784', // green
-    '#FFD54F', // yellow
-    '#BA68C8', // purple
-    '#4DB6AC', // teal
-];
+const Select = dynamic(() => import('react-select'));
 
 const customStyles = {
-    valueContainer: (provided) => ({
+    control: (provided) => ({
         ...provided,
-        maxHeight: '80px',
-        overflowY: 'auto',
+        background: 'white',
+        colors: 'black',
+        // display: 'flex',
+        // flexWrap: 'nowrap',
+        // borderColor: 'hsl(0deg 78.56% 55.56%);',
+        // width: '7em'
     }),
-
-    multiValue: (provided, state) => {
-        const values = state.selectProps.value || [];
-        const index = values.findIndex(
-            (v) => v.value === state.data.value
-        );
-
-        const color = COLORS[index % COLORS.length];
-
-        return {
-            ...provided,
-            backgroundColor: color,
-            borderRadius: '6px',
-        };
-    },
-
-    multiValueLabel: (provided) => ({
+    menu: (provided) => ({
         ...provided,
-        color: 'white',
-        fontWeight: 500,
-    }),
-
-    multiValueRemove: (provided) => ({
-        ...provided,
-        color: 'white',
-        ':hover': {
-            backgroundColor: 'rgba(0,0,0,0.2)',
-            color: 'white',
-        },
+        background: 'white',
+        color: 'grey', // Set text color to black
+        width: '8rem'
     }),
 };
 
-
-const rekap_nilai_ukt_ukt_hijau = () => {
+const rekap_nilai_ukt_ukt_jambon = () => {
 
     // deklarasi router
     const router = useRouter()
     // / Get the value of 'eventId' parameter
-    const nameEvent = router.query.nameEvent
+    const { nameEvent } = router.query
     const eventId = router.query.eventId;
     const idRanting = router.query.idRanting;
 
     const [dataUkt, setDataUkt] = useState([])
 
     // state modal
-    const [dataEvent, setDataEvent] = useState([])
     const [dataEventSelect, setDataEventSelect] = useState([])
     const [dataRayon, setDataRayon] = useState([])
     const [rayonSelect, setRayonSelect] = useState([])
     const [eventSelect, setEventSelect] = useState([])
-    const [rayon, setRayon] = useState([])
     const [dataRanting, setDataRanting] = useState([])
     const [modalFilter, setModalFilter] = useState(false)
     const [name, setName] = useState(null);
     const [loading, setLoading] = useState(false);
     const [jenis, setJenis] = useState('all')
     const [updown, setUpDown] = useState('upToDown')
-    // get data rayo select
+
+    // get data rayo
     const getDataRayon = async () => {
         const token = localStorage.getItem('token')
-        await axios.get(BASE_URL + `ukt_siswa/rayon/${eventId}`, { headers: { Authorization: `Bearer ${token}` } })
+        const form = {
+            id_ranting: idRanting,
+            event: eventSelect.length > 0 ? [eventSelect.map(item => item.value)].flat() : [eventId],
+        }
+        await axios.post(BASE_URL + `ukt_siswa/rayon`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataRayon(res.data.data)
             })
@@ -107,9 +82,8 @@ const rekap_nilai_ukt_ukt_hijau = () => {
     const getDataEventSelect = async () => {
         const event = JSON.parse(localStorage.getItem('event'));
         const token = localStorage.getItem('token')
-        console.log('eventId', eventId);
         await
-            axios.get(BASE_URL + `event/select/tipe/Ukt Hijau`, { headers: { Authorization: `Bearer ${token}` } })
+            axios.get(BASE_URL + `event/select/tipe/Ukt Hijau/${idRanting}`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
                     setDataEventSelect(res.data.data)
                     if (eventSelect.length == 0) {
@@ -122,37 +96,38 @@ const rekap_nilai_ukt_ukt_hijau = () => {
                 })
     }
     useEffect(() => {
-        getDataRayon();
         getDataEventSelect();
-    }, [eventId, idRanting, nameEvent, router.query]);
+    },[])
+    useEffect(() => {
+        if (eventSelect.length > 0) {
+            getDataUktFiltered();
+            getDataRayon();
+        }
+    }, [eventSelect, rayonSelect, jenis, updown]);
 
     const handleChangeRayon = (option) => {
-        const data = option.map(item => item.value);
-
         setRayonSelect(option)
-        setRayon(data)
-        getDataUktFiltered()
     };
     const handleChangeEvent = (option) => {
-        const data = option.map(item => item.value);
-
         setEventSelect(option)
-        setDataEvent(data)
-        getDataUktFiltered()
     };
 
     const getDataUktFiltered = async () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
+        const selectedEvent =
+            eventSelect.length > 0
+                ? eventSelect.map(item => item.value)
+                : [eventId];
 
         let form = {
-            event: eventSelect.length > 0 ? [eventSelect.map(item => item.value)].flat() : [event.id_event],
+            event: selectedEvent,
             tipeUkt: event.tipe_ukt,
-            jenis: jenis,
-            updown: updown,
+            jenis,
+            updown,
             id_ranting: idRanting,
-            rayon: [rayonSelect.map(item => item.value)].flat(),
-        }
+            rayon: rayonSelect.map(item => item.value),
+        };
         setLoading(true);
 
         await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
@@ -214,15 +189,13 @@ const rekap_nilai_ukt_ukt_hijau = () => {
     }, [name]);
 
     useEffect(() => {
-        const event = JSON.parse(localStorage.getItem('event'));
-        setDataEvent(event)
         localStorage.removeItem('filterRanting')
         isLogged()
     }, [])
 
     useEffect(() => {
         getDataUktFiltered()
-    }, [`${dataRanting}`, jenis, updown, rayon, idRanting, name, router.query])
+    }, [`${dataRanting}`, jenis, updown, idRanting, name, router.query])
 
     const COLORS = [
         '#E57373', // red
@@ -322,7 +295,7 @@ const rekap_nilai_ukt_ukt_hijau = () => {
 
                             {/* page name and button back */}
                             <div className="flex justify-center items-center gap-x-3">
-                                <Link href={'../?ranting=' + idRanting + '&ukt=UKT+HIJAU&tipe=ukt_hijau'} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
+                                <Link href={'../?ranting=' + idRanting + '&ukt=UKT+JAMBON&tipe=ukt_jambon'} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
                                     <svg className='-translate-x-0.5 fill-white group-hover:fill-purple' width="13" height="22" viewBox="0 0 14 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
                                     </svg>
@@ -333,6 +306,7 @@ const rekap_nilai_ukt_ukt_hijau = () => {
 
                             {/* wrapper search and filter */}
                             <div className="flex gap-x-2">
+
                                 <Select
                                     className='w-72 text-black'
                                     styles={customStyles}
@@ -508,4 +482,4 @@ const rekap_nilai_ukt_ukt_hijau = () => {
     )
 }
 
-export default rekap_nilai_ukt_ukt_hijau
+export default rekap_nilai_ukt_ukt_jambon

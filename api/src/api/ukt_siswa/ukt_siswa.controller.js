@@ -44,7 +44,7 @@ module.exports = {
         ukt_siswa.findAll({
             attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('rayon')), 'rayon']],
             where: {
-                id_event: req.params.id
+                id_event: req.body.event
             }
         })
             .then(data => {
