@@ -19,12 +19,18 @@ module.exports = {
             })
     },
     controllerGetSelectByTipe: async (req, res) => {
+        const where1 = {
+            tipe_ukt: req.params.id,
+            is_active: true
+        }
+        const where2 = {
+            tipe_ukt: req.params.id,
+            id_ranting: req.params.id_ranting,
+            is_active: true
+        }
+        const whereClause = req.params.id_ranting === 'all' ? where1 : where2;
         event.findAll({
-            where: {
-                id_ranting: req.params.id_ranting,
-                tipe_ukt: req.params.id,
-                is_active: true
-            },
+            where: whereClause,
             attributes: [
                 'id_event',
                 'name',

@@ -17,32 +17,40 @@ const rekap_nilai_ukt_ukcw = () => {
 
     // deklarasi router
     const router = useRouter()
+    const eventId = router.query.eventId;
+    const idRanting = router.query.idRanting;
 
     const [dataUkt, setDataUkt] = useState([])
 
     // state modal
     const [dataEvent, setDataEvent] = useState([])
     const [dataEventSelect, setDataEventSelect] = useState([])
+    const [eventSelect, setEventSelect] = useState([])
     const [dataRanting, setDataRanting] = useState(null)
     const [modalFilter, setModalFilter] = useState(false)
     const [name, setName] = useState(null);
     const [loading, setLoading] = useState(false);
     const [jenis, setJenis] = useState('all')
     const [updown, setUpDown] = useState('upToDown')
-    const [search, setSearch] = useState(null)
-    const handleChange = selectedOption => {
-        setSearch(selectedOption);
-    };
+
     const getDataUktFiltered = async () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
+        const selectedEvent =
+            eventSelect.length > 0
+                ? eventSelect.map(item => item.value)
+                : [eventId];
+        const selectedRanting =
+            dataRanting != null
+                ? dataRanting.map(item => item.value)
+                : [idRanting]
         let form = {
-            event: event.id_event,
+            event: selectedEvent,
             tipeUkt: event.tipe_ukt,
-            jenis: jenis,
-            updown: updown,
-            ranting: dataRanting
-        }
+            jenis,
+            updown,
+            id_ranting: selectedRanting
+        };
         setLoading(true);
 
         await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
@@ -73,25 +81,30 @@ const rekap_nilai_ukt_ukcw = () => {
         localStorage.removeItem('filterRanting')
         isLogged()
     }, [])
-    const dataEventSelect1 = [
-        { value: 'event1', label: 'Event 1' },
-        { value: 'event2', label: 'Event 2' },
-        { value: 'event3', label: 'Event 3' },
-    ]
-    const getDataSelect = async () => {
+    // get data event select
+    const getDataEventSelect = async () => {
+        const event = JSON.parse(localStorage.getItem('event'));
         const token = localStorage.getItem('token')
-        axios.get(BASE_URL + `event/select/tipe/UKCW`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                console.log(res.data.data);
-                setDataEventSelect(res.data.data)
-                // setDataEvent(dataEventSelect1)
-            })
-            .catch(err => {
-                console.log(err.message);
-                console.log(err.response.data);
-            })
+        await
+            axios.get(BASE_URL + `event/select/tipe/UKCW/all`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                    setDataEventSelect(res.data.data)
+                    if (eventSelect.length == 0) {
+                        handleChangeEvent([{ value: event.id_event, label: event.name }])
+                    }
+                })
+                .catch(err => {
+                    console.log(err.message);
+                    console.log(err.response.data);
+                })
     }
-
+    useEffect(() => {
+        if (!router.isReady) return;
+        getDataEventSelect();
+    }, [router.isReady]);
+    const handleChangeEvent = (option) => {
+        setEventSelect(option)
+    };
     const getDataByName = () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'));
@@ -125,11 +138,9 @@ const rekap_nilai_ukt_ukcw = () => {
         }
     }, [name]);
 
-
-
-
-
     useEffect(() => {
+        if (!router.isReady) return;
+        if (eventSelect.length === 0) return;
         const event = JSON.parse(localStorage.getItem('event'));
         setDataEvent(event)
 
@@ -153,17 +164,7 @@ const rekap_nilai_ukt_ukcw = () => {
             socket.off('update_rekap', handleUpdate);
             socket.disconnect();
         };
-    }, [`${dataRanting}`, jenis, updown])
-
-    // useEffect(() => {
-    //     getDataSelect()
-    // }, [])
-
-    useEffect(() => {
-        getDataSelect()
-        getDataUktFiltered()
-    }, [`${dataRanting}`, jenis, updown])
-
+    }, [`${dataRanting}`, jenis, updown, router.isReady, eventSelect])
 
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {
@@ -231,10 +232,10 @@ const rekap_nilai_ukt_ukcw = () => {
                             <div className="flex gap-x-2">
                                 <div className='w-72 text-black'>
                                     <Select
-                                    isMulti
-                                    name='colors'
-                                        value={search}
-                                        onChange={handleChange}
+                                        isMulti
+                                        name='colors'
+                                        value={eventSelect}
+                                        onChange={handleChangeEvent}
                                         options={dataEventSelect}
                                     />
                                 </div>
