@@ -83,7 +83,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
         const event = JSON.parse(localStorage.getItem('event'));
         const token = localStorage.getItem('token')
         const admin = JSON.parse(localStorage.getItem('admin'));
-        const ranting = admin.id_role == 'admin ranting' ? admin.id_ranting : idRanting;
+        const ranting = admin.id_role == 'admin ranting' ? admin.id_ranting : 'all';
         await
             axios.get(BASE_URL + `event/select/tipe/UKT Putih/${ranting}`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
