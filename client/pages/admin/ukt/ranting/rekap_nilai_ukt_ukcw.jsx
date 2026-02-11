@@ -141,8 +141,12 @@ const rekap_nilai_ukt_ukcw = () => {
     useEffect(() => {
         if (!router.isReady) return;
         if (eventSelect.length === 0) return;
+
         const event = JSON.parse(localStorage.getItem('event'));
-        setDataEvent(event)
+        setDataEvent(event);
+
+        // 🔥 CALL IT HERE
+        getDataUktFiltered();
 
         const socket = getSocket();
 
@@ -154,8 +158,8 @@ const rekap_nilai_ukt_ukcw = () => {
             });
         }
 
-        const handleUpdate = (data) => {
-            getDataUktFiltered()
+        const handleUpdate = () => {
+            getDataUktFiltered();
         };
 
         socket.on('update_rekap', handleUpdate);
@@ -164,7 +168,7 @@ const rekap_nilai_ukt_ukcw = () => {
             socket.off('update_rekap', handleUpdate);
             socket.disconnect();
         };
-    }, [`${dataRanting}`, jenis, updown, router.isReady, eventSelect])
+    }, [dataRanting, jenis, updown, router.isReady, eventSelect]);
 
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {
