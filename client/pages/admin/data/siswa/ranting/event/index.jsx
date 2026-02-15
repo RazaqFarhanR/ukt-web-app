@@ -35,9 +35,15 @@ const siswa = () => {
 
     // function go to detail siswa
     const goToRantingSiswa = (item) => {
+        const updatedItem = {
+            ...item,
+            tipe_ukt: idTipe,
+        };
+
+        localStorage.setItem('event', JSON.stringify(updatedItem));
         router.push({
             pathname: `/admin/data/siswa/ranting/event/detail`,
-            query: { eventId: item.id_event, tipe: idTipe, ranting: idRanting, name: item?.siswa_event?.name }
+            query: { eventId: item.id_event, tipe: idTipe, ranting: idRanting, name: item?.name }
         });
     }
     const goBack = () => {
