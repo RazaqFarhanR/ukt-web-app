@@ -191,7 +191,7 @@ module.exports = {
                 };
                 if (req.file) {
                     const oldImagePath = path.join(localStorage, result[0].foto);
-                    
+
                     if (result[0].foto !== 'default.png') {
                         fs.unlink(oldImagePath, (err) => {
                             if (err) {
@@ -247,6 +247,28 @@ module.exports = {
             res.status(404).json({ message: error.message });
         }
     },
+    controllerEditUploadProfilePicture: async (req, res) => {
+        try {
+            const data = {
+                foto: req.file?.filename,
+            }
+            await user.update(data, {
+                where: {
+                    id_user: req.params.id
+                }
+            });
+            const result = await user.findOne({
+                where: {
+                    id_user: req.params.id
+                }
+            });
+            res.json({
+                foto: result.foto,
+            });
+        } catch (error) {
+            res.json(error);
+        }
+    },
     controllerDelete: async (req, res) => {
         let param = {
             id_user: req.params.id,
@@ -256,8 +278,8 @@ module.exports = {
             .then((result) => {
                 if (result.foto) {
                     const oldImagePath = localStorage + result.foto;
-                    
-                    if (result.foto !== 'default.png') {                    
+
+                    if (result.foto !== 'default.png') {
                         fs.unlink(oldImagePath, (err) => {
                             if (err) {
                                 console.error(err);

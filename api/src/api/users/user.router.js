@@ -31,6 +31,7 @@ const {
     controllerDelete,
     controllerGetById,
     controllerNiw,
+    controllerEditUploadProfilePicture,
 } = require('./user.controller');
 
 
@@ -41,7 +42,9 @@ router.get('/:id', Auth, verifyRoles("super admin", "admin"), controllerGetById 
 router.post('/', Auth, verifyRoles("super admin", "admin"), upload2.single("foto"), controllerAdd )
 router.post('/niw', Auth, verifyRoles("admin", "super admin", "admin ranting"), controllerNiw )
 router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang"), upload2.single("foto"), controllerEdit )
+router.patch('/profile_picture/:id', upload2.single("foto"), controllerEditUploadProfilePicture )
 router.delete('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting"), controllerDelete )
+
 router.post('/auth', controllerAuth )
 
 module.exports = router;
