@@ -3,10 +3,12 @@ import axios from 'axios';
 import Link from 'next/link'
 import { globalState } from '@/context/context';
 import Modal_foto from './components/modal_foto';
+import { useRouter } from 'next/router';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
 
 const edit_profile = () => {
+    const router = useRouter();
 
     // state password
     const [passwordType, setPassworrdType] = useState('password')
@@ -41,7 +43,6 @@ const edit_profile = () => {
         setPassword(dataPenguji.password)
         setRole(dataPenguji.id_role)
         setFoto(dataPenguji.foto)
-        console.log(dataPenguji.foto)
     }
 
     // function show hide password
@@ -56,8 +57,7 @@ const edit_profile = () => {
 
     // function modal foto
     const editFoto = () => {
-        setShowModalFoto(true)
-        setFoto()
+        router.push(`/penguji/profile_picture?id=${idPenguji}&tipe=penguji`)
     }
 
     // function handle edit

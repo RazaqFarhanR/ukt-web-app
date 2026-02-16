@@ -480,6 +480,14 @@ module.exports = {
                     id_penguji: req.params.id
                 }
             });
+            const result = await penguji.findOne({
+                where: {
+                    id_penguji: req.params.id
+                }
+            });
+            res.json({
+                foto: result.foto,
+            });
         } catch (error) {
             res.json(error);
         }
