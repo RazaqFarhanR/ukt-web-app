@@ -46,6 +46,7 @@ const {
     controllerAddSignUp,
     controllerCheckVerificationById,
     controllerGetCountPengujiRole,
+    controllerEditUploadProfilePicture,
 } = require('./penguji.controller');
 
 
@@ -72,7 +73,7 @@ router.post('/csv', upload2.single("csvFile"), controllerCsv )
 router.post('/excel', upload2.single("excelFile"), controllerExcel )
 router.post('/excel_ranting', upload2.single("excelFile"), controllerExcelRanting )
 router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), upload2.single("foto"), controllerEdit )
-router.patch('/profile_picture/:id', upload2.single("foto"), controllerEdit )
+router.patch('/profile_picture/:id', upload2.single("foto"), controllerEditUploadProfilePicture )
 router.patch('/verification/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerEditVerificaiton )
 router.delete('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDelete )
 

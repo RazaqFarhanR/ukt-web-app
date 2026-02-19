@@ -74,8 +74,7 @@ const edit_profile = () => {
 
     // function modal foto
     const editFoto = () => {
-        setShowModalFoto (true)
-        setFoto ()
+        router.push('/admin/profile_picture/?id=' + idAdmin +'&tipe=' + role)
     }
 
     // function handle edit
