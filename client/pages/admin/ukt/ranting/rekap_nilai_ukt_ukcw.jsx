@@ -145,7 +145,6 @@ const rekap_nilai_ukt_ukcw = () => {
         const event = JSON.parse(localStorage.getItem('event'));
         setDataEvent(event);
 
-        // 🔥 CALL IT HERE
         getDataUktFiltered();
 
         const socket = getSocket();

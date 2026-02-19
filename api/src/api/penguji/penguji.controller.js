@@ -475,11 +475,18 @@ module.exports = {
             const data = {
                 foto: req.file?.filename,
             }
-            console.log(data)
             await penguji.update(data, {
                 where: {
                     id_penguji: req.params.id
                 }
+            });
+            const result = await penguji.findOne({
+                where: {
+                    id_penguji: req.params.id
+                }
+            });
+            res.json({
+                foto: result.foto,
             });
         } catch (error) {
             res.json(error);
