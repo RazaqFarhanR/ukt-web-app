@@ -9,6 +9,10 @@ on:
       - "api/**"
       - "client/**"
 
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
@@ -133,8 +137,6 @@ jobs:
 
             echo "Building Next.js Client..."
             cd client
-            npm ci
-            npm run build
 
             echo "Building Docker image..."
             docker build --pull -t $CLIENT_IMAGE .
