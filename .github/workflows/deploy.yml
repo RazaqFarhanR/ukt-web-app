@@ -3,7 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - dev
+      # - dev
       - main
     paths:
       - "api/**"
@@ -102,7 +102,7 @@ jobs:
             echo "API deploy completed"
 
   deploy-client:
-    needs: detect-changes
+    needs: [detect-changes, deploy-api]
     if: needs.detect-changes.outputs.client_changed == 'true'
     runs-on: ubuntu-latest
     steps:
