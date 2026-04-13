@@ -29,33 +29,49 @@ const sidebar = () => {
     // state sidebar
     const { showSideBar, setShowSideBar } = useContext(globalState)
     const { closeSideBar, setCloseSideBar } = useContext(globalState)
+    const savedSidebarRef = React.useRef(false)
 
     const checkScreenSize = () => {
         if (window.innerWidth < 768) { // You can adjust these values for small, medium, big screens
-            setShowSideBar(false);
-            setCloseSideBar(true);
+            setShowSideBar(false)
+            setCloseSideBar(true)
         } else {
-            setShowSideBar(true);
-            setCloseSideBar(false);
+            setShowSideBar(true)
+            setCloseSideBar(false)
         }
-    };
+    }
+
+    const loadSavedSidebar = () => {
+        const savedShow = localStorage.getItem('showSideBar')
+        const savedClose = localStorage.getItem('closeSideBar')
+
+        if (savedShow !== null && savedClose !== null) {
+            setShowSideBar(JSON.parse(savedShow))
+            setCloseSideBar(JSON.parse(savedClose))
+            savedSidebarRef.current = true
+            return true
+        }
+        return false
+    }
 
     useEffect(() => {
-        // Check screen size on initial render
-        checkScreenSize();
+        // On first render, load saved sidebar state if available.
+        const hasSaved = loadSavedSidebar()
+        if (!hasSaved) {
+            checkScreenSize()
+        }
 
         const handleResize = () => {
-            // Check screen size whenever the window is resized
-            checkScreenSize();
-        };
+            if (savedSidebarRef.current) return
+            checkScreenSize()
+        }
 
-        window.addEventListener('resize', handleResize);
+        window.addEventListener('resize', handleResize)
 
         return () => {
-            // Clean up the event listener
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
+            window.removeEventListener('resize', handleResize)
+        }
+    }, [])
 
     useEffect(() => {
         getRole()
@@ -113,7 +129,8 @@ const sidebar = () => {
         setShowSideBar(false)
     }
     const openSideBar = () => {
-        setShowSideBar(!showSideBar)
+        setCloseSideBar(false)
+        setShowSideBar(true)
     }
 
     return (
