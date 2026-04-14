@@ -367,7 +367,8 @@ module.exports = {
         let action = req.params.action
 
         let whereClause = {
-            id_event: idEvent
+            id_event: idEvent,
+            active: true
         };
 
         if (action == 'senam') {
