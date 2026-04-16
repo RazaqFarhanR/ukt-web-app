@@ -1531,4 +1531,110 @@ module.exports = {
                 })
             })
     },
+    controllerResetGrade: async (req, res) => {
+        const { id_siswa, id_event, tipe_test } = req.body;
+
+        // Allowed grade fields that can be reset
+        const allowedFields = [
+            'senam', 'jurus', 'fisik', 'teknik', 'sambung', 'keshan',
+            'belati', 'kripen', 'senam_toya', 'jurus_toya'
+        ];
+
+        if (!id_siswa || !id_event || !tipe_test) {
+            return res.status(400).json({ message: 'id_siswa, id_event, dan tipe_test wajib diisi' });
+        }
+
+        if (!allowedFields.includes(tipe_test)) {
+            return res.status(400).json({ message: 'tipe_test tidak valid' });
+        }
+
+        // Build the update payload with just the target field set to null
+        const resetData = { [tipe_test]: null };
+
+        try {
+            const [affectedRows] = await ukt_siswa.update(resetData, {
+                where: {
+                    id_siswa: id_siswa,
+                    id_event: id_event
+                }
+            });
+
+            if (affectedRows === 0) {
+                return res.status(404).json({ message: 'Data ukt_siswa tidak ditemukan' });
+            }
+
+            if (tipe_test === 'keshan') {
+                const getSession = await models.session.findOne({
+                    where: { id_siswa: id_siswa, id_event: id_event }
+                });
+                if (getSession) {
+                    await models.lembar_jawaban.destroy({ where: { id_session: getSession.id_session } });
+                    await models.session.destroy({ where: { id_session: getSession.id_session } });
+                }
+            } else if (tipe_test === 'senam') {
+                const getDetail = await models.senam_detail.findOne({ where: { id_siswa, id_event } });
+                if (getDetail) {
+                    await models.senam_siswa.destroy({ where: { id_senam_detail: getDetail.id_senam_detail } });
+                    await models.senam_detail.destroy({ where: { id_senam_detail: getDetail.id_senam_detail } });
+                }
+            } else if (tipe_test === 'jurus') {
+                const getDetail = await models.jurus_detail.findOne({ where: { id_siswa, id_event } });
+                if (getDetail) {
+                    await models.jurus_siswa.destroy({ where: { id_jurus_detail: getDetail.id_jurus_detail } });
+                    await models.jurus_detail.destroy({ where: { id_jurus_detail: getDetail.id_jurus_detail } });
+                }
+            } else if (tipe_test === 'teknik') {
+                const getDetail = await models.teknik_detail.findOne({ where: { id_siswa, id_event } });
+                if (getDetail) {
+                    await models.teknik_siswa.destroy({ where: { id_teknik_detail: getDetail.id_teknik_detail } });
+                    await models.teknik_detail.destroy({ where: { id_teknik_detail: getDetail.id_teknik_detail } });
+                }
+            } else if (tipe_test === 'belati') {
+                const getDetail = await models.belati_detail.findOne({ where: { id_siswa, id_event } });
+                if (getDetail) {
+                    await models.belati_siswa.destroy({ where: { id_belati_detail: getDetail.id_belati_detail } });
+                    await models.belati_detail.destroy({ where: { id_belati_detail: getDetail.id_belati_detail } });
+                }
+            } else if (tipe_test === 'kripen') {
+                const getDetail = await models.kripen_detail.findOne({ where: { id_siswa, id_event } });
+                if (getDetail) {
+                    await models.kripen_siswa.destroy({ where: { id_kripen_detail: getDetail.id_kripen_detail } });
+                    await models.kripen_detail.destroy({ where: { id_kripen_detail: getDetail.id_kripen_detail } });
+                }
+            } else if (tipe_test === 'senam_toya') {
+                const getDetail = await models.senam_toya_detail.findOne({ where: { id_siswa, id_event } });
+                if (getDetail) {
+                    await models.senam_toya_siswa.destroy({ where: { id_senam_toya_detail: getDetail.id_senam_toya_detail } });
+                    await models.senam_toya_detail.destroy({ where: { id_senam_toya_detail: getDetail.id_senam_toya_detail } });
+                }
+            } else if (tipe_test === 'jurus_toya') {
+                const getDetail = await models.jurus_toya_detail.findOne({ where: { id_siswa, id_event } });
+                if (getDetail) {
+                    await models.jurus_toya_siswa.destroy({ where: { id_jurus_toya_detail: getDetail.id_jurus_toya_detail } });
+                    await models.jurus_toya_detail.destroy({ where: { id_jurus_toya_detail: getDetail.id_jurus_toya_detail } });
+                }
+            } else if (tipe_test === 'fisik') {
+                await models.fisik.destroy({ where: { id_siswa, id_event } });
+            } else if (tipe_test === 'sambung') {
+                const getSambung = await models.sambung.findAll({ where: { id_event } });
+                if (getSambung.length > 0) {
+                    const idSambungs = getSambung.map(s => s.id_sambung);
+                    await models.detail_sambung.destroy({
+                        where: {
+                            id_siswa: id_siswa,
+                            id_sambung: idSambungs
+                        }
+                    });
+                }
+            }
+
+            res.json({
+                message: `Nilai ${tipe_test} berhasil direset`
+            });
+        } catch (error) {
+            res.json({
+                message: error.message
+            });
+        }
+    },
 }

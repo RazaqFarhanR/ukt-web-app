@@ -8,6 +8,7 @@ import Header from '../../../../../components/header'
 import Footer from '../../../../../components/footer'
 import Modal_siswa from '../../../../../components/modal_siswa'
 import Modal_delete from '../../../../../components/modal_delete'
+import ModalResetGrade from '../../../../../components/modal_reset_grade'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const detail_siswa = () => {
@@ -21,6 +22,11 @@ const detail_siswa = () => {
     // state modal
     const [showModalSiswa, setShowModalSiswa] = useState(false)
     const [showModalDelete, setShowModalDelete] = useState(false)
+    const [showModalReset, setShowModalReset] = useState(false)
+
+    // reset grade state
+    const [resetSiswaId, setResetSiswaId] = useState('')
+    const [resetSiswaName, setResetSiswaName] = useState('')
 
     // state
     const [dataSiswa, setDataSiswa] = useState([])
@@ -100,6 +106,13 @@ const detail_siswa = () => {
         setAction('deleteSiswa')
         setIdSiswa(selectedId)
         setRanting(ranting)
+    }
+
+    // function modal reset grade
+    const resetModal = (selectedItem) => {
+        setResetSiswaId(selectedItem.id_siswa)
+        setResetSiswaName(selectedItem.name)
+        setShowModalReset(true)
     }
 
     // function login checker
@@ -241,19 +254,14 @@ const detail_siswa = () => {
                                             <td className='border-b-2 border-gray'>{item.jenis_latihan}</td>
                                             <td className='border-b-2 border-gray'>
                                                 <div className="flex gap-x-2">
-                                                    <button onClick={() => handleVerification(item)} className="bg-yellow hover:bg-white text-white hover:text-green py-2 rounded-md w-28 flex justify-center items-center space-x-1 mx-auto group duration-300">
-                                                        <svg className='stroke-white group-hover:stroke-green duration-300' width="24" height="24" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M19 31.6667H33.25" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                                                            <path d="M26.125 5.54166C26.7549 4.91177 27.6092 4.55791 28.5 4.55791C28.9411 4.55791 29.3778 4.64478 29.7853 4.81358C30.1928 4.98237 30.5631 5.22977 30.875 5.54166C31.1869 5.85355 31.4343 6.22382 31.6031 6.63132C31.7719 7.03883 31.8588 7.47559 31.8588 7.91666C31.8588 8.35774 31.7719 8.7945 31.6031 9.202C31.4343 9.60951 31.1869 9.97977 30.875 10.2917L11.0833 30.0833L4.75 31.6667L6.33333 25.3333L26.125 5.54166Z" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                                                        </svg>
-                                                        <h1>Verify</h1>
+                                                    <button onClick={() => handleVerification(item)} className="bg-yellow hover:bg-white text-white hover:text-yellow py-2 rounded-md w-28 flex justify-center items-center space-x-1 mx-auto group duration-300">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check-icon lucide-badge-check"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
                                                     </button>
                                                     <button onClick={() => editModal(item)} className="bg-green hover:bg-white text-white hover:text-green py-2 rounded-md w-28 flex justify-center items-center space-x-1 mx-auto group duration-300">
                                                         <svg className='stroke-white group-hover:stroke-green duration-300' width="24" height="24" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M19 31.6667H33.25" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                                                             <path d="M26.125 5.54166C26.7549 4.91177 27.6092 4.55791 28.5 4.55791C28.9411 4.55791 29.3778 4.64478 29.7853 4.81358C30.1928 4.98237 30.5631 5.22977 30.875 5.54166C31.1869 5.85355 31.4343 6.22382 31.6031 6.63132C31.7719 7.03883 31.8588 7.47559 31.8588 7.91666C31.8588 8.35774 31.7719 8.7945 31.6031 9.202C31.4343 9.60951 31.1869 9.97977 30.875 10.2917L11.0833 30.0833L4.75 31.6667L6.33333 25.3333L26.125 5.54166Z" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                                                         </svg>
-                                                        <h1>Edit</h1>
                                                     </button>
                                                     <button onClick={() => deleteModal(item.id_siswa)} className="bg-red hover:bg-white text-white hover:text-red py-2 rounded-md w-28 flex justify-center items-center space-x-[1px] mx-auto group duration-300">
                                                         <svg className='stroke-white group-hover:stroke-red duration-300' width="22" height="22" viewBox="0 0 29 33" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -262,7 +270,18 @@ const detail_siswa = () => {
                                                             <path d="M1.76953 5.76929H28.0003" strokeWidth="2" strokeLinecap="round" />
                                                             <path d="M10.1157 5.76924V2.78847C10.115 2.55341 10.1608 2.32054 10.2504 2.10324C10.3401 1.88594 10.4718 1.68851 10.638 1.5223C10.8042 1.35609 11.0016 1.22438 11.2189 1.13474C11.4362 1.04511 11.6691 0.999319 11.9041 1.00001H17.8657C18.1007 0.999319 18.3336 1.04511 18.5509 1.13474C18.7682 1.22438 18.9656 1.35609 19.1319 1.5223C19.2981 1.68851 19.4298 1.88594 19.5194 2.10324C19.609 2.32054 19.6548 2.55341 19.6541 2.78847V5.76924M14.8849 10.5385V27.2308M9.51953 10.5385L10.1157 27.2308M20.2503 10.5385L19.6541 27.2308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                         </svg>
-                                                        <h1>Delete</h1>
+                                                    </button>
+                                                    {/* Reset grade button */}
+                                                    <button
+                                                        onClick={() => resetModal(item)}
+                                                        title="Reset Nilai"
+                                                        className="bg-blue hover:bg-white text-white hover:text-blue py-2 rounded-md w-28 flex justify-center items-center space-x-[1px] mx-auto group duration-300">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                                            <path d="M3 3v5h5"/>
+                                                            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                                                            <path d="M16 16h5v5"/>
+                                                        </svg>
                                                     </button>
                                                 </div>
                                             </td>
@@ -290,6 +309,17 @@ const detail_siswa = () => {
             <globalState.Provider value={{ showModalDelete, setShowModalDelete, action, setDataSiswa, idSiswa, ranting }}>
                 <Modal_delete />
             </globalState.Provider>
+
+            {/* Modal Reset Nilai */}
+            <ModalResetGrade
+                show={showModalReset}
+                onClose={() => setShowModalReset(false)}
+                idSiswa={resetSiswaId}
+                idEvent={eventId}
+                siswaName={resetSiswaName}
+                tipeUkt={dataEvent?.tipe_ukt}
+                onSuccess={getDataSiswa}
+            />
         </>
     )
 }
