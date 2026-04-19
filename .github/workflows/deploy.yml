@@ -119,12 +119,12 @@ jobs:
 
             # Tentukan folder & container sesuai branch
             if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-              APP_DIR=/srv/apps/ukt-prod
+              APP_DIR=${{ vars.BASE_PATH }}/ukt-prod
               CLIENT_CONTAINER=ukt_client_prod
               CLIENT_IMAGE=ukt-client:prod
               CLIENT_PORT=3000
             else
-              APP_DIR=/srv/apps/ukt-dev
+              APP_DIR=${{ vars.BASE_PATH }}/ukt-dev
               CLIENT_CONTAINER=ukt_client_dev
               CLIENT_IMAGE=ukt-client:dev
               CLIENT_PORT=3001
