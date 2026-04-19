@@ -8,6 +8,15 @@ const kunci_soal = models.kunci_soal;
 
 const { Sequelize, Op } = require("sequelize");
 
+// Logger utility for development. Disables automatically in production 
+// or if ENABLE_EXAM_LOGS is explicitly set to false.
+const ENABLE_LOGS = process.env.NODE_ENV !== 'production' && process.env.ENABLE_EXAM_LOGS !== 'false';
+const logger = (...args) => {
+    if (ENABLE_LOGS) {
+        console.log('[EXAM_LOG]', ...args);
+    }
+};
+
 module.exports = {
     controllerGetAll: async (req, res) => {
         session.findAll()
@@ -185,7 +194,7 @@ module.exports = {
         if (req.body.tipe_ukt == 'ukcw') {
             const arrPaket = [1,2,3]
             paramPaket = arrPaket[Math.floor(Math.random() *3)];
-            console.log(paramPaket);
+            logger("Param paket:", paramPaket);
             await lembar_soal.findOne({
                 where: param,
                 attributes:['id_lembar_soal', 'id_ranting', 'tipe_ukt'],
@@ -211,7 +220,6 @@ module.exports = {
             .then(res => {
                 lembarSoal = res
                 soal = JSON.parse(JSON.stringify(res.lembar_soal_ujian))
-                // console.log(JSON.parse(JSON.stringify(soal)));
             })
             .catch(error => {
                 return res.json({
@@ -243,7 +251,7 @@ module.exports = {
             .then(res => {
                 lembarSoal = res
                 soal = JSON.parse(JSON.stringify(res.lembar_soal_ujian))
-                console.log(JSON.parse(JSON.stringify(soal)));
+                logger("Soal count:", soal.length);
             })
             .catch(error => {
                 return res.json({
@@ -251,7 +259,6 @@ module.exports = {
                 })
             })
         }
-        // console.log(lembarSoal);
         let sessionParam = {
             id_lembar_soal: lembarSoal.id_lembar_soal,
             id_siswa: req.body.id_siswa
@@ -279,7 +286,6 @@ module.exports = {
             //create session
             const newSession = await session.create(data)
             .then(async result => {
-                // console.log(soal);
                 soal.forEach((element => {
                     element.id_session = result.id_session,
                     element.id_siswa = result.id_siswa
@@ -321,9 +327,8 @@ module.exports = {
                     message: error.message
                 })
             })
-            // console.log(newSession);
         } else {
-            let waktu = new Date(cekData.finish).getTime() - new Date().getTime()
+            let waktu = Math.max(0, new Date(cekData.finish).getTime() - new Date().getTime());
             let minute = (Math.floor((waktu / 1000 / 60) % 60))
             let second = (Math.floor((waktu / 1000) % 60))
             res.json({
@@ -361,11 +366,11 @@ module.exports = {
             offset:offset
         })
         .then(soal =>{
-            console.log(soal);
+            logger("Fetched page:", page);
             res.json({
                 status: true,
                 massege: "successfuly",
-                data: soal.soal_ujian
+                data: soal ? soal.soal_ujian : null
             })
         })
         .catch(error => {
@@ -375,48 +380,89 @@ module.exports = {
             })
         })
     },
-    controllerKoreksi: async (req,res) => {
-        let param = {
-            id_session: req.body.id_session,
-            id_siswa: req.body.id_siswa,
-        }
-        let jawaban = req.body.jawaban ?? []
-        let benar = 0
-        for (let index = 0; index < jawaban.length; index++) {
-            await kunci_soal.findOne({
+    controllerKoreksi: async (req, res) => {
+        try {
+            const { id_session, id_siswa, id_ukt_siswa, jawaban } = req.body;
+            if (!jawaban || !Array.isArray(jawaban)) {
+                return res.json({ status: false, message: "Invalid data" });
+            }
+
+            const currentSession = await session.findOne({
+                where: { id_session, id_siswa },
+                attributes: ["id_lembar_soal"],
+            });
+
+            if (!currentSession) {
+                return res.json({ status: false, message: "Session not found" });
+            }
+
+            const keys = await kunci_soal.findAll({
                 where: {
-                    id_soal: jawaban[index].id_soal,
+                    id_soal: { [Op.in]: jawaban.map((j) => j.id_soal) },
+                },
+            });
+
+            const keyMap = new Map(keys.map((k) => [k.id_soal, k.opsi]));
+
+            let benar = 0;
+            const updatePromises = [];
+
+            for (const item of jawaban) {
+                const correctOpsi = keyMap.get(item.id_soal);
+                let status = "kosong";
+                if (item.selectedOption) {
+                    status = item.selectedOption === correctOpsi ? "benar" : "salah";
                 }
-            })
-            .then(async (result) => {
-                param.id_soal = jawaban[index].id_soal
-                if (result?.opsi === jawaban[index].selectedOption) {
-                    benar = benar+1
-                    await lembar_jawaban.update({answer: 'benar'}, {where: param})
-                } else if (result?.opsi !== jawaban[index].selectedOption) {
-                    await lembar_jawaban.update({answer: 'salah'}, {where: param})
-                } else {
-                    await lembar_jawaban.update({answer: 'kosong'}, {where: param})
-                }
-            })
-            .catch(error => {
-                return res.json({
-                    message: error.message
-                })
-            })
-        }
-        await ukt_siswa.update({keshan: benar*5}, {where: {id_ukt_siswa: req.body.id_ukt_siswa}})
-        .then(result => {
+
+                if (status === "benar") benar++;
+
+                updatePromises.push(
+                    lembar_jawaban.update(
+                        { answer: status },
+                        { where: { id_session, id_siswa, id_soal: item.id_soal } }
+                    )
+                );
+            }
+
+            await Promise.all(updatePromises);
+
+            await ukt_siswa.update(
+                { keshan: benar * 5 },
+                { where: { id_ukt_siswa: id_ukt_siswa } }
+            );
+
             res.json({
                 status: true,
-                message: "data has been updated"
-            })
-        })
-        .catch(error => {
-            return res.json({
-                message: error.message
-            })
-        })
+                message: "Correction completed successfully",
+                score: benar * 5,
+            });
+        } catch (error) {
+            res.json({ status: false, message: error.message });
+        }
+    },
+    controllerSync: async (req, res) => {
+        try {
+            const { id_session, id_siswa, id_soal, selectedOption } = req.body;
+
+            const key = await kunci_soal.findOne({ where: { id_soal } });
+            if (!key) {
+                return res.json({ status: false, message: "Question key not found" });
+            }
+
+            let status = "kosong";
+            if (selectedOption) {
+                status = selectedOption === key.opsi ? "benar" : "salah";
+            }
+
+            await lembar_jawaban.update(
+                { answer: status },
+                { where: { id_session, id_siswa, id_soal } }
+            );
+
+            res.json({ status: true, message: "Answer synced" });
+        } catch (error) {
+            res.json({ status: false, message: error.message });
+        }
     },
     controllerAdd: async (req, res) => {
         let data = {
@@ -548,7 +594,7 @@ module.exports = {
             // waktu_pengerjaan: req.body.waktu_pengerjaan,
             finish: finish
         }
-        console.log(data);
+        logger("Kirim finish data:", data);
         session.update(data, { where: param })
             .then(result => {
                 res.json({
