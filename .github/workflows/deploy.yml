@@ -54,13 +54,13 @@ jobs:
         run: |
           if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
             echo "ENV=prod" >> $GITHUB_ENV
-            echo "APP_DIR=$HOME/docker/apps/ukt-prod" >> $GITHUB_ENV
+            echo "APP_DIR=${{ vars.BASE_PATH }}/ukt-prod" >> $GITHUB_ENV
             echo "API_PORT=8080" >> $GITHUB_ENV
             echo "API_CONTAINER=ukt_api_prod" >> $GITHUB_ENV
             echo "API_IMAGE=ukt-api:prod" >> $GITHUB_ENV
           else
             echo "ENV=dev" >> $GITHUB_ENV
-            echo "APP_DIR=$HOME/docker/apps/ukt-prod" >> $GITHUB_ENV
+            echo "APP_DIR=${{ vars.BASE_PATH }}/ukt-dev" >> $GITHUB_ENV
             echo "API_PORT=8081" >> $GITHUB_ENV
             echo "API_CONTAINER=ukt_api_dev" >> $GITHUB_ENV
             echo "API_IMAGE=ukt-api:dev" >> $GITHUB_ENV
