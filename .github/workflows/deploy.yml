@@ -91,6 +91,7 @@ jobs:
             docker run -d \
               --name $API_CONTAINER \
               --restart unless-stopped \
+              --network main-network \
               -p ${API_PORT}:3000 \
               --env-file $APP_DIR/api/.env \
               --add-host=host.docker.internal:host-gateway \
@@ -148,6 +149,7 @@ jobs:
             docker run -d \
               --name $CLIENT_CONTAINER \
               --restart unless-stopped \
+              --network main-network \
               -p ${CLIENT_PORT}:3000 \
               --env-file $APP_DIR/client/.env \
               $CLIENT_IMAGE
