@@ -8,6 +8,7 @@ import Header from '../../components/header'
 import Footer from '../../components/footer'
 import Modal_event from '../../components/modal_event'
 import Modal_delete from '../../components/modal_delete'
+import { exportGrades } from '../../../../lib/exportGrades'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const ukt_hijau = () => {
@@ -32,6 +33,7 @@ const ukt_hijau = () => {
     const [name, setName] = useState ('')
     const [date, setDate] = useState ()
     const [tipe, setTipe] = useState ('')
+    const [openDropdown, setOpenDropdown] = useState (null)
 
     // function get data event
     const getDataEvent = () => {
@@ -93,6 +95,35 @@ const ukt_hijau = () => {
             pathname: './ranting/event/detail_nilai_' + idTipe,
             query: { eventId: item.id_event, idRanting: idRanting, nameEvent:item.name } // Add your parameter here
         });
+    }
+
+    // function export
+    const handleExport = async (e, item, format) => {
+        e.stopPropagation();
+        const token = localStorage.getItem('token');
+        try {
+            const payload = {
+                event: item.id_event,
+                ranting: [idRanting],
+                jenis: 'all',
+                updown: 'downToUp',
+                tipeUkt: idUkt
+            };
+            const res = await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, payload, { headers: { Authorization: `Bearer ${token}` } });
+            if (res.data && res.data.data) {
+                const sortedData = res.data.data.sort((a, b) => {
+                    const noA = parseInt(a.nomor_urut, 10);
+                    const noB = parseInt(b.nomor_urut, 10);
+                    if (!isNaN(noA) && !isNaN(noB)) return noA - noB;
+                    if (!a.nomor_urut) return 1;
+                    if (!b.nomor_urut) return -1;
+                    return a.nomor_urut.toString().localeCompare(b.nomor_urut.toString());
+                });
+                exportGrades(sortedData, item.name, idRanting, idUkt, format);
+            }
+        } catch (error) {
+            console.log('Export error', error);
+        }
     }
 
     // function login checker
@@ -176,6 +207,22 @@ const ukt_hijau = () => {
                                             <h1 className='text-green text-3xl font-semibold'>{item.name}</h1>
 
                                             <div className="flex items-center absolute right-0 gap-x-3">
+                                                <div className="relative flex items-center">
+                                                    <button onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === item.id_event ? null : item.id_event); }}>
+                                                        <svg className={`stroke-white hover:stroke-[#16D4FC] duration-300 ${openDropdown === item.id_event ? 'stroke-[#16D4FC]' : ''}`} width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                            <polyline points="7 10 12 15 17 10" />
+                                                            <line x1="12" y1="15" x2="12" y2="3" />
+                                                        </svg>
+                                                    </button>
+                                                    
+                                                    {openDropdown === item.id_event && (
+                                                        <div className="absolute right-0 top-8 mt-2 w-32 bg-navy border border-purple rounded-md shadow-lg z-50 overflow-hidden text-left">
+                                                            <button onClick={(e) => { setOpenDropdown(null); handleExport(e, item, 'excel'); }} className="block px-4 py-2 text-sm text-white hover:bg-purple duration-300 w-full text-left">Export Excel</button>
+                                                            <button onClick={(e) => { setOpenDropdown(null); handleExport(e, item, 'pdf'); }} className="block px-4 py-2 text-sm text-white hover:bg-purple duration-300 w-full text-left">Export PDF</button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                                 <button onClick={() => editModal(item)}>
                                                     <svg className='stroke-white hover:stroke-green duration-300' width="30" height="30" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M19 31.6667H33.25" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -193,10 +240,10 @@ const ukt_hijau = () => {
                                             </div>
                                         </div>
 
-                                        {/* action button */}
-                                       <div className=" space-x-2 w-full flex justify-center text-white text-center">
-                                            <button onClick={() => toRekapNilai (item)} className='bg-purple hover:bg-white hover:text-purple duration-300 p-2 rounded-md w-full'>Lihat Nilai</button>
-                                            <button onClick={() => toDetailNilai (item)} className='bg-purple hover:bg-white hover:text-purple duration-300 p-2 rounded-md w-full'>Detail Nilai</button>
+                                         {/* action button */}
+                                        <div className=" space-x-2 w-full flex justify-center text-white text-center">
+                                            <button onClick={(e) => { e.stopPropagation(); toRekapNilai(item); }} className='bg-purple hover:bg-white hover:text-purple duration-300 p-2 rounded-md w-full'>Lihat Nilai</button>
+                                            <button onClick={(e) => { e.stopPropagation(); toDetailNilai(item); }} className='bg-purple hover:bg-white hover:text-purple duration-300 p-2 rounded-md w-full'>Detail Nilai</button>
                                         </div>
                                     </div>
                                 </div>
