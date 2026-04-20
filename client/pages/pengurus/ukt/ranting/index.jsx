@@ -3,37 +3,41 @@ import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import { globalState } from '@/context/context'
-import Sidebar from '../components/sidebar'
-import Header from '../components/header'
-import Footer from '../components/footer'
-import Modal_event from '../components/modal_event'
-import Modal_delete from '../components/modal_delete'
+import Sidebar from '../../components/sidebar'
+import Header from '../../components/header'
+import Footer from '../../components/footer'
+import Modal_event from '../../components/modal_event'
+import Modal_delete from '../../components/modal_delete'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-const ukcw = () => {
+const ukt_hijau = () => {
 
     // deklarasi router
     const router = useRouter ()
-    
+
+    const idRanting = router.query.ranting
+    const idUkt = router.query.ukt
+    const idTipe = router.query.tipe
+
     // state modal
     const [showModalEvent, setShowModalEvent] = useState (false)
     const [showModalDelete, setShowModalDelete] = useState (false)
 
     // state
-    const [ranting, setRanting] = useState ()
     const [dataEvent, setDataEvent] = useState ([])
     const [isActive, setIsActive] = useState(false)
+    const [ranting, setRanting] = useState()
     const [action, setAction] = useState ('')
     const [idEvent, setIdEvent] = useState ('')
     const [name, setName] = useState ('')
-    const [date, setDate] = useState ('')
+    const [date, setDate] = useState ()
     const [tipe, setTipe] = useState ('')
 
-    // funtion get data event
+    // function get data event
     const getDataEvent = () => {
         const token = localStorage.getItem ('token')
 
-        axios.get (BASE_URL + `event/ukt/UKCW`, { headers: { Authorization: `Bearer ${token}`}})
+        axios.get (BASE_URL + `event/ukt/${idUkt}/` + idRanting, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataEvent (res.data.data)
         })
@@ -48,18 +52,20 @@ const ukcw = () => {
         setAction ('insert')
         setName ('')
         setDate ('')
-        setTipe ('UKCW')
+        setTipe (idUkt)
+        setRanting(idRanting)
         setIsActive(true)
     }
 
     // function modal edit
     const editModal = (selectedItem) => {
-        setShowModalEvent (true)
+        setShowModalEvent(true)
         setAction ('update')
         setIdEvent (selectedItem.id_event)
         setName (selectedItem.name)
-        setDate (selectedItem.date)
-        setTipe ('UKCW')
+        setDate (selectedItem.tanggal)
+        setTipe (idUkt)
+        setRanting (idRanting)
         setIsActive (selectedItem.is_active)
     }
 
@@ -68,15 +74,15 @@ const ukcw = () => {
         setShowModalDelete (true)
         setAction ('deleteEvent')
         setIdEvent (selectedId)
-        setTipe ('UKCW')
+        setTipe (idUkt)
     }
 
     // function to rekap nilai
     const toRekapNilai = (item) => {
         localStorage.setItem ('event', JSON.stringify (item))
         router.push({
-            pathname: './ranting/rekap_nilai_ukt_ukcw',
-            query: { eventId: item.id_event, idRanting:'TRENGGALEK' } // Add your parameter here
+            pathname: './ranting/event/rekap_nilai_' + idTipe,
+            query: { eventId: item.id_event, idRanting: idRanting, nameEvent:item.name } // Add your parameter here
         });
     }
 
@@ -84,8 +90,8 @@ const ukcw = () => {
     const toDetailNilai = (item) => {
         localStorage.setItem ('event', JSON.stringify (item))
         router.push({
-            pathname: './ranting/detail_nilai_ukt_ukcw',
-            query: { eventId: item.id_event, idRanting:'TRENGGALEK' } // Add your parameter here
+            pathname: './ranting/event/detail_nilai_' + idTipe,
+            query: { eventId: item.id_event, idRanting: idRanting, nameEvent:item.name } // Add your parameter here
         });
     }
 
@@ -99,7 +105,7 @@ const ukcw = () => {
     useEffect (() => {
         getDataEvent ()
         isLogged ()
-    }, [])
+    }, [idRanting, idUkt, idTipe])
 
     return (
         <>
@@ -126,9 +132,17 @@ const ukcw = () => {
 
                         {/* wrapper page name and search */}
                         <div className="flex justify-between items-center text-white mb-7">
-
+                            {/* page name and button back */}
+                            <div className="flex justify-center items-center gap-x-3">
+                                <Link href={'../ukt/'+ idTipe} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
+                                    <svg className='-translate-x-0.5 fill-white group-hover:fill-purple' width="13" height="22" viewBox="0 0 14 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
+                                    </svg>
+                                </Link>
                             {/* page name */}
-                            <h1 className='text-2xl tracking-wider uppercase font-bold'>REKAP - UKCW</h1>
+                            <h1 className='text-2xl tracking-wider uppercase font-bold'>REKAP - {idUkt}</h1>
+                            </div>
+
 
                             {/* search and button add data */}
                             <div className="flex gap-x-3">
@@ -149,8 +163,8 @@ const ukcw = () => {
                         </div>
 
                         {/* wrapper card event */}
-                        <div className="grid grid-cols-2 gap-5">
-                            
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5">
+
                             {/* card event */}
                             {dataEvent.map((item, index) => (
                                 <div key={index + 1} className="bg-navy hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5">
@@ -159,7 +173,7 @@ const ukcw = () => {
                                     <div className="bg-navy p-5 rounded-md space-y-3 flex flex-col justify-center items-center">
 
                                         <div className="flex justify-center relative w-full">
-                                            <h1 className='text-green text-3xl font-semibold'>{item.name}</h1>
+                                            <h1 className='text-green text-xl md:text-3xl font-semibold truncate'>{item.name}</h1>
 
                                             <div className="flex items-center absolute right-0 gap-x-3">
                                                 <button onClick={() => editModal(item)}>
@@ -178,9 +192,9 @@ const ukcw = () => {
                                                 </button>
                                             </div>
                                         </div>
-        
-                                       {/* action button */}
-                                       <div className=" space-x-2 w-full flex justify-center text-white text-center">
+
+                                        {/* action button */}
+                                       <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full justify-center text-white text-center">
                                             <button onClick={() => toRekapNilai (item)} className='bg-purple hover:bg-white hover:text-purple duration-300 p-2 rounded-md w-full'>Lihat Nilai</button>
                                             <button onClick={() => toDetailNilai (item)} className='bg-purple hover:bg-white hover:text-purple duration-300 p-2 rounded-md w-full'>Detail Nilai</button>
                                         </div>
@@ -211,4 +225,4 @@ const ukcw = () => {
     )
 }
 
-export default ukcw
+export default ukt_hijau

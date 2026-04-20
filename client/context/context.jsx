@@ -11,8 +11,31 @@ function context ({ children }) {
         const savedShow = window.localStorage.getItem('showSideBar')
         const savedClose = window.localStorage.getItem('closeSideBar')
 
-        if (savedShow !== null) setShowSideBar(JSON.parse(savedShow))
+        if (savedShow !== null) {
+            setShowSideBar(JSON.parse(savedShow))
+        } else {
+            // If no saved preference, set based on screen size
+            if (window.innerWidth < 1024) {
+                setShowSideBar(false)
+            }
+        }
         if (savedClose !== null) setCloseSideBar(JSON.parse(savedClose))
+    }, [])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        const handleResize = () => {
+            const savedShow = window.localStorage.getItem('showSideBar')
+            if (savedShow === null) { // Only auto-adjust if no user preference saved
+                if (window.innerWidth < 1024) {
+                    setShowSideBar(false)
+                } else {
+                    setShowSideBar(true)
+                }
+            }
+        }
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
     }, [])
 
     useEffect(() => {
