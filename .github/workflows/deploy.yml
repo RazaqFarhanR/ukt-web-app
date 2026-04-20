@@ -39,8 +39,8 @@ jobs:
           if echo "$CHANGED_FILES" | grep -q '^client/'; then
             CLIENT_CHANGED=true
           fi
-          echo "::set-output name=api_changed::$API_CHANGED"
-          echo "::set-output name=client_changed::$CLIENT_CHANGED"
+          echo "api_changed=$API_CHANGED" >> $GITHUB_OUTPUT
+          echo "client_changed=$CLIENT_CHANGED" >> $GITHUB_OUTPUT
 
   deploy-api:
     needs: detect-changes
