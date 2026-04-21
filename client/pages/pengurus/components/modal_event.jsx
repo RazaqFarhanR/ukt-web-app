@@ -37,6 +37,7 @@ const modal_event = () => {
             name : name,
             tanggal : date,
             tipe_ukt : tipe,
+            id_ranting: ranting
         }
 
         if (action === 'insert') {
