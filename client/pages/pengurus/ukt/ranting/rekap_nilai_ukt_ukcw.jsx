@@ -13,6 +13,59 @@ import Select from 'react-select';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
+const customStyles = {
+    control: (provided) => ({
+        ...provided,
+        background: 'white',
+        colors: 'black',
+        // display: 'flex',
+        // flexWrap: 'nowrap',
+        // borderColor: 'hsl(0deg 78.56% 55.56%);',
+        // width: '7em'
+    }),
+    menu: (provided) => ({
+        ...provided,
+        background: 'white',
+        color: 'grey', // Set text color to black
+        width: '8rem'
+    }),
+    valueContainer: (provided) => ({
+        ...provided,
+        maxHeight: '80px',
+        overflowY: 'auto',
+    }),
+
+    multiValue: (provided, state) => {
+        const values = state.selectProps.value || [];
+        const index = values.findIndex(
+            (v) => v.value === state.data.value
+        );
+
+        const color = ['#E57373', '#64B5F6', '#81C784', '#FFD54F', '#BA68C8', '#4DB6AC'][index % 6];
+
+        return {
+            ...provided,
+            backgroundColor: color,
+            borderRadius: '6px',
+        };
+    },
+
+    multiValueLabel: (provided) => ({
+        ...provided,
+        color: 'white',
+        fontWeight: 500,
+    }),
+
+    multiValueRemove: (provided) => ({
+        ...provided,
+        color: 'white',
+        ':hover': {
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            color: 'white',
+        },
+    }),
+};
+
 const rekap_nilai_ukt_ukcw = () => {
 
     // deklarasi router
@@ -196,7 +249,7 @@ const rekap_nilai_ukt_ukcw = () => {
                         </h1>
                     </div>
                 </div>
-                : []}
+                : null}
             <div className="flex font-lato">
 
                 {/* sidebar */}
@@ -232,9 +285,10 @@ const rekap_nilai_ukt_ukcw = () => {
                             </div>
 
                             {/* wrapper search and filter */}
-                            <div className="flex gap-x-2">
-                                <div className='w-72 text-black'>
+                            <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                                <div className='w-full md:w-72 text-black'>
                                     <Select
+                                        styles={customStyles}
                                         isMulti
                                         name='colors'
                                         value={eventSelect}
@@ -243,7 +297,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                     />
                                 </div>
                                 {/* search */}
-                                <div className="bg-purple rounded-md px-5 py-2 flex items-center gap-x-2 w-72">
+                                <div className="bg-purple rounded-md px-5 py-2 flex items-center gap-x-2 w-full md:w-72">
                                     <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -267,9 +321,9 @@ const rekap_nilai_ukt_ukcw = () => {
                         {/* wrapper table */}
                         <div className="bg-navy rounded-md py-2 pl-3 uppercase h-[75%]">
 
-                            <div className='overflow-y-auto h-full bg-navy'>
+                            <div className='overflow-x-auto overflow-y-auto h-full bg-navy'>
                                 {/* table */}
-                                <table className='w-full table-fixed'>
+                                <table className='w-full table-fixed min-w-[800px]'>
                                     <thead className='bg-purple sticky top-0'>
                                         <tr className='text-white text-center bg-purple'>
                                             <th className='py-3 w-[5%] border font-oswald'>Rank</th>
