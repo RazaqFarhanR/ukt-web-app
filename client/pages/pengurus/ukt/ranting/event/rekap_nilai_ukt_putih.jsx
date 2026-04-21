@@ -275,7 +275,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
                         </h1>
                     </div>
                 </div>
-                : []}
+                : null}
             <div className="flex font-lato">
 
                 {/* sidebar */}
@@ -312,9 +312,9 @@ const rekap_nilai_ukt_ukt_putih = () => {
                             </div>
 
                             {/* wrapper search and filter */}
-                            <div className="flex gap-x-2">
+                            <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                                 <Select
-                                    className='w-72 text-black'
+                                    className='w-full md:w-72 text-black'
                                     styles={customStyles}
                                     isMulti
                                     name='colors'
@@ -323,7 +323,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
                                     options={dataEventSelect}
                                 />
                                 <Select
-                                    className='w-72 text-black'
+                                    className='w-full md:w-72 text-black'
                                     onChange={handleChangeRayon}
                                     options={dataRayon}
                                     value={rayonSelect}
@@ -332,7 +332,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
                                 />
 
                                 {/* search */}
-                                <div className="bg-purple rounded-md px-5 py-2 flex items-center gap-x-2 w-72">
+                                <div className="bg-purple rounded-md px-5 py-2 flex items-center gap-x-2 w-full md:w-72">
                                     <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -356,9 +356,9 @@ const rekap_nilai_ukt_ukt_putih = () => {
                         {/* wrapper table */}
                         <div className="bg-navy rounded-md py-2 pl-3 uppercase h-[75%]">
 
-                            <div className='overflow-y-auto h-full bg-navy'>
+                            <div className='overflow-x-auto overflow-y-auto h-full bg-navy'>
                                 {/* table */}
-                                <table className='w-full table-fixed'>
+                                <table className='w-full table-auto min-w-[800px]'>
                                     <thead className='bg-purple sticky top-0'>
                                         <tr className='text-white text-center bg-purple'>
                                             <th className='py-3 w-[5%] border font-oswald'>Rank</th>
