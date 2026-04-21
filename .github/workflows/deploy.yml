@@ -3,7 +3,6 @@ name: Build and Deploy
 on:
   push:
     branches:
-      # - dev
       - main
     paths:
       - "api/**"
@@ -19,26 +18,34 @@ jobs:
     outputs:
       api_changed: ${{ steps.set-vars.outputs.api_changed }}
       client_changed: ${{ steps.set-vars.outputs.client_changed }}
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Detect changed folders
         id: set-vars
         run: |
+          echo "[INFO] [DETECT] Checking changed files..."
+
           API_CHANGED=false
           CLIENT_CHANGED=false
-          echo "Checking changes..."
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD || echo "")
           echo "$CHANGED_FILES"
+
           if echo "$CHANGED_FILES" | grep -q '^api/'; then
             API_CHANGED=true
           fi
+
           if echo "$CHANGED_FILES" | grep -q '^client/'; then
             CLIENT_CHANGED=true
           fi
+
+          echo "[INFO] [DETECT] api_changed=$API_CHANGED"
+          echo "[INFO] [DETECT] client_changed=$CLIENT_CHANGED"
+
           echo "api_changed=$API_CHANGED" >> $GITHUB_OUTPUT
           echo "client_changed=$CLIENT_CHANGED" >> $GITHUB_OUTPUT
 
@@ -46,48 +53,67 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.api_changed == 'true'
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set API Environment Variables
-        run: |
-          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-            echo "ENV=prod" >> $GITHUB_ENV
-            echo "APP_DIR=${{ vars.BASE_PATH }}/ukt-prod" >> $GITHUB_ENV
-            echo "API_PORT=8080" >> $GITHUB_ENV
-            echo "API_CONTAINER=ukt_api_prod" >> $GITHUB_ENV
-            echo "API_IMAGE=ukt-api:prod" >> $GITHUB_ENV
-          else
-            echo "ENV=dev" >> $GITHUB_ENV
-            echo "APP_DIR=${{ vars.BASE_PATH }}/ukt-dev" >> $GITHUB_ENV
-            echo "API_PORT=8081" >> $GITHUB_ENV
-            echo "API_CONTAINER=ukt_api_dev" >> $GITHUB_ENV
-            echo "API_IMAGE=ukt-api:dev" >> $GITHUB_ENV
-          fi
-
       - name: Deploy API via SSH
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: ENV,APP_DIR,API_PORT,API_CONTAINER,API_IMAGE
+          envs: GITHUB_REF_NAME
           script: |
             set -e
-            echo "Deploying API to $ENV environment..."
+
+            log() {
+              echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+            }
+
+            log "[INFO] [DEPLOY][API] Acquiring deployment lock..."
+            LOCK_FILE=/tmp/deploy.lock
+            exec 200>$LOCK_FILE
+            flock 200
+            log "[INFO] [DEPLOY][API] Lock acquired."
+
+            # ===== ENV =====
+            if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+              APP_DIR=${{ vars.BASE_PATH }}/ukt-prod
+              API_CONTAINER=ukt_api_prod
+              API_IMAGE=ukt-api:prod
+              API_PORT=8080
+            else
+              APP_DIR=${{ vars.BASE_PATH }}/ukt-dev
+              API_CONTAINER=ukt_api_dev
+              API_IMAGE=ukt-api:dev
+              API_PORT=8081
+            fi
+
+            mkdir -p $APP_DIR
             cd $APP_DIR
+
+            # ===== GIT =====
+            log "[INFO] [DEPLOY][API] Synchronizing repository..."
+            if [ ! -d ".git" ]; then
+              log "[INFO] [DEPLOY][API] Cloning repository..."
+              git clone https://github.com/${{ github.repository }} .
+            fi
+
             git fetch origin
             git checkout $GITHUB_REF_NAME
-            git pull origin $GITHUB_REF_NAME
+            git reset --hard origin/$GITHUB_REF_NAME
+            git clean -fd
 
-            echo "Building API Docker image..."
+            log "[INFO] [DEPLOY][API] Repository synchronized."
+
+            # ===== BUILD =====
+            log "[INFO] [DEPLOY][API] Building Docker image: $API_IMAGE"
             docker build -t $API_IMAGE ./api
 
-            echo "Stopping old API container if exists..."
+            # ===== RUN =====
+            log "[INFO] [DEPLOY][API] Removing existing container (if any): $API_CONTAINER"
             docker rm -f $API_CONTAINER || true
 
-            echo "Running new API container..."
+            log "[INFO] [DEPLOY][API] Starting new container on port $API_PORT"
             docker run -d \
               --name $API_CONTAINER \
               --restart unless-stopped \
@@ -98,16 +124,16 @@ jobs:
               -v $APP_DIR/api/image:/app/image \
               $API_IMAGE
 
+            log "[INFO] [DEPLOY][API] Cleaning up unused Docker images..."
+            docker image prune -f || true
 
-            docker image prune -f
-            echo "API deploy completed"
+            log "[SUCCESS] [DEPLOY][API] Deployment completed successfully."
 
   deploy-client:
-    needs: [detect-changes, deploy-api]
-    if: |
-      needs.detect-changes.outputs.client_changed == 'true' &&
-      (needs.detect-changes.outputs.api_changed != 'true' || needs.deploy-api.result == 'success')
+    needs: detect-changes
+    if: needs.detect-changes.outputs.client_changed == 'true'
     runs-on: ubuntu-latest
+
     steps:
       - name: Deploy Client via SSH
         uses: appleboy/ssh-action@v1.1.0
@@ -118,9 +144,18 @@ jobs:
           envs: GITHUB_REF_NAME
           script: |
             set -e
-            echo "Deploying Client..."
 
-            # Tentukan folder & container sesuai branch
+            log() {
+              echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+            }
+
+            log "[INFO] [DEPLOY][CLIENT] Acquiring deployment lock..."
+            LOCK_FILE=/tmp/deploy.lock
+            exec 200>$LOCK_FILE
+            flock 200
+            log "[INFO] [DEPLOY][CLIENT] Lock acquired."
+
+            # ===== ENV =====
             if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
               APP_DIR=${{ vars.BASE_PATH }}/ukt-prod
               CLIENT_CONTAINER=ukt_client_prod
@@ -133,21 +168,34 @@ jobs:
               CLIENT_PORT=3001
             fi
 
+            mkdir -p $APP_DIR
             cd $APP_DIR
+
+            # ===== GIT =====
+            log "[INFO] [DEPLOY][CLIENT] Synchronizing repository..."
+            if [ ! -d ".git" ]; then
+              log "[INFO] [DEPLOY][CLIENT] Cloning repository..."
+              git clone https://github.com/${{ github.repository }} .
+            fi
+
             git fetch origin
             git checkout $GITHUB_REF_NAME
-            git pull origin $GITHUB_REF_NAME
+            git reset --hard origin/$GITHUB_REF_NAME
+            git clean -fd
 
-            echo "Building Next.js Client..."
+            log "[INFO] [DEPLOY][CLIENT] Repository synchronized."
+
             cd client
 
-            echo "Building Docker image..."
+            # ===== BUILD =====
+            log "[INFO] [DEPLOY][CLIENT] Building Docker image: $CLIENT_IMAGE"
             docker build --pull -t $CLIENT_IMAGE .
 
-            echo "Stopping old container if exists..."
+            # ===== RUN =====
+            log "[INFO] [DEPLOY][CLIENT] Removing existing container (if any): $CLIENT_CONTAINER"
             docker rm -f $CLIENT_CONTAINER || true
 
-            echo "Running new container..."
+            log "[INFO] [DEPLOY][CLIENT] Starting new container on port $CLIENT_PORT"
             docker run -d \
               --name $CLIENT_CONTAINER \
               --restart unless-stopped \
@@ -156,5 +204,7 @@ jobs:
               --env-file $APP_DIR/client/.env \
               $CLIENT_IMAGE
 
-            docker image prune -f
-            echo "Client deploy completed"
+            log "[INFO] [DEPLOY][CLIENT] Cleaning up unused Docker images..."
+            docker image prune -f || true
+
+            log "[SUCCESS] [DEPLOY][CLIENT] Deployment completed successfully."
