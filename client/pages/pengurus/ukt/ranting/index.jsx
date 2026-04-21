@@ -13,46 +13,46 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const ukt_hijau = () => {
 
     // deklarasi router
-    const router = useRouter ()
+    const router = useRouter()
 
     const idRanting = router.query.ranting
     const idUkt = router.query.ukt
     const idTipe = router.query.tipe
 
     // state modal
-    const [showModalEvent, setShowModalEvent] = useState (false)
-    const [showModalDelete, setShowModalDelete] = useState (false)
+    const [showModalEvent, setShowModalEvent] = useState(false)
+    const [showModalDelete, setShowModalDelete] = useState(false)
 
     // state
-    const [dataEvent, setDataEvent] = useState ([])
+    const [dataEvent, setDataEvent] = useState([])
     const [isActive, setIsActive] = useState(false)
     const [ranting, setRanting] = useState()
-    const [action, setAction] = useState ('')
-    const [idEvent, setIdEvent] = useState ('')
-    const [name, setName] = useState ('')
-    const [date, setDate] = useState ()
-    const [tipe, setTipe] = useState ('')
+    const [action, setAction] = useState('')
+    const [idEvent, setIdEvent] = useState('')
+    const [name, setName] = useState('')
+    const [date, setDate] = useState()
+    const [tipe, setTipe] = useState('')
 
     // function get data event
     const getDataEvent = () => {
-        const token = localStorage.getItem ('token')
+        const token = localStorage.getItem('token')
 
-        axios.get (BASE_URL + `event/ukt/${idUkt}/` + idRanting, { headers: { Authorization: `Bearer ${token}`}})
-        .then (res => {
-            setDataEvent (res.data.data)
-        })
-        .catch (err => {
-            console.log(err.message);
-        })
+        axios.get(BASE_URL + `event/ukt/${idUkt}/${idRanting}`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+                setDataEvent(res.data.data)
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
     }
 
     // function modal add
     const addModal = () => {
-        setShowModalEvent (true)
-        setAction ('insert')
-        setName ('')
-        setDate ('')
-        setTipe (idUkt)
+        setShowModalEvent(true)
+        setAction('insert')
+        setName('')
+        setDate('')
+        setTipe(idUkt)
         setRanting(idRanting)
         setIsActive(true)
     }
@@ -60,59 +60,62 @@ const ukt_hijau = () => {
     // function modal edit
     const editModal = (selectedItem) => {
         setShowModalEvent(true)
-        setAction ('update')
-        setIdEvent (selectedItem.id_event)
-        setName (selectedItem.name)
-        setDate (selectedItem.tanggal)
-        setTipe (idUkt)
-        setRanting (idRanting)
-        setIsActive (selectedItem.is_active)
+        setAction('update')
+        setIdEvent(selectedItem.id_event)
+        setName(selectedItem.name)
+        setDate(selectedItem.tanggal)
+        setTipe(idUkt)
+        setRanting(idRanting)
+        setIsActive(selectedItem.is_active)
     }
 
     // function modal delete
     const deleteModal = (selectedId) => {
-        setShowModalDelete (true)
-        setAction ('deleteEvent')
-        setIdEvent (selectedId)
-        setTipe (idUkt)
+        setShowModalDelete(true)
+        setAction('deleteEvent')
+        setIdEvent(selectedId)
+        setTipe(idUkt)
     }
 
     // function to rekap nilai
     const toRekapNilai = (item) => {
-        localStorage.setItem ('event', JSON.stringify (item))
+        localStorage.setItem('event', JSON.stringify(item))
         router.push({
             pathname: './ranting/event/rekap_nilai_' + idTipe,
-            query: { eventId: item.id_event, idRanting: idRanting, nameEvent:item.name } // Add your parameter here
+            query: { eventId: item.id_event, idRanting: idRanting, nameEvent: item.name } // Add your parameter here
         });
     }
 
     // function to detail nilai
     const toDetailNilai = (item) => {
-        localStorage.setItem ('event', JSON.stringify (item))
+        localStorage.setItem('event', JSON.stringify(item))
         router.push({
             pathname: './ranting/event/detail_nilai_' + idTipe,
-            query: { eventId: item.id_event, idRanting: idRanting, nameEvent:item.name } // Add your parameter here
+            query: { eventId: item.id_event, idRanting: idRanting, nameEvent: item.name } // Add your parameter here
         });
     }
 
     // function login checker
     const isLogged = () => {
-        if (localStorage.getItem ('token') === null || localStorage.getItem ('admin') === null) {
-            router.push ('/admin/login')
+        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
+            router.push('/admin/login')
         }
     }
 
-    useEffect (() => {
-        getDataEvent ()
-        isLogged ()
-    }, [idRanting, idUkt, idTipe])
+    useEffect(() => {
+        if (!router.isReady) return;
+        getDataEvent()
+        isLogged()
+    }, [router.isReady, idRanting, idUkt, idTipe])
 
     return (
         <>
             <div className="flex font-lato">
 
                 {/* sidebar */}
-                <Sidebar />
+                <div className="hidden lg:block">
+                    <Sidebar />
+                </div>
                 {/* akhir sidebar */}
 
                 {/* awal wrapper konten utama */}
@@ -131,73 +134,119 @@ const ukt_hijau = () => {
                     <div className="min-h-full bg-darkBlue p-6">
 
                         {/* wrapper page name and search */}
-                        <div className="flex justify-between items-center text-white mb-7">
-                            {/* page name and button back */}
-                            <div className="flex justify-center items-center gap-x-3">
-                                <Link href={'../ukt/'+ idTipe} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
-                                    <svg className='-translate-x-0.5 fill-white group-hover:fill-purple' width="13" height="22" viewBox="0 0 14 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
-                                    </svg>
-                                </Link>
+                        <div className="flex flex-col md:flex-row md:justify-between md:items-center text-white mb-7 gap-y-4">
+
                             {/* page name */}
-                            <h1 className='text-2xl tracking-wider uppercase font-bold'>REKAP - {idUkt}</h1>
-                            </div>
+                            <h1 className='text-xl md:text-2xl tracking-wider uppercase font-bold'>
+                                REKAP - {idUkt}
+                            </h1>
 
+                            {/* search and buttons wrapper */}
+                            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
 
-                            {/* search and button add data */}
-                            <div className="flex gap-x-3">
-                                <div className="bg-purple rounded-md px-5 py-2 flex items-center gap-x-2 w-72">
-                                    <svg className='z-50' width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                {/* search input */}
+                                <div className="bg-purple rounded-md px-4 py-2 flex items-center gap-x-2 w-full md:w-72 border border-transparent focus-within:border-white/30">
+                                    <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
-                                    <input className='bg-transparent placeholder:text-white placeholder:tracking-wider placeholder:text-sm w-full focus:outline-none' placeholder='Search' type="text" />
+                                    <input
+                                        className='bg-transparent placeholder:text-white/70 placeholder:tracking-wider placeholder:text-sm w-full focus:outline-none text-white'
+                                        placeholder='Search'
+                                        type="text"
+                                    />
                                 </div>
 
-                                {/* button add data */}
-                                <button onClick={() => addModal()} className="bg-purple hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
-                                    <h1>Tambah Data</h1>
-                                </button>
-                            </div>
+                                {/* Actions Group: Back, Dashboard, and Add Button */}
+                                <div className="flex gap-2 w-full md:w-auto">
 
+                                    {/* button back to previous page */}
+                                    <button
+                                        onClick={() => router.push('/pengurus/ukt/' + idTipe)}
+                                        className="bg-navy border border-purple hover:bg-purple text-white duration-300 rounded-md px-3 md:px-4 py-2 flex items-center justify-center gap-x-2 flex-1 md:flex-none transition-colors active:scale-95"
+                                        title="Go Back"
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M19 12H5M5 12L12 19M5 12L12 5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        <span className="text-sm md:text-base font-semibold hidden lg:inline">Back</span>
+                                    </button>
+
+                                    {/* button home/dashboard */}
+                                    <button
+                                        onClick={() => router.push('/pengurus')} // adjust path as needed
+                                        className="bg-navy border border-purple hover:bg-purple text-white duration-300 rounded-md px-3 md:px-4 py-2 flex items-center justify-center gap-x-2 flex-1 md:flex-none transition-colors active:scale-95"
+                                        title="Dashboard"
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                        </svg>
+                                        <span className="text-sm md:text-base font-semibold hidden lg:inline">Home</span>
+                                    </button>
+
+                                    {/* button add data (Primary Action) */}
+                                    <button
+                                        onClick={() => addModal()}
+                                        className="bg-purple hover:bg-white hover:text-purple duration-300 rounded-md px-4 md:px-5 py-2 flex items-center justify-center gap-x-2 flex-[2] md:flex-none transition-colors active:scale-95 text-white"
+                                    >
+                                        <span className="text-sm md:text-base font-semibold whitespace-nowrap">Tambah Data</span>
+                                        <span className="md:hidden text-lg">+</span>
+                                    </button>
+
+                                </div>
+                            </div>
                         </div>
 
                         {/* wrapper card event */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
 
                             {/* card event */}
                             {dataEvent.map((item, index) => (
-                                <div key={index + 1} className="bg-navy hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-md p-0.5">
+                                <div key={index + 1} className="bg-navy hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] rounded-lg p-0.5 transition-all">
 
                                     {/* inner bg */}
-                                    <div className="bg-navy p-5 rounded-md space-y-3 flex flex-col justify-center items-center">
+                                    <div className="bg-navy p-4 md:p-5 rounded-lg space-y-4 flex flex-col h-full">
 
-                                        <div className="flex justify-center relative w-full">
-                                            <h1 className='text-green text-xl md:text-3xl font-semibold truncate'>{item.name}</h1>
+                                        {/* Header: Name and Action Icons */}
+                                        <div className="flex justify-between items-start w-full gap-x-2">
+                                            <h1 className='text-green text-xl md:text-3xl font-semibold break-words'>
+                                                {item.name}
+                                            </h1>
 
-                                            <div className="flex items-center absolute right-0 gap-x-3">
-                                                <button onClick={() => editModal(item)}>
-                                                    <svg className='stroke-white hover:stroke-green duration-300' width="30" height="30" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M19 31.6667H33.25" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                                                        <path d="M26.125 5.54166C26.7549 4.91177 27.6092 4.55791 28.5 4.55791C28.9411 4.55791 29.3778 4.64478 29.7853 4.81358C30.1928 4.98237 30.5631 5.22977 30.875 5.54166C31.1869 5.85355 31.4343 6.22382 31.6031 6.63132C31.7719 7.03883 31.8588 7.47559 31.8588 7.91666C31.8588 8.35774 31.7719 8.7945 31.6031 9.202C31.4343 9.60951 31.1869 9.97977 30.875 10.2917L11.0833 30.0833L4.75 31.6667L6.33333 25.3333L26.125 5.54166Z" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <div className="flex items-center gap-x-2 shrink-0">
+                                                <button onClick={() => editModal(item)} className="p-1">
+                                                    <svg className='stroke-white hover:stroke-green duration-300 w-6 h-6 md:w-8 md:h-8' viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M19 31.6667H33.25" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                                        <path d="M26.125 5.54166C26.7549 4.91177 27.6092 4.55791 28.5 4.55791C28.9411 4.55791 29.3778 4.64478 29.7853 4.81358C30.1928 4.98237 30.5631 5.22977 30.875 5.54166C31.1869 5.85355 31.4343 6.22382 31.6031 6.63132C31.7719 7.03883 31.8588 7.47559 31.8588 7.91666C31.8588 8.35774 31.7719 8.7945 31.6031 9.202C31.4343 9.60951 31.1869 9.97977 30.875 10.2917L11.0833 30.0833L4.75 31.6667L6.33333 25.3333L26.125 5.54166Z" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                                                     </svg>
                                                 </button>
-                                                <button onClick={() => deleteModal(item.id_event)}>
-                                                    <svg className='stroke-white hover:stroke-red duration-300' width="30" height="30" viewBox="0 0 29 33" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M4.1543 5.76929L5.64468 29.6154C5.71547 30.9933 6.71776 32.0001 8.0293 32.0001H21.7408C23.0576 32.0001 24.0412 30.9933 24.1255 29.6154L25.6158 5.76929" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                                        <path d="M1.76953 5.76929H28.0003H1.76953Z" fill="black"/>
-                                                        <path d="M1.76953 5.76929H28.0003" strokeWidth="2" strokeLinecap="round"/>
-                                                        <path d="M10.1157 5.76924V2.78847C10.115 2.55341 10.1608 2.32054 10.2504 2.10324C10.3401 1.88594 10.4718 1.68851 10.638 1.5223C10.8042 1.35609 11.0016 1.22438 11.2189 1.13474C11.4362 1.04511 11.6691 0.999319 11.9041 1.00001H17.8657C18.1007 0.999319 18.3336 1.04511 18.5509 1.13474C18.7682 1.22438 18.9656 1.35609 19.1319 1.5223C19.2981 1.68851 19.4298 1.88594 19.5194 2.10324C19.609 2.32054 19.6548 2.55341 19.6541 2.78847V5.76924M14.8849 10.5385V27.2308M9.51953 10.5385L10.1157 27.2308M20.2503 10.5385L19.6541 27.2308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <button onClick={() => deleteModal(item.id_event)} className="p-1">
+                                                    <svg className='stroke-white hover:stroke-red duration-300 w-6 h-6 md:w-8 md:h-8' viewBox="0 0 29 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M4.1543 5.76929L5.64468 29.6154C5.71547 30.9933 6.71776 32.0001 8.0293 32.0001H21.7408C23.0576 32.0001 24.0412 30.9933 24.1255 29.6154L25.6158 5.76929" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                        <path d="M1.76953 5.76929H28.0003" strokeWidth="2" strokeLinecap="round" />
+                                                        <path d="M10.1157 5.76924V2.78847C10.115 2.55341 11.9041 1.00001H17.8657C19.6541 2.78847V5.76924M14.8849 10.5385V27.2308M9.51953 10.5385L10.1157 27.2308M20.2503 10.5385L19.6541 27.2308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                     </svg>
                                                 </button>
                                             </div>
                                         </div>
 
-                                        {/* action button */}
-                                       <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 w-full justify-center text-white text-center">
-                                            <button onClick={() => toRekapNilai (item)} className='bg-purple hover:bg-white hover:text-purple duration-300 p-2 rounded-md w-full'>Lihat Nilai</button>
-                                            <button onClick={() => toDetailNilai (item)} className='bg-purple hover:bg-white hover:text-purple duration-300 p-2 rounded-md w-full'>Detail Nilai</button>
+                                        {/* Footer: Action buttons */}
+                                        <div className="flex flex-col sm:flex-row gap-2 w-full mt-auto">
+                                            <button
+                                                onClick={() => toRekapNilai(item)}
+                                                className='bg-purple hover:bg-white hover:text-purple duration-300 py-2.5 px-2 rounded-md w-full text-sm md:text-base text-white font-medium'
+                                            >
+                                                Lihat Nilai
+                                            </button>
+                                            <button
+                                                onClick={() => toDetailNilai(item)}
+                                                className='bg-purple hover:bg-white hover:text-purple duration-300 py-2.5 px-2 rounded-md w-full text-sm md:text-base text-white font-medium'
+                                            >
+                                                Detail Nilai
+                                            </button>
                                         </div>
+
                                     </div>
                                 </div>
                             ))}

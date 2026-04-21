@@ -235,8 +235,6 @@ const rekap_nilai_ukt_ukcw = () => {
     //     }, 3000)
     // }, [])
 
-
-
     return (
         <>
             {loading
@@ -252,8 +250,9 @@ const rekap_nilai_ukt_ukcw = () => {
                 : null}
             <div className="flex font-lato">
 
-                {/* sidebar */}
-                <Sidebar />
+                <div className='hidden lg:block'>
+                    <Sidebar />
+                </div>
                 {/* akhir sidebar */}
 
                 {/* awal wrapper konten utama */}
@@ -285,36 +284,50 @@ const rekap_nilai_ukt_ukcw = () => {
                             </div>
 
                             {/* wrapper search and filter */}
-                            <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                            <div className="flex flex-col md:flex-row gap-3 w-full items-start md:items-center">
+
+                                {/* Select Container - Full width on mobile, 72 on desktop */}
                                 <div className='w-full md:w-72 text-black'>
                                     <Select
                                         styles={customStyles}
                                         isMulti
                                         name='colors'
                                         value={eventSelect}
+                                        placeholder="Select Event..."
                                         onChange={handleChangeEvent}
                                         options={dataEventSelect}
                                     />
                                 </div>
-                                {/* search */}
-                                <div className="bg-purple rounded-md px-5 py-2 flex items-center gap-x-2 w-full md:w-72">
-                                    <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    <input onChange={(e) => setName(e.target.value)} className='bg-transparent placeholder:text-white placeholder:tracking-wider placeholder:text-sm w-full focus:outline-none' placeholder='Search' type="text" />
+
+                                {/* Search and Filter Group - Stays side-by-side or stacks depending on width */}
+                                <div className="flex flex-row gap-2 w-full md:w-auto">
+
+                                    {/* Search Input */}
+                                    <div className="bg-purple rounded-md px-4 py-2 flex items-center gap-x-2 flex-grow md:w-72">
+                                        <svg className="shrink-0" width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M9.625 16.625C13.491 16.625 16.625 13.491 16.625 9.625C16.625 5.75901 13.491 2.625 9.625 2.625C5.75901 2.625 2.625 5.75901 2.625 9.625C2.625 13.491 5.75901 16.625 9.625 16.625Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                            <path d="M18.3746 18.3751L14.5684 14.5688" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        <input
+                                            onChange={(e) => setName(e.target.value)}
+                                            className='bg-transparent placeholder:text-white/80 placeholder:tracking-wider placeholder:text-sm w-full focus:outline-none text-white'
+                                            placeholder='Search...'
+                                            type="text"
+                                        />
+                                    </div>
+
+                                    {/* Filter Button - Compact on mobile, label hidden or visible */}
+                                    <button
+                                        onClick={() => setModalFilter(true)}
+                                        className="bg-green hover:bg-[#0ea97f] active:scale-95 transition-all duration-300 rounded-md px-4 md:px-5 py-2 flex items-center justify-center gap-x-2 shrink-0"
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M16.5 2.25H1.5L7.5 9.345V14.25L10.5 15.75V9.345L16.5 2.25Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        <span className='text-white hidden sm:block md:block'>Filter</span>
+                                    </button>
+
                                 </div>
-
-                                {/* filter */}
-                                <button onClick={() => setModalFilter(true)} className="bg-green hover:bg-[#0ea97f] transition-all duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
-
-                                    <svg width="21" height="21" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M16.5 2.25H1.5L7.5 9.345V14.25L10.5 15.75V9.345L16.5 2.25Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-
-                                    <h1 className='text-white'>Filter</h1>
-                                </button>
-
                             </div>
                         </div>
 
@@ -326,124 +339,124 @@ const rekap_nilai_ukt_ukcw = () => {
                                 <table className='w-full table-fixed min-w-[800px]'>
                                     <thead className='bg-purple sticky top-0'>
                                         <tr className='text-white text-center bg-purple'>
-                                            <th className='py-3 w-[5%] border font-oswald'>Rank</th>
-                                            <th className='w-[30%] border font-oswald' >Nama</th>
-                                            <th className='w-[10%] border font-oswald'>Ranting</th>
-                                            <th className='text-base border font-oswald'>KESHAN {jenis == 'keshan' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='py-0.5 w-[3%] border font-oswald text-xs'>Rank</th>
+                                            <th className='w-[20%] border font-oswald text-xs' >Nama</th>
+                                            <th className='w-[8%] border font-oswald text-xs'>Ranting</th>
+                                            <th className='text-xs w-[5%] border font-oswald'>KESHAN {jenis == 'keshan' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('keshan');
                                                     setUpDown('downToUp');
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('keshan');
                                                     setUpDown('upToDown');
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base border font-oswald'>Senam {jenis == 'senam' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[5%] border font-oswald'>Senam {jenis == 'senam' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('senam');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('senam');
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base border font-oswald'>Senam Toya {jenis == 'senam_toya' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[5%] border font-oswald'>Senam Toya {jenis == 'senam_toya' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('senam_toya');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('senam_toya');
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base border font-oswald'>Jurus {jenis == 'jurus' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[5%] border font-oswald'>Jurus {jenis == 'jurus' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('jurus');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('jurus');
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base border font-oswald'>Jurus Toya{jenis == 'jurus_toya' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[5%] border font-oswald'>Jurus Toya{jenis == 'jurus_toya' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('jurus_toya');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('jurus_toya');
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base border font-oswald'>Teknik {jenis == 'teknik' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[5%] border font-oswald'>Teknik {jenis == 'teknik' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('teknik');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('teknik');
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base border font-oswald'>Fisik {jenis == 'fisik' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[5%] border font-oswald'>Fisik {jenis == 'fisik' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('fisik');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('fisik');
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base w-[10%] border font-oswald'>Sambung {jenis == 'sambung' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[8%] border font-oswald'>Sambung {jenis == 'sambung' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('sambung');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('sambung');
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base border font-oswald'>Belati {jenis == 'belati' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[5%] border font-oswald'>Belati {jenis == 'belati' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('belati');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('belati');
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base w-[10%] border font-oswald'>Kripen {jenis == 'kripen' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[8%] border font-oswald'>Kripen {jenis == 'kripen' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('kripen');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('kripen');
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-base border font-oswald'>Rata-rata {jenis == 'all' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                            <th className='text-xs w-[6%] border font-oswald sticky right-0 bg-purple'>Rata-rata {jenis == 'all' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('all');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                : <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('all');
                                                     setUpDown('upToDown');
 
@@ -453,22 +466,30 @@ const rekap_nilai_ukt_ukcw = () => {
                                     <tbody className=''>
                                         {
                                             dataUkt?.map((item, index) => (
-                                                <tr key={index + 1} className={'text-white text-center even:bg-darkBlue border-t border-gray-100 border font-bold'}>
-                                                    <td className='border-b-2 py-3 border-gray text-purple font-bold border'>{index + 1}</td>
-                                                    <td className='border-b-2 border-gray text-left border px-2'>{item?.name} [{item?.nomor_urut}]</td>
+                                                <tr key={index + 1} className={'text-white text-center even:bg-darkBlue border-t border-gray-100 border font-bold text-xs'}>
+                                                    <td className='border-b-2 py-0.5 border-gray text-purple font-bold border'>{index + 1}</td>
+                                                    <td className='border-b-2 border-gray text-left border px-1 text-xs'>{item?.name} [{item?.nomor_urut}]</td>
                                                     <td className='border-b-2 border-gray border text-xs'>{item?.ranting}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.keshan < 50 && 'text-[#ca3030]'} ${item?.keshan > 89.99 && 'text-[#7dff5d]'}`}>{(item?.keshan)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.senam < 50 && 'text-[#ca3030]'} ${item?.senam > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.senam)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.senam_toya < 50 && 'text-[#ca3030]'} ${item?.senam_toya > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.senam_toya)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.jurus < 50 && 'text-[#ca3030]'} ${item?.jurus > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.jurus)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.jurus_toya < 50 && 'text-[#ca3030]'} ${item?.jurus_toya > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.jurus_toya)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.teknik < 50 && 'text-[#ca3030]'} ${item?.teknik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.teknik)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.fisik < 50 && 'text-[#ca3030]'} ${item?.fisik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.fisik)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.sambung < 50 && 'text-[#ca3030]'} ${item?.sambung > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambung)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.belati < 50 && 'text-[#ca3030]'} ${item?.belati > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.belati)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.kripen < 50 && 'text-[#ca3030]'} ${item?.kripen > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.kripen)}</td>
-                                                    <td className={`border-b-2 border-gray border font-bold text-lg ${item?.total < 50 && 'bg-[#371b1b]'} ${item?.total > 89.99 && 'bg-[#1f371b]'} `}>
-                                                        {(item?.total)}
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.keshan < 50 && 'text-[#ca3030]'} ${item?.keshan > 89.99 && 'text-[#7dff5d]'}`}>{(item?.keshan)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.senam < 50 && 'text-[#ca3030]'} ${item?.senam > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.senam)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.senam_toya < 50 && 'text-[#ca3030]'} ${item?.senam_toya > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.senam_toya)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.jurus < 50 && 'text-[#ca3030]'} ${item?.jurus > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.jurus)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.jurus_toya < 50 && 'text-[#ca3030]'} ${item?.jurus_toya > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.jurus_toya)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.teknik < 50 && 'text-[#ca3030]'} ${item?.teknik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.teknik)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.fisik < 50 && 'text-[#ca3030]'} ${item?.fisik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.fisik)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.sambung < 50 && 'text-[#ca3030]'} ${item?.sambung > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambung)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.belati < 50 && 'text-[#ca3030]'} ${item?.belati > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.belati)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.kripen < 50 && 'text-[#ca3030]'} ${item?.kripen > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.kripen)}</td>
+                                                    <td
+                                                        className={`border-b-2 border-gray border font-bold text-xs sticky right-0 
+                                                            ${item?.total < 50
+                                                                ? 'bg-[#371b1b]'
+                                                                : item?.total > 89.99
+                                                                    ? 'bg-[#1f371b]'
+                                                                    : (index % 2 !== 0 ? 'bg-darkBlue' : 'bg-navy') // Change #1a1a1a to your "odd" row color
+                                                            }`}
+                                                    >
+                                                        {item?.total}
                                                     </td>
                                                 </tr>
                                             )

@@ -456,8 +456,16 @@ const rekap_nilai_ukt_ukt_jambon = () => {
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.teknik < 50 && 'text-[#ca3030]'} ${item?.teknik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.teknik)}</td>
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.fisik < 50 && 'text-[#ca3030]'} ${item?.fisik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.fisik)}</td>
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.sambung < 50 && 'text-[#ca3030]'} ${item?.sambung > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambung)}</td>
-                                                    <td className={`border-b-2 border-gray border font-bold text-xs sticky right-0 bg-navy ${item?.total < 50 && 'bg-[#371b1b]'} ${item?.total > 89.99 && 'bg-[#1f371b]'} `}>
-                                                        {(item?.total)}
+                                                    <td
+                                                        className={`border-b-2 border-gray border font-bold text-xs sticky right-0 
+                                                            ${item?.total < 50
+                                                                ? 'bg-[#371b1b]'
+                                                                : item?.total > 89.99
+                                                                    ? 'bg-[#1f371b]'
+                                                                    : (index % 2 !== 0 ? 'bg-darkBlue' : 'bg-navy') // Change #1a1a1a to your "odd" row color
+                                                            }`}
+                                                    >
+                                                        {item?.total}
                                                     </td>
                                                 </tr>
                                             )

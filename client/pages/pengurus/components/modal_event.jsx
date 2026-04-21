@@ -13,11 +13,12 @@ const modal_event = () => {
     const {name, setName} = useContext (globalState)
     const {date, setDate} = useContext (globalState)
     const {tipe, setTipe} = useContext (globalState)
+    const {ranting} = useContext (globalState)
 
     // function get data event
     const getDataEvent = () => {
         const token = localStorage.getItem ('token')
-        axios.get(BASE_URL + `event/ukt/${tipe}`, { headers: { Authorization: `Bearer ${token}`}})
+        axios.get(BASE_URL + `event/ukt/${tipe}/${ranting}`, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataEvent (res.data.data)
         })
