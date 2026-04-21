@@ -163,7 +163,7 @@ const detail_event = () => {
                     {/* akhir header */}
 
                     {/* konten utama */}
-                    <div className="min-h-full bg-darkBlue px-5 py-8">                  
+                    <div className="min-h-full bg-darkBlue px-5 py-8 pb-48">                  
                         
 
                         {/* card siswa information */}
