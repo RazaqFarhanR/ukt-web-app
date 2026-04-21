@@ -50,7 +50,6 @@ const detail_event = () => {
         let newActive = active ? active : 'senam'
         axios.get(BASE_URL + `siswa/search/${dataEvent.id_event}/${searchName}/${newActive}`,{ headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res);
                 setDataSiswa(res.data.data)
             })
             .catch(err => {
@@ -64,7 +63,6 @@ const detail_event = () => {
         if(data){
             axios.get(BASE_URL + `siswa/ranting/${dataEvent.id_event}/${data.id_ranting}/${newActive}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res)
                 setDataSiswa(res.data.data)
             })
             .catch(err => {
@@ -163,7 +161,7 @@ const detail_event = () => {
                     {/* akhir header */}
 
                     {/* konten utama */}
-                    <div className="min-h-full bg-darkBlue px-5 py-8">                  
+                    <div className="min-h-full bg-darkBlue px-5 py-8 pb-48">                  
                         
 
                         {/* card siswa information */}

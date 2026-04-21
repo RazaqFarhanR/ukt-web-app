@@ -17,7 +17,7 @@ const event = () => {
     const getDataEvent = () => {
         const token = localStorage.getItem ('tokenPenguji')
 
-        axios.get (BASE_URL + `event/ukt/UKCW/`, { headers: { Authorization: `Bearer ${token}`}})
+        axios.get (BASE_URL + `event/ukt/UKCW`, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataEvent (res.data.data)
         })
