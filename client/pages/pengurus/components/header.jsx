@@ -15,7 +15,7 @@ const header = () => {
             <div className="sticky top-0 z-10 header border-b bg-black w-full px-2 py-3 font-lato">
                 <div className="flex justify-between items-center px-4">
                     {/* button sidebar */}
-                    <button className="text-slate-600 text-2xl w-10 h-10 hidden lg:block" onClick={() => openSideBar()}>
+                    <button className="text-slate-600 text-2xl w-10 h-10 block" onClick={() => openSideBar()}>
                         <svg width="22" height="14" viewBox="0 0 22 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M1 1H21" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                             <path d="M1 7H21" stroke="white" strokeWidth="2" strokeLinecap="round"/>
