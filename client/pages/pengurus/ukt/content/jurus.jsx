@@ -5,12 +5,11 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const jurus = (props) => {
     const [dataJurus, setDataJurus] = useState([])
-    console.log(props.data?.tipe_ukt);
     const getDataJurus = () => {
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'))
 
-        axios.get(BASE_URL + `jurus_detail/ukt/${props.data?.tipe_ukt}/${event.id_event}`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `jurus_detail/ukt/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataJurus(res.data.data)
             })
@@ -28,14 +27,19 @@ const jurus = (props) => {
     function TdComponent({ items }) {
         return items.map((item, index) => (
             <td key={index + 1} className='px-3 border-b-2 border-gray'>
-                {item.predikat === true && (
+                {item.predikat === 8 && (
                     <div className="font-semibold bg-purple rounded-md text-white py-1.5 px-12 uppercase">
-                        benar
+                        CUKUP
+                    </div>
+                )}
+                {item.predikat === 10 && (
+                    <div className="font-semibold bg-green rounded-md text-white py-1.5 px-12 uppercase">
+                        BAIK
                     </div>
                 )}
                 {item.predikat === false && (
                     <div className="font-semibold bg-red rounded-md text-white py-1.5 px-12 uppercase">
-                        salah
+                        SALAH
                     </div>
                 )}
                 {item.predikat === null && (
@@ -50,17 +54,17 @@ const jurus = (props) => {
     }
     useEffect(() => {
         getDataJurus()
-    }, [])
+    }, [props])
 
     return (
         <div className="min-h-screen bg-darkBlue h-screen">
 
-            <div className="bg-navy rounded-md py-2 px-3 h-[70%]">
+            <div className="bg-navy rounded-md py-2 h-[70%]">
 
                 {/* table */}
                 <div className='overflow-x-scroll h-full'>
                     <table className='w-max'>
-                        <thead>
+                        <thead className='sticky top-0 bg-black'>
                             <tr className='text-white'>
                                 <th className='py-3 w-5 px-5'>No</th>
                                 <th className='w-30 px-20'>Nama</th>

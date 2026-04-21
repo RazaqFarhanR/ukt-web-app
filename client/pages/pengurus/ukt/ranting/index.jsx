@@ -3,37 +3,41 @@ import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import { globalState } from '@/context/context'
-import Sidebar from '../components/sidebar'
-import Header from '../components/header'
-import Footer from '../components/footer'
-import Modal_event from '../components/modal_event'
-import Modal_delete from '../components/modal_delete'
+import Sidebar from '../../components/sidebar'
+import Header from '../../components/header'
+import Footer from '../../components/footer'
+import Modal_event from '../../components/modal_event'
+import Modal_delete from '../../components/modal_delete'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-const ukcw = () => {
+const ukt_hijau = () => {
 
     // deklarasi router
     const router = useRouter()
+
+    const idRanting = router.query.ranting
+    const idUkt = router.query.ukt
+    const idTipe = router.query.tipe
 
     // state modal
     const [showModalEvent, setShowModalEvent] = useState(false)
     const [showModalDelete, setShowModalDelete] = useState(false)
 
     // state
-    const [ranting, setRanting] = useState()
     const [dataEvent, setDataEvent] = useState([])
     const [isActive, setIsActive] = useState(false)
+    const [ranting, setRanting] = useState()
     const [action, setAction] = useState('')
     const [idEvent, setIdEvent] = useState('')
     const [name, setName] = useState('')
-    const [date, setDate] = useState('')
+    const [date, setDate] = useState()
     const [tipe, setTipe] = useState('')
 
-    // funtion get data event
+    // function get data event
     const getDataEvent = () => {
         const token = localStorage.getItem('token')
 
-        axios.get(BASE_URL + `event/ukt/UKCW`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `event/ukt/${idUkt}/${idRanting}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataEvent(res.data.data)
             })
@@ -48,7 +52,8 @@ const ukcw = () => {
         setAction('insert')
         setName('')
         setDate('')
-        setTipe('UKCW')
+        setTipe(idUkt)
+        setRanting(idRanting)
         setIsActive(true)
     }
 
@@ -58,8 +63,9 @@ const ukcw = () => {
         setAction('update')
         setIdEvent(selectedItem.id_event)
         setName(selectedItem.name)
-        setDate(selectedItem.date)
-        setTipe('UKCW')
+        setDate(selectedItem.tanggal)
+        setTipe(idUkt)
+        setRanting(idRanting)
         setIsActive(selectedItem.is_active)
     }
 
@@ -68,15 +74,15 @@ const ukcw = () => {
         setShowModalDelete(true)
         setAction('deleteEvent')
         setIdEvent(selectedId)
-        setTipe('UKCW')
+        setTipe(idUkt)
     }
 
     // function to rekap nilai
     const toRekapNilai = (item) => {
         localStorage.setItem('event', JSON.stringify(item))
         router.push({
-            pathname: './ranting/rekap_nilai_ukt_ukcw',
-            query: { eventId: item.id_event, idRanting: 'TRENGGALEK' } // Add your parameter here
+            pathname: './ranting/event/rekap_nilai_' + idTipe,
+            query: { eventId: item.id_event, idRanting: idRanting, nameEvent: item.name } // Add your parameter here
         });
     }
 
@@ -84,8 +90,8 @@ const ukcw = () => {
     const toDetailNilai = (item) => {
         localStorage.setItem('event', JSON.stringify(item))
         router.push({
-            pathname: './ranting/detail_nilai_ukt_ukcw',
-            query: { eventId: item.id_event, idRanting: 'TRENGGALEK' } // Add your parameter here
+            pathname: './ranting/event/detail_nilai_' + idTipe,
+            query: { eventId: item.id_event, idRanting: idRanting, nameEvent: item.name } // Add your parameter here
         });
     }
 
@@ -97,9 +103,10 @@ const ukcw = () => {
     }
 
     useEffect(() => {
+        if (!router.isReady) return;
         getDataEvent()
         isLogged()
-    }, [])
+    }, [router.isReady, idRanting, idUkt, idTipe])
 
     return (
         <>
@@ -131,7 +138,7 @@ const ukcw = () => {
 
                             {/* page name */}
                             <h1 className='text-xl md:text-2xl tracking-wider uppercase font-bold'>
-                                REKAP - UKCW
+                                REKAP - {idUkt}
                             </h1>
 
                             {/* search and buttons wrapper */}
@@ -150,24 +157,38 @@ const ukcw = () => {
                                     />
                                 </div>
 
-                                {/* Actions Group: Back and Add Button */}
+                                {/* Actions Group: Back, Dashboard, and Add Button */}
                                 <div className="flex gap-2 w-full md:w-auto">
 
-                                    {/* button back to home */}
+                                    {/* button back to previous page */}
                                     <button
-                                        onClick={() => router.push('/pengurus')} // or your navigation logic
-                                        className="bg-navy border border-purple hover:bg-purple text-white duration-300 rounded-md px-4 py-2 flex items-center justify-center gap-x-2 flex-1 md:flex-none transition-colors active:scale-95"
+                                        onClick={() => router.push('/pengurus/ukt/' + idTipe)}
+                                        className="bg-navy border border-purple hover:bg-purple text-white duration-300 rounded-md px-3 md:px-4 py-2 flex items-center justify-center gap-x-2 flex-1 md:flex-none transition-colors active:scale-95"
+                                        title="Go Back"
                                     >
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M19 12H5M5 12L12 19M5 12L12 5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
-                                        <span className="text-sm md:text-base font-semibold hidden sm:inline">Back</span>
+                                        <span className="text-sm md:text-base font-semibold hidden lg:inline">Back</span>
                                     </button>
 
-                                    {/* button add data */}
+                                    {/* button home/dashboard */}
+                                    <button
+                                        onClick={() => router.push('/pengurus')} // adjust path as needed
+                                        className="bg-navy border border-purple hover:bg-purple text-white duration-300 rounded-md px-3 md:px-4 py-2 flex items-center justify-center gap-x-2 flex-1 md:flex-none transition-colors active:scale-95"
+                                        title="Dashboard"
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                        </svg>
+                                        <span className="text-sm md:text-base font-semibold hidden lg:inline">Home</span>
+                                    </button>
+
+                                    {/* button add data (Primary Action) */}
                                     <button
                                         onClick={() => addModal()}
-                                        className="bg-purple hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center justify-center gap-x-2 flex-[2] md:flex-none transition-colors active:scale-95 text-white"
+                                        className="bg-purple hover:bg-white hover:text-purple duration-300 rounded-md px-4 md:px-5 py-2 flex items-center justify-center gap-x-2 flex-[2] md:flex-none transition-colors active:scale-95 text-white"
                                     >
                                         <span className="text-sm md:text-base font-semibold whitespace-nowrap">Tambah Data</span>
                                         <span className="md:hidden text-lg">+</span>
@@ -253,4 +274,4 @@ const ukcw = () => {
     )
 }
 
-export default ukcw
+export default ukt_hijau
