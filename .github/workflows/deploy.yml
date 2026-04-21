@@ -104,7 +104,9 @@ jobs:
 
   deploy-client:
     needs: [detect-changes, deploy-api]
-    if: needs.detect-changes.outputs.client_changed == 'true'
+    if: |
+      needs.detect-changes.outputs.client_changed == 'true' &&
+      (needs.detect-changes.outputs.api_changed != 'true' || needs.deploy-api.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - name: Deploy Client via SSH
