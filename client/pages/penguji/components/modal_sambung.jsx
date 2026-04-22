@@ -24,8 +24,9 @@ const Modal_Sambung = (props) => {
         setDataPenguji(dataPenguji)
         setDataEvent(dataEvent)
         let IdEvent = (dataEvent.id_event)
-        console.log("id_event  :" + IdEvent)
-        axios.get(BASE_URL + `siswa/event/${IdEvent}/sambung`, { headers: { Authorization: `Bearer ${token}` } })
+        const pengujiRole = dataPenguji.id_role
+        const link = pengujiRole === 'penguji cabang' ? `siswa/event/${IdEvent}/sambung` : `siswa/ranting/${IdEvent}/${dataPenguji.id_ranting}/sambung`
+        axios.get(BASE_URL + link, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setDataSiswa(res.data.data)
             })
@@ -39,7 +40,6 @@ const Modal_Sambung = (props) => {
         const token = localStorage.getItem('tokenPenguji')
         axios.get(BASE_URL + `siswa/search/${dataEvent.id_event}/${searchName}/sambung`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
-                console.log(res);
                 setDataSiswa(res.data.data)
             })
             .catch(err => {
@@ -52,7 +52,6 @@ const Modal_Sambung = (props) => {
         if (data) {
             axios.get(BASE_URL + `siswa/ranting/${dataEvent.id_event}/${data.id_ranting}/sambung`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
-                    console.log(res)
                     setDataSiswa(res.data.data)
                 })
                 .catch(err => {
