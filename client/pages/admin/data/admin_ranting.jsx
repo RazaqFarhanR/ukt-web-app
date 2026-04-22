@@ -173,7 +173,7 @@ const admin_ranting = () => {
                                             <td className='border-b-2 border-gray'>{item.username}</td>
                                             <td className='border-b-2 border-gray'>{item.no_wa}</td>
                                             <td className='border-b-2 border-gray p-3'>
-                                                <img className='rounded-lg object-cover' src={IMAGE_URL + item.image.split('http://localhost:8080/image/')[1]} alt="" />
+                                                <img className='rounded-lg object-cover w-28 h-28' src={IMAGE_URL + item.foto} alt="" />
                                             </td>
                                             <td className='border-b-2 border-gray'>
                                                 <div className="flex gap-x-2">

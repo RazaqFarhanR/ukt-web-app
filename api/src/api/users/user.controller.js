@@ -2,6 +2,7 @@ require('dotenv').config();
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 const salt = bcrypt.genSaltSync(10);
+const path = require("path");
 
 const jwt = require("jsonwebtoken");
 
@@ -190,9 +191,8 @@ module.exports = {
                     no_wa: req.body.no_wa,
                 };
                 if (req.file) {
-                    const oldImagePath = path.join(localStorage, result[0].foto);
-
-                    if (result[0].foto !== 'default.png') {
+                    if (result[0].foto && result[0].foto !== 'default.png') {
+                        const oldImagePath = path.join(localStorage, result[0].foto);
                         fs.unlink(oldImagePath, (err) => {
                             if (err) {
                                 console.error(err);
@@ -200,9 +200,6 @@ module.exports = {
                             }
                             // console.log('User image deleted successfully');
                         });
-                        data.foto = req.file.filename;
-                    } else {
-                        // console.log('Skipping delete for default.png');
                     }
                 }
                 await user
