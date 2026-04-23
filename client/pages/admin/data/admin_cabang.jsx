@@ -37,14 +37,13 @@ const admin_cabang = () => {
     const getDataAdminCabang = () => {
         const token = localStorage.getItem ('token')
 
-        axios.get (BASE_URL + `user`, { headers: { Authorization: `Bearer ${token}`}})
+        axios.get (BASE_URL + `user/admincabang`, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
             setDataAdminCabang (res.data.data)
         })
         .catch (err => {
             console.log(err.message);
         })
-        console.log (BASE_URL + `user`);
     }
 
     // function modal add
