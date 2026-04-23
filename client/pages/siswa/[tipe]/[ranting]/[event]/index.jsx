@@ -43,6 +43,8 @@ const loginPage = () => {
     const [dataSiswa, setDataSiswa] = useState()
     const [dataUktSiswa, setDataUktSiswa] = useState([])
     const [showModalSiswa, setShowModalSiswa] = useState (false)
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     const Auth = async (e) => {
         e.preventDefault()
@@ -82,7 +84,8 @@ const loginPage = () => {
                 console.log(router.asPath);
                 // router.push('./ujian')
             } else {
-                window.alert(res.data.message)
+                setErrorMessage(res.data.message || "Nomor urut salah atau tidak terdaftar.");
+                setShowErrorModal(true);
             }
         })
         .catch(err => {
@@ -164,6 +167,29 @@ const loginPage = () => {
                     nilai={dataUktSiswa.keshan}
                 />
              {/* </globalState.Provider> */}
+
+            {/* Error Modal */}
+            {showErrorModal && (
+                <>
+                <div className="fixed flex justify-center items-center top-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto inset-0">
+                    <div className="relative w-[90%] md:w-1/3 h-auto rounded-lg bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] p-0.5">
+                        <div className="relative bg-navy text-white rounded-lg shadow px-10 py-10">
+                            <div className="flex flex-col items-center justify-center text-center">
+                                <svg className="w-20 h-20 text-[#FF4C4C] mb-4 drop-shadow-[0_0_10px_rgba(255,76,76,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <h1 className="text-xl md:text-2xl font-bold text-[#FF4C4C] tracking-wide uppercase mb-4">
+                                    Login Gagal
+                                </h1>
+                                <p className="text-lg md:text-xl font-lato text-gray-300 mb-8">
+                                    {errorMessage}
+                                </p>
+                                <button className="font-lato text-white bg-[#FF4C4C] rounded-lg text-lg px-8 py-2 font-bold uppercase transition hover:scale-105" onClick={() => setShowErrorModal(false)}>Tutup</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-black opacity-80 fixed inset-0 z-40"></div>
+                </>
+            )}
         </>
     )
 }

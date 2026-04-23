@@ -21,7 +21,8 @@ const {
     controllerCekKeSHan,
     controllerCekUjain,
     controllerGetSoal,
-    controllerKoreksi
+    controllerKoreksi,
+    controllerSync
 } = require('./session.controller');
 
 
@@ -34,6 +35,7 @@ router.post('/cek_ukt/:id', controllerCekKeSHan)
 router.post('/getdata', controllerCekUjain)
 router.post('/getsoal/:page', controllerGetSoal)
 router.post('/koreksi', controllerKoreksi)
+router.post('/sync', controllerSync)
 router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting", "siswa"), controllerAdd )
 router.post('/getid', Auth, verifyRoles("siswa"), controllerGetById )
 router.post('/timer', Auth, verifyRoles("siswa"), controllerTimer )

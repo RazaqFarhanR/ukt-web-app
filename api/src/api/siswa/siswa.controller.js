@@ -772,13 +772,16 @@ module.exports = {
                         });
 
                     } else {
-                        res.status(404).json({ message: "Kamu Bukan Siswa berwenang" });
+                        res.json({ 
+                            logged: false, 
+                            message: "Akun anda saat ini dinonaktifkan atau anda tidak berwenang pada ujian ini." 
+                        });
                     }
                 } else {
                     //tidak ditemukan
                     res.json({
                         logged: false,
-                        message: "Invalid username or password",
+                        message: "Nomor Urut salah atau tidak terdaftar.",
                     });
                 }
             })

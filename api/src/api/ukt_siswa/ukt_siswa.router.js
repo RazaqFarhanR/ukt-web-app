@@ -25,6 +25,7 @@ const {
     controllerGetTotalPage,
     controllerGetByName,
     controllerGetRayon,
+    controllerResetGrade,
 } = require('./ukt_siswa.controller');
 
 
@@ -46,5 +47,6 @@ router.post('/ukt/:event', Auth, verifyRoles("admin", "super admin", "admin rant
 router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting", "siswa"), controllerAdd )
 router.put('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting", "siswa"), controllerEdit )
 router.delete('/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDelete )
+router.patch('/reset', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang"), controllerResetGrade )
 
 module.exports = router;
