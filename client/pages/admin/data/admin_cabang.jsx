@@ -37,12 +37,17 @@ const admin_cabang = () => {
     const getDataAdminCabang = () => {
         const token = localStorage.getItem ('token')
 
-        axios.get (BASE_URL + `user/admincabang`, { headers: { Authorization: `Bearer ${token}`}})
+        axios.get (BASE_URL + `user`, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
-            setDataAdminCabang (res.data.data)
+            if (res.data && res.data.data) {
+                setDataAdminCabang (res.data.data)
+            } else {
+                setDataAdminCabang ([])
+            }
         })
         .catch (err => {
             console.log(err.message);
+            setDataAdminCabang ([])
         })
     }
 
@@ -167,7 +172,7 @@ const admin_cabang = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {dataAdminCabang.filter(a => a.id_role === 'admin cabang').map ((item, index) => (
+                                    {dataAdminCabang && Array.isArray(dataAdminCabang) && dataAdminCabang.filter(a => a.id_role === 'admin cabang').map ((item, index) => (
                                         <tr key={index + 1} className='text-white text-center'>
                                             <td className='border-b-2 py-3 border-gray'>{index + 1}</td>
                                             <td className='border-b-2 border-gray'>{item.NIW}</td>
