@@ -65,11 +65,6 @@ const rekap_nilai_ukt_ukcw = () => {
                 setLoading(false);
             });
     }
-    function formatNumber(number) {
-        return (number % 1 === 0)
-            ? null
-            : number.toLocaleString('id', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
 
     // function login checker
     const isLogged = () => {
@@ -404,15 +399,15 @@ const rekap_nilai_ukt_ukcw = () => {
                                                     <td className='border-b-2 border-gray text-left border px-2'>{item?.name} [{item?.nomor_urut}]</td>
                                                     <td className='border-b-2 border-gray border text-xs'>{item?.ranting}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.keshan < 50 && 'text-[#ca3030]'} ${item?.keshan > 89.99 && 'text-[#7dff5d]'}`}>{(item?.keshan)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.senam < 50 && 'text-[#ca3030]'} ${item?.senam > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.senam)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.senam_toya < 50 && 'text-[#ca3030]'} ${item?.senam_toya > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.senam_toya)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.jurus < 50 && 'text-[#ca3030]'} ${item?.jurus > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.jurus)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.jurus_toya < 50 && 'text-[#ca3030]'} ${item?.jurus_toya > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.jurus_toya)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.teknik < 50 && 'text-[#ca3030]'} ${item?.teknik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.teknik)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.fisik < 50 && 'text-[#ca3030]'} ${item?.fisik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.fisik)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.sambung < 50 && 'text-[#ca3030]'} ${item?.sambung > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambung)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.belati < 50 && 'text-[#ca3030]'} ${item?.belati > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.belati)}</td>
-                                                    <td className={`border-b-2 border-gray border text-lg ${item?.kripen < 50 && 'text-[#ca3030]'} ${item?.kripen > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.kripen)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.senam < 50 && 'text-[#ca3030]'} ${item?.senam > 89.99 && 'text-[#7dff5d]'}`}>{(item?.senam)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.senam_toya < 50 && 'text-[#ca3030]'} ${item?.senam_toya > 89.99 && 'text-[#7dff5d]'}`}>{(item?.senam_toya)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.jurus < 50 && 'text-[#ca3030]'} ${item?.jurus > 89.99 && 'text-[#7dff5d]'}`}>{(item?.jurus)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.jurus_toya < 50 && 'text-[#ca3030]'} ${item?.jurus_toya > 89.99 && 'text-[#7dff5d]'}`}>{(item?.jurus_toya)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.teknik < 50 && 'text-[#ca3030]'} ${item?.teknik > 89.99 && 'text-[#7dff5d]'}`}>{(item?.teknik)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.fisik < 50 && 'text-[#ca3030]'} ${item?.fisik > 89.99 && 'text-[#7dff5d]'}`}>{(item?.fisik)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.sambung < 50 && 'text-[#ca3030]'} ${item?.sambung > 89.99 && 'text-[#7dff5d]'}`}>{(item?.sambung)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.belati < 50 && 'text-[#ca3030]'} ${item?.belati > 89.99 && 'text-[#7dff5d]'}`}>{(item?.belati)}</td>
+                                                    <td className={`border-b-2 border-gray border text-lg ${item?.kripen < 50 && 'text-[#ca3030]'} ${item?.kripen > 89.99 && 'text-[#7dff5d]'}`}>{(item?.kripen)}</td>
                                                     <td className={`border-b-2 border-gray border font-bold text-lg ${item?.total < 50 && 'bg-[#371b1b]'} ${item?.total > 89.99 && 'bg-[#1f371b]'} `}>
                                                         {(item?.total)}
                                                     </td>
