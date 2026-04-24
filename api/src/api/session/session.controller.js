@@ -404,7 +404,6 @@ module.exports = {
 
             const keyMap = new Map(keys.map((k) => [k.id_soal, k.opsi]));
 
-            let benar = 0;
             const updatePromises = [];
 
             for (const item of jawaban) {
@@ -413,8 +412,6 @@ module.exports = {
                 if (item.selectedOption) {
                     status = item.selectedOption === correctOpsi ? "benar" : "salah";
                 }
-
-                if (status === "benar") benar++;
 
                 updatePromises.push(
                     lembar_jawaban.update(
@@ -426,15 +423,26 @@ module.exports = {
 
             await Promise.all(updatePromises);
 
+            // Fetch actual count of correct answers from DB to ensure no answers are missed
+            const correctCount = await lembar_jawaban.count({
+                where: {
+                    id_session: id_session,
+                    id_siswa: id_siswa,
+                    answer: "benar"
+                }
+            });
+
+            const finalScore = correctCount * 5;
+
             await ukt_siswa.update(
-                { keshan: benar * 5 },
+                { keshan: finalScore },
                 { where: { id_ukt_siswa: id_ukt_siswa } }
             );
 
             res.json({
                 status: true,
                 message: "Correction completed successfully",
-                score: benar * 5,
+                score: finalScore,
             });
         } catch (error) {
             res.json({ status: false, message: error.message });
@@ -645,5 +653,54 @@ module.exports = {
                     message: error.message
                 })
             })
+    },
+    controllerResyncEvent: async (req, res) => {
+        try {
+            const { id_event } = req.body;
+            if (!id_event) {
+                return res.json({ status: false, message: "ID Event diperlukan" });
+            }
+
+            const sessions = await session.findAll({
+                where: { id_event }
+            });
+
+            if (!sessions || sessions.length === 0) {
+                return res.json({ status: false, message: "Tidak ada sesi KeSHAN yang ditemukan untuk event ini" });
+            }
+
+            let resyncCount = 0;
+            const updatePromises = sessions.map(async (sess) => {
+                const correctCount = await lembar_jawaban.count({
+                    where: {
+                        id_session: sess.id_session,
+                        id_siswa: sess.id_siswa,
+                        answer: "benar"
+                    }
+                });
+
+                const finalScore = correctCount * 5;
+
+                await ukt_siswa.update(
+                    { keshan: finalScore },
+                    { 
+                        where: { 
+                            id_siswa: sess.id_siswa,
+                            id_event: id_event
+                        } 
+                    }
+                );
+                resyncCount++;
+            });
+
+            await Promise.all(updatePromises);
+
+            res.json({
+                status: true,
+                message: `Berhasil mensinkronkan ulang ${resyncCount} nilai KeSHAN.`,
+            });
+        } catch (error) {
+            res.json({ status: false, message: error.message });
+        }
     },
 }
