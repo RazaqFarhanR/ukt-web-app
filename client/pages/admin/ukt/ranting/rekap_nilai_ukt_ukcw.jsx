@@ -67,7 +67,7 @@ const rekap_nilai_ukt_ukcw = () => {
     }
     function formatNumber(number) {
         return (number % 1 === 0)
-            ? number
+            ? null
             : number.toLocaleString('id', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
