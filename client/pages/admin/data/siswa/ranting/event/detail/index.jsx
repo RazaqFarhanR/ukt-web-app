@@ -74,16 +74,7 @@ const detail_siswa = () => {
         setEvent(dataEvent.id_event)
     }
 
-    const nonAktifkanAll = () => {
-        const token = localStorage.getItem('token')
-        axios.get(BASE_URL + `siswa/event/non_aktifkan/${eventId}`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-
-            })
-            .catch(err => {
-                console.log(err.message);
-            })
-    }
+    
 
     // function modal edit
     const editModal = (selectedItem) => {
@@ -129,7 +120,26 @@ const detail_siswa = () => {
             query: { tipe: idTipe, ranting: idRanting }
         });
     }
-
+    const nonAktifkanAll = () => {
+        const token = localStorage.getItem('token')
+        axios.get(BASE_URL + `siswa/event/all_aktifkan/${eventId}/non_aktifkan`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+                getDataSiswa()
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
+    }
+    const aktifkanAll = () => {
+        const token = localStorage.getItem('token')
+        axios.get(BASE_URL + `siswa/event/all_aktifkan/${eventId}/aktifkan`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(res => {
+                getDataSiswa()
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
+    }
     const handleVerification = (e) => {
         const token = localStorage.getItem('token')
 
@@ -220,9 +230,20 @@ const detail_siswa = () => {
                                 <button onClick={() => addModal()} className="bg-purple hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
                                     <h1>Tambah Data</h1>
                                 </button>
-                                {/* button add data */}
-                                <button onClick={() => nonAktifkanAll()} className="bg-red hover:bg-white hover:text-purple duration-300 rounded-md px-5 py-2 flex items-center gap-x-2">
-                                    <h1>nonaktifkan Data</h1>
+                                {/* aktifkan all button */}
+                                <button onClick={() => aktifkanAll()} title="Aktifkan Semua" className="bg-green hover:bg-white hover:text-green duration-300 rounded-md w-10 h-10 flex justify-center items-center group">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:stroke-green">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                </button>
+                                {/* nonaktifkan all button */}
+                                <button onClick={() => nonAktifkanAll()} title="Nonaktifkan Semua" className="bg-red hover:bg-white hover:text-red duration-300 rounded-md w-10 h-10 flex justify-center items-center group">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:stroke-red">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="15" y1="9" x2="9" y2="15"/>
+                                        <line x1="9" y1="9" x2="15" y2="15"/>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -254,8 +275,11 @@ const detail_siswa = () => {
                                             <td className='border-b-2 border-gray'>{item.jenis_latihan}</td>
                                             <td className='border-b-2 border-gray'>
                                                 <div className="flex gap-x-2">
-                                                    <button onClick={() => handleVerification(item)} className="bg-yellow hover:bg-white text-white hover:text-yellow py-2 rounded-md w-28 flex justify-center items-center space-x-1 mx-auto group duration-300">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check-icon lucide-badge-check"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+                                                    <button onClick={() => handleVerification(item)} className={`py-2 rounded-md w-28 flex justify-center items-center space-x-1 mx-auto group duration-300 ${item.active ? 'bg-green hover:bg-white text-white hover:text-green' : 'bg-yellow hover:bg-white text-white hover:text-yellow'}`}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+                                                            <path d="m9 12 2 2 4-4"/>
+                                                        </svg>
                                                     </button>
                                                     <button onClick={() => editModal(item)} className="bg-green hover:bg-white text-white hover:text-green py-2 rounded-md w-28 flex justify-center items-center space-x-1 mx-auto group duration-300">
                                                         <svg className='stroke-white group-hover:stroke-green duration-300' width="24" height="24" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
