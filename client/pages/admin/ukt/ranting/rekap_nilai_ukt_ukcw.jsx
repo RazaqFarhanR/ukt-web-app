@@ -270,6 +270,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                             <th className='py-3 w-[5%] border font-oswald'>Rank</th>
                                             <th className='w-[30%] border font-oswald' >Nama</th>
                                             <th className='w-[10%] border font-oswald'>Ranting</th>
+                                            <th className='w-[10%] border font-oswald'>Rayon</th>
                                             <th className='text-base border font-oswald'>KESHAN {jenis == 'keshan' && updown == 'upToDown'
                                                 ? <button className='rounded-md bg-gray text-lg' onClick={() => {
                                                     setJenis('keshan');
@@ -398,6 +399,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                                     <td className='border-b-2 py-3 border-gray text-purple font-bold border'>{index + 1}</td>
                                                     <td className='border-b-2 border-gray text-left border px-2'>{item?.name} [{item?.nomor_urut}]</td>
                                                     <td className='border-b-2 border-gray border text-xs'>{item?.ranting}</td>
+                                                    <td className='border-b-2 border-gray border text-xs'>{item?.rayon}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.keshan < 50 && 'text-[#ca3030]'} ${item?.keshan > 89.99 && 'text-[#7dff5d]'}`}>{(item?.keshan)}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.senam < 50 && 'text-[#ca3030]'} ${item?.senam > 89.99 && 'text-[#7dff5d]'}`}>{(item?.senam)}</td>
                                                     <td className={`border-b-2 border-gray border text-lg ${item?.senam_toya < 50 && 'text-[#ca3030]'} ${item?.senam_toya > 89.99 && 'text-[#7dff5d]'}`}>{(item?.senam_toya)}</td>
