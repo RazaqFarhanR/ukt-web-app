@@ -431,84 +431,84 @@ const rekap_nilai_ukt_ukt_jambon = () => {
                                 <table className='w-full table-fixed'>
                                     <thead className='bg-purple sticky top-0'>
                                         <tr className='text-white text-center bg-purple'>
-                                            <th className='py-3 w-[5%] border font-oswald'>Rank</th>
-                                            <th className='w-[30%] border font-oswald' >Nama</th>
-                                            <th className='w-[10%] border font-oswald'>Rayon</th>
+                                            <th className='py-3 w-[5%] border font-oswald'>RANK</th>
+                                            <th className='w-[30%] border font-oswald' >NAMA</th>
+                                            <th className='w-[10%] border font-oswald'>RAYON</th>
                                             <th className='text-base border font-oswald'>KESHAN {jenis == 'keshan' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                ? <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('keshan');
                                                     setUpDown('downToUp');
-                                                }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg></button>
+                                                : <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('keshan');
                                                     setUpDown('upToDown');
-                                                }}>⌃</button>}</th>
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
                                             <th className='text-base border font-oswald'>Senam {jenis == 'senam' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                ? <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('senam');
                                                     setUpDown('downToUp');
 
-                                                }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg></button>
+                                                : <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('senam');
                                                     setUpDown('upToDown');
 
-                                                }}>⌃</button>}</th>
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
                                             <th className='text-base border font-oswald'>Jurus {jenis == 'jurus' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                ? <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('jurus');
                                                     setUpDown('downToUp');
 
-                                                }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg></button>
+                                                : <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('jurus');
                                                     setUpDown('upToDown');
 
-                                                }}>⌃</button>}</th>
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
                                             <th className='text-base border font-oswald'>Teknik {jenis == 'teknik' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                ? <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('teknik');
                                                     setUpDown('downToUp');
 
-                                                }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg></button>
+                                                : <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('teknik');
                                                     setUpDown('upToDown');
 
-                                                }}>⌃</button>}</th>
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
                                             <th className='text-base border font-oswald'>Fisik {jenis == 'fisik' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                ? <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('fisik');
                                                     setUpDown('downToUp');
 
-                                                }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg></button>
+                                                : <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('fisik');
                                                     setUpDown('upToDown');
 
-                                                }}>⌃</button>}</th>
-                                            <th className='text-base w-[10%] border font-oswald'>Sambung {jenis == 'sambung' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
+                                            <th className='text-base border font-oswald'>Sambung {jenis == 'sambung' && updown == 'upToDown'
+                                                ? <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('sambung');
                                                     setUpDown('downToUp');
 
-                                                }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg></button>
+                                                : <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('sambung');
                                                     setUpDown('upToDown');
 
-                                                }}>⌃</button>}</th>
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
                                             <th className='text-base border font-oswald'>Rata-rata {jenis == 'all' && updown == 'upToDown'
-                                                ? <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                ? <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('all');
                                                     setUpDown('downToUp');
 
-                                                }}>⌄</button>
-                                                : <button className='rounded-md bg-gray text-lg' onClick={() => {
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg></button>
+                                                : <button className='rounded-md bg-gray p-1' onClick={() => {
                                                     setJenis('all');
                                                     setUpDown('upToDown');
 
-                                                }}>⌃</button>}</th>
+                                                }}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
                                         </tr>
                                     </thead>
                                     <tbody className=''>
