@@ -22,7 +22,7 @@ const detail_nilai_ukt_jambon = () => {
     const { eventId, idRanting, nameEvent } = router.query;
     // state set jenis
     const [active, setActive] = useState('keshan')
-    const [ranting, setRanting] = useState('')
+    const [ranting, setRanting] = useState(idRanting || '')
     const [role, setRole] = useState('')
     // function set jneis
     const onActive = (e) => {
@@ -30,7 +30,7 @@ const detail_nilai_ukt_jambon = () => {
     }
 
     let activeComponent;
-    const data = { tipe_ukt: "UKT HIJAU", ranting: idRanting}
+    const data = { tipe_ukt: "UKT JAMBON", ranting: ranting }
     if (active === 'senam') {
         activeComponent = <Senam data={data} />;
     } else if (active === 'jurus') {
@@ -60,8 +60,10 @@ const detail_nilai_ukt_jambon = () => {
         if (role.id_role === 'admin ranting') {
             setRanting(role.id_ranting)
             setRole('admin ranting')
+        } else if (idRanting) {
+            setRanting(idRanting)
         }
-    }, [])
+    }, [idRanting])
 
     return (
         <>
@@ -87,6 +89,13 @@ const detail_nilai_ukt_jambon = () => {
                     <div className="min-h-full bg-darkBlue px-10 py-8">
 
                         {/* wrapper category */}
+                        <div className="flex justify-between items-center mb-5">
+                            <h1 className='text-2xl tracking-wider text-white font-lato font-bold uppercase'>Detail Nilai - {nameEvent} {ranting}</h1>
+                            <div className='ml-auto'>
+                                <FilterDropdown ranting={ranting} setRanting={setRanting} />
+                            </div>
+                        </div>
+
                         <div className="flex bg-navy gap-x-2 overflow-x-scroll text-purple mb-3 scrollbar-hide w-full text-2xl">
                             <button onClick={() => onActive('keshan')} className={active === 'keshan' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>KESHAN</button>
                             <button onClick={() => onActive('senam')} className={active === 'senam' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Senam</button>

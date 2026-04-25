@@ -19,6 +19,7 @@ const detail_nilai_ukt_ukcw = () => {
 
 
     const router = useRouter()
+    const { idRanting } = router.query
 
     // state set jenis
     const [dataEvent, setDataEvent] = useState([])
@@ -80,10 +81,12 @@ const detail_nilai_ukt_ukcw = () => {
         const role = JSON.parse(localStorage.getItem('admin'))
         if (role?.id_role === 'admin ranting') {
             setRanting(role.id_ranting)
-        } else {
+        } else if (idRanting) {
+            setRanting(idRanting)
+        } else if (!ranting) {
             setRanting('TRENGGALEK') // default for super admin
         }
-    }, []) // ← single effect, runs once on mount
+    }, [idRanting]) // ← single effect, runs once on mount
 
      if (!mounted) return null
     return (

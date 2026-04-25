@@ -103,14 +103,10 @@ const Keshan = (props) => {
                 );
             }
         }
-
-        return pages;
-    };
+    }
 
     function ThComponent({ items }) {
-        let limit = items.length + 1
         let banding = 1;
-        banding < limit;
         return items.map((item) => (
             <th key={banding}>{banding++}</th>
         ));
@@ -149,32 +145,55 @@ const Keshan = (props) => {
             <div className="bg-navy rounded-md py-2 px-3 h-[65%]">
 
                 {/* table */}
-                <div className='overflow-x-scroll h-full'>
-                    <table className='w-max'>
-                        <thead className='sticky top-0 bg-black'>
-                            <tr className='text-white'>
-                                <th className='py-3 w-20'>No</th>
-                                <th className='w-[26rem] px-5'>Nama</th>
-                                {dataUjian?.slice(0, 1).map((item, index) => (
-                                    <ThComponent items={item.lembar_jawaban} key={index + 1} />
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {dataUjian?.map((item, index) => (
-                                <tr className='text-green text-center h-fit' key={item.keshan_siswa.nomor_uru}>
-                                    <td className='border-b-2 text-white py-3 border-gray'>{item.keshan_siswa.nomor_urut}</td>
-                                    <td className='border-b-2 text-white border-gray text-center text-lg'>{item.keshan_siswa.name}</td>
-                                    <TdComponent items={item.lembar_jawaban} key={index + 1} />
+                <div className='overflow-x-scroll h-full relative'>
+                    {loading && (
+                        <div className="absolute inset-0 bg-navy bg-opacity-70 flex justify-center items-center z-10">
+                            <svg className="animate-spin h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                        </div>
+                    )}
+
+                    {!props.data?.ranting ? (
+                        <div className="flex flex-col items-center justify-center h-64 text-white">
+                            <svg className="w-20 h-20 mb-4 opacity-40" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                            </svg>
+                            <p className="text-2xl font-semibold tracking-wide">Silakan pilih ranting terlebih dahulu untuk menampilkan data.</p>
+                        </div>
+                    ) : dataUjian?.length === 0 && !loading ? (
+                        <div className="flex flex-col items-center justify-center h-64 text-white">
+                            <svg className="w-20 h-20 mb-4 opacity-40" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                            </svg>
+                            <p className="text-2xl font-semibold tracking-wide">Tidak ada data nilai KeSHAN yang ditemukan untuk ranting ini.</p>
+                        </div>
+                    ) : (
+                        <table className='w-max'>
+                            <thead className='sticky top-0 bg-black'>
+                                <tr className='text-white'>
+                                    <th className='py-3 w-20'>No</th>
+                                    <th className='w-[26rem] px-5'>Nama</th>
+                                    {dataUjian?.slice(0, 1).map((item, index) => (
+                                        <ThComponent items={item.lembar_jawaban} key={index + 1} />
+                                    ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {dataUjian?.map((item, index) => (
+                                    <tr className='text-green text-center h-fit' key={item.keshan_siswa.nomor_urut}>
+                                        <td className='border-b-2 text-white py-3 border-gray'>{item.keshan_siswa.nomor_urut}</td>
+                                        <td className='border-b-2 text-white border-gray text-center text-lg'>{item.keshan_siswa.name}</td>
+                                        <TdComponent items={item.lembar_jawaban} key={index + 1} />
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
 
-                <div className="flex justify-center mt-5">
-                    {renderPageNumbers()}
-                </div>
+
             </div>
 
         </div>
