@@ -358,6 +358,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                         </svg>
                                         <span className='text-white hidden sm:block md:block'>Filter</span>
                                     </button>
+                                </div>
 
                                 {/* actions dropdown */}
                                 {(adminRole === 'admin cabang' || adminRole === 'super admin') && (
