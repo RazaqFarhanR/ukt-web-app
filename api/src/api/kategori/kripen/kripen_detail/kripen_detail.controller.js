@@ -18,6 +18,20 @@ module.exports = {
                 })
             })
     },
+    controllerGetList: async (req, res) => {
+        models.kripen.findAll()
+            .then(kripen_detail => {
+                res.json({
+                    count: kripen_detail.length,
+                    data: kripen_detail
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
     controllerGetByTipeUkt: async (req, res) => {
         kripen_detail.findAll({
             where: {
@@ -106,6 +120,51 @@ module.exports = {
                 })
             })
     },
+    controllerGetByEventRanting: async (req, res) => {
+            try {
+                const rows = await kripen_detail.findAll({
+                    where: { id_event: req.params.id },
+                    attributes: ['id_kripen_detail'],
+                    include: [
+                        {
+                            model: models.siswa,
+                            attributes: ['name', 'nomor_urut'],
+                            as: 'kripen_siswa',
+                            required: true,
+                            where: { id_ranting: req.params.ranting }
+                        },
+                        {
+                            model: models.penguji,
+                            attributes: ['name'],
+                            as: 'penguji_kripen'
+                        },
+                        {
+                            model: models.kripen_siswa,
+                            attributes: ['id_kripen', 'predikat'],
+                            as: 'siswa_kripen_detail',
+                            required: true
+                        }
+                    ]
+                });
+    
+                const data = rows.map(row => ({
+                    id: row.id_kripen_detail,
+                    siswa: {
+                        nama: row.kripen_siswa.name,
+                        nomor_urut: row.kripen_siswa.nomor_urut
+                    },
+                    penguji: row.penguji_kripen?.name ?? null,
+                    detail: row.siswa_kripen_detail.map(d => ({
+                        id_kripen: d.id_kripen,
+                        predikat: d.predikat
+                    }))
+                }));
+    
+                res.json({ count: data.length, data });
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
+        },
     controllerGetByIdSiswa: async (req, res) => {
         kripen_detail.findAll({
             attributes: ['id_kripen_detail', 'id_siswa', 'id_kripen', 'predikat'],

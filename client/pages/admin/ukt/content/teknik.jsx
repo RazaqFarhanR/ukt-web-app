@@ -1,24 +1,106 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, startTransition } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const teknik = (props) => {
     const [dataTeknik, setDataTeknik] = useState([])
-    console.log(props.data?.tipe_ukt);
-    const getDataTeknik = () => {
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [itemsPerPage] = useState(25);
+    const cache = useRef({});
+
+    const getDataTeknik = async () => {
+        const cacheKey = `${props.data?.ranting}-${page}`;
+        if (cache.current[cacheKey]) {
+            const cached = cache.current[cacheKey];
+            startTransition(() => {
+                setDataTeknik(cached.data);
+                setTotalPages(cached.totalPages);
+            });
+            return;
+        }
+
+        setLoading(true);
         const token = localStorage.getItem('token')
         const event = JSON.parse(localStorage.getItem('event'))
 
-        axios.get(BASE_URL + `teknik_detail/event/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                console.log(res.data.data[0].siswa_teknik_detail.length);
-                setDataTeknik(res.data.data)
-            })
-            .catch(err => {
-                console.log(err.message);
-            })
+        try {
+            const res = await axios.get(BASE_URL + `teknik_detail/event/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
+            const allData = res.data.data;
+            const total = Math.ceil(allData.length / itemsPerPage);
+
+            // Paginate the data client-side
+            const startIndex = (page - 1) * itemsPerPage;
+            const paginatedData = allData.slice(startIndex, startIndex + itemsPerPage);
+
+            const result = { data: paginatedData, totalPages: total };
+            cache.current[cacheKey] = result;
+            startTransition(() => {
+                setDataTeknik(result.data);
+                setTotalPages(result.totalPages);
+            });
+        } catch (err) {
+            console.log(err.message);
+        } finally {
+            setLoading(false);
+        }
     }
+
+    useEffect(() => {
+        getDataTeknik()
+    }, [page, props.data?.ranting])
+
+    // Reset to page 1 when ranting changes
+    useEffect(() => {
+        setPage(1);
+    }, [props.data?.ranting]);
+
+    const renderPageNumbers = () => {
+        const pages = [];
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || i === page) {
+                pages.push(
+                    <button
+                        key={i}
+                        onClick={() => setPage(i)}
+                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-white'
+                            }`}
+                    >
+                        {i}
+                    </button>
+                );
+            } else if (
+                i >= page - 5 &&
+                i <= page + 5 &&
+                (i % 10 !== 0 || Math.abs(page - i) <= 10)
+            ) {
+                pages.push(
+                    <button
+                        key={i}
+                        onClick={() => setPage(i)}
+                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-white'
+                            }`}
+                    >
+                        {i}
+                    </button>
+                );
+            } else if (
+                (i === page - 10 && page > 15) ||
+                (i === page + 10 && page < totalPages - 15)
+            ) {
+                pages.push(
+                    <span key={i} className="mx-1 p-2">
+                        ...
+                    </span>
+                );
+            }
+        }
+
+        return pages;
+    };
 
     function ThComponent({ items }) {
         return items.map((item) => (
@@ -33,13 +115,12 @@ const teknik = (props) => {
             <div className={"font-semibold bg-purple rounded-md text-white py-1.5 px-12"}>{item.predikat}</div></td>
         ));
     }
-    useEffect(() => {
-        getDataTeknik()
-    }, [props])
 
     return (
         <div className="min-h-screen bg-darkBlue py-6 h-screen">
-
+            {loading && (
+                <div className="text-white text-center py-4">Loading...</div>
+            )}
             <div className="bg-navy rounded-md py-2 h-[70%]">
 
                 {/* table */}
@@ -51,7 +132,7 @@ const teknik = (props) => {
                                 <th className='py-3 w-5 px-5'>No</th>
                                 <th className='w-30 px-20'>Nama</th>
                                 <th className='w-30 px-20'>Penguji</th>
-                                {dataTeknik.slice(0, 1).map((item, index) => (     
+                                {dataTeknik.slice(0, 1).map((item, index) => (
                                 <ThComponent items={(item.siswa_teknik_detail) } key={index + 1}/>
                                 ))}
                             </tr>
@@ -73,6 +154,10 @@ const teknik = (props) => {
                     </tbody>
 
                 </table>
+                </div>
+
+                <div className="flex justify-center mt-5">
+                    {renderPageNumbers()}
                 </div>
             </div>
         </div>

@@ -16,6 +16,8 @@ const {
     controllerGetByUktEvent,
     controllerGetByIdSiswa,
     controllerAddExam,
+    controllerGetByEventRanting,
+    controllerGetList,
 } = require('./senam_toya_detail.controller');
 
 
@@ -23,7 +25,10 @@ const verifyRoles = require("../../../../middleware/verifyRoles")
 
 router.get('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetAll)
 router.get('/ukt/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByTipeUkt)
-router.get('/ukt/:id/:event', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByUktEvent)
+
+router.get('/list', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetList)
+router.get('/ukt/:id/:ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEventRanting)
+
 router.get('/siswa/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByIdSiswa)
 router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerAdd)
 router.post('/exam', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerAddExam)

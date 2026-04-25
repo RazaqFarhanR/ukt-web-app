@@ -1,34 +1,63 @@
-import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
+import React, { useEffect, useState, useRef, startTransition } from 'react'
 import axios from 'axios'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-const keshan = (props) => {
+const Keshan = (props) => {
     const [dataUjian, setDataUjian] = useState([])
     const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState();
+    const [totalPages, setTotalPages] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const cache = useRef({});
 
-    const getDataUjian = () => {
-        const event = JSON.parse(localStorage.getItem('event'))
-        const token = localStorage.getItem('token')
+    const getDataUjian = async () => {
+        const cacheKey = `${props.data?.ranting}-${page}`;
+        if (cache.current[cacheKey]) {
+            const cached = cache.current[cacheKey];
+            startTransition(() => {
+                setDataUjian(cached.data);
+                setTotalPages(cached.totalPages);
+            });
+            return;
+        }
 
-        axios.get(BASE_URL + `session/pages/${event.id_event}/${props.data?.ranting}/25`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                setTotalPages(res.data.totalPages);
-            })
-            .catch(err => {
-                // console.log(err.response.data);
-                console.log(err.message);
-            })
-        axios.get(BASE_URL + `session/ukt/${event.id_event}/${props.data?.ranting}/${page}/25`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                setDataUjian(res.data.data)
-            })
-            .catch(err => {
-                // console.log(err.response.data);
-                console.log(err.message);
-            })
+        setLoading(true);
+        const event = JSON.parse(localStorage.getItem('event'));
+        const token = localStorage.getItem('token');
+
+        try {
+            // Run both calls in parallel
+            const [pagesRes, dataRes] = await Promise.all([
+                axios.get(`${BASE_URL}session/pages/${event.id_event}/${props.data?.ranting}/25`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${BASE_URL}session/ukt/${event.id_event}/${props.data?.ranting}/${page}/25`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
+
+            const result = { data: dataRes.data.data, totalPages: pagesRes.data.totalPages };
+            cache.current[cacheKey] = result; // cache it
+            startTransition(() => {
+                setDataUjian(result.data);
+                setTotalPages(result.totalPages);
+            });
+        } catch (err) {
+            console.log(err.message);
+        } finally {
+            setLoading(false);
+        }
     }
+
+    // Only re-fetch when ranting or page actually changes — not on every parent render
+    useEffect(() => {
+        getDataUjian();
+    }, [page, props.data?.ranting]);
+
+    // Reset to page 1 when ranting changes
+    useEffect(() => {
+        setPage(1);
+    }, [props.data?.ranting]);
+
     const renderPageNumbers = () => {
         const pages = [];
 
@@ -40,7 +69,7 @@ const keshan = (props) => {
                     <button
                         key={i}
                         onClick={() => setPage(i)}
-                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-white'
+                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue text-white' : 'bg-gray text-white'
                             }`}
                     >
                         {i}
@@ -56,7 +85,7 @@ const keshan = (props) => {
                     <button
                         key={i}
                         onClick={() => setPage(i)}
-                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-white'
+                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue text-white' : 'bg-gray text-white'
                             }`}
                     >
                         {i}
@@ -89,7 +118,8 @@ const keshan = (props) => {
 
     function TdComponent({ items }) {
         return items.map((item, index) => (
-            <td key={index + 1} className='px-3 border-b-2 border-gray uppercase text-left w-[30rem]'>{item?.soal_ujian?.pertanyaan}
+            <td key={index + 1} className='px-3 border-b-2 border-gray uppercase text-left w-[30rem]'>
+                {item?.soal_ujian?.pertanyaan}
                 {item.answer === 'benar' && (
                     <div className="font-semibold bg-purple rounded-md text-white py-1.5 px-12 uppercase flex justify-center my-2">
                         benar
@@ -110,12 +140,12 @@ const keshan = (props) => {
             </td>
         ));
     }
-    useEffect(() => {
-        getDataUjian()
-    }, [page, props])
 
     return (
         <div className="min-h-screen bg-darkBlue h-screen">
+            {loading && (
+                <div className="text-white text-center py-4">Loading...</div>
+            )}
             <div className="bg-navy rounded-md py-2 px-3 h-[65%]">
 
                 {/* table */}
@@ -151,4 +181,4 @@ const keshan = (props) => {
     )
 }
 
-export default keshan
+export default Keshan

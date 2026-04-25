@@ -1,27 +1,30 @@
-import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
-import axios from 'axios'
+import React, { Suspense, useEffect, useState } from 'react'
 import Sidebar from '../../components/sidebar'
 import Header from '../../components/header'
 import Footer from '../../components/footer'
-
-// ---- content --- //
-import Senam from '../content/senam'
-import Teknik from '../content/teknik'
-import Jurus from '../content/jurus'
-import Fisik from '../content/fisik'
-import Sambung from '../content/sambung'
-import Keshan from '../content/keshan'
 import { useRouter } from 'next/router'
 
 const detail_nilai_ukt_ukcw = () => {
+
+    // AFTER — lazy imports (load only when first activated)
+    const Senam = React.lazy(() => import('../content/senam'))
+    const Teknik = React.lazy(() => import('../content/teknik'))
+    const Jurus = React.lazy(() => import('../content/jurus'))
+    const Fisik = React.lazy(() => import('../content/fisik'))
+    const Sambung = React.lazy(() => import('../content/sambung'))
+    const Keshan = React.lazy(() => import('../content/keshan'))
+
+    const SenamToya = React.lazy(() => import('../content/senamToya'))
+    const JurusToya = React.lazy(() => import('../content/jurusToya'))
+    const Kripen = React.lazy(() => import('../content/kripen'))
+    const Belati = React.lazy(() => import('../content/belati'))
 
     const router = useRouter()
 
     // state set jenis
     const [dataEvent, setDataEvent] = useState([])
     const [active, setActive] = useState('keshan')
-    const [ranting, setRanting] = useState('')
+    const [ranting, setRanting] = useState('TRENGGALEK')
 
     // function set jneis
     const onActive = (e) => {
@@ -47,6 +50,14 @@ const detail_nilai_ukt_ukcw = () => {
         activeComponent = <Sambung data={data} />;
     } else if (active === 'keshan') {
         activeComponent = <Keshan data={data} />;
+    } else if (active === 'senamToya') {
+        activeComponent = <SenamToya data={data} />;
+    } else if (active === 'jurusToya') {
+        activeComponent = <JurusToya data={data} />;
+    } else if (active === 'kripen') {
+        activeComponent = <Kripen data={data} />;
+    } else if (active === 'belati') {
+        activeComponent = <Belati data={data} />;
     }
 
     // function login checker
@@ -62,11 +73,15 @@ const detail_nilai_ukt_ukcw = () => {
         isLogged()
     }, [])
     useEffect(() => {
+        getEvent()
+        isLogged()
         const role = JSON.parse(localStorage.getItem('admin'))
-        if (role.id_role === 'admin ranting') {
+        if (role?.id_role === 'admin ranting') {
             setRanting(role.id_ranting)
+        } else {
+            setRanting('TRENGGALEK') // default for super admin
         }
-    }, [])
+    }, []) // ← single effect, runs once on mount
 
     return (
         <>
@@ -111,8 +126,24 @@ const detail_nilai_ukt_ukcw = () => {
                             <button onClick={() => onActive('fisik')} className={active === 'fisik' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Fisik</button>
                             <button onClick={() => onActive('teknik')} className={active === 'teknik' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Teknik</button>
                             <button onClick={() => onActive('sambung')} className={active === 'sambung' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Sambung</button>
+                            <button onClick={() => onActive('senamToya')} className={active === 'senamToya' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Senam Toya</button>
+                            <button onClick={() => onActive('jurusToya')} className={active === 'jurusToya' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Jurus Toya</button>
+                            <button onClick={() => onActive('kripen')} className={active === 'kripen' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Kripen</button>
+                            <button onClick={() => onActive('belati')} className={active === 'belati' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Belati</button>
                         </div>
-                        {activeComponent}
+                        {/* AFTER — stays mounted, just hidden */}
+                        <Suspense fallback={<div className="text-white py-4">Loading...</div>}>
+                            {active === 'keshan' && <Keshan data={data} />}
+                            {active === 'senam' && <Senam data={data} />}
+                            {active === 'jurus' && <Jurus data={data} />}
+                            {active === 'fisik' && <Fisik data={data} />}
+                            {active === 'teknik' && <Teknik data={data} />}
+                            {active === 'sambung' && <Sambung data={data} />}
+                            {active === 'senamToya' && <SenamToya data={data} />}
+                            {active === 'jurusToya' && <JurusToya data={data} />}
+                            {active === 'kripen' && <Kripen data={data} />}
+                            {active === 'belati' && <Belati data={data} />}
+                        </Suspense>
 
                     </div>
                     {/* akhir konten utama */}

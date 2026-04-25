@@ -18,6 +18,20 @@ module.exports = {
                 })
             })
     },
+    controllerGetList: async (req, res) => {
+        models.jurus_toya.findAll()
+            .then(jurus_toya => {
+                res.json({
+                    count: jurus_toya.length,
+                    data: jurus_toya
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
     controllerGetByTipeUkt: async (req, res) => {
         jurus_toya_detail.findAll({
             where: {
@@ -106,6 +120,51 @@ module.exports = {
                 })
             })
     },
+    controllerGetByEventRanting: async (req, res) => {
+        try {
+            const rows = await jurus_toya_detail.findAll({
+                where: { id_event: req.params.id },
+                attributes: ['id_jurus_toya_detail'],
+                include: [
+                    {
+                        model: models.siswa,
+                        attributes: ['name', 'nomor_urut'],
+                        as: 'jurus_toya_siswa',
+                        required: true,
+                        where: { id_ranting: req.params.ranting }
+                    },
+                    {
+                        model: models.penguji,
+                        attributes: ['name'],
+                        as: 'penguji_jurus_toya'
+                    },
+                    {
+                        model: models.jurus_toya_siswa,
+                        attributes: ['id_jurus_toya', 'predikat'],
+                        as: 'siswa_jurus_toya_detail',
+                        required: true
+                    }
+                ]
+            });
+
+            const data = rows.map(row => ({
+                id: row.id_jurus_toya_detail,
+                siswa: {
+                    nama: row.jurus_toya_siswa.name,
+                    nomor_urut: row.jurus_toya_siswa.nomor_urut
+                },
+                penguji: row.penguji_jurus_toya?.name ?? null,
+                detail: row.siswa_jurus_toya_detail.map(d => ({
+                    id_jurus_toya: d.id_jurus_toya,
+                    predikat: d.predikat
+                }))
+            }));
+
+            res.json({ count: data.length, data });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
     controllerGetByIdSiswa: async (req, res) => {
         jurus_toya_detail.findAll({
             attributes: ['id_jurus_toya_detail', 'id_siswa', 'id_jurus_toya', 'predikat'],
@@ -172,7 +231,7 @@ module.exports = {
                 ujian
             } = req.body;
             const detail = {
-                id_penguji,id_siswa,id_event,tipe_ukt
+                id_penguji, id_siswa, id_event, tipe_ukt
             }
             const processDetail = await jurus_toya_detail.create(detail)
             // mapping array ujian jadi banyak row
