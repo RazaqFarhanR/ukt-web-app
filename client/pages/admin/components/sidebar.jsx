@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { globalState } from '@/context/context'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { HiChevronLeft, HiChevronRight, HiX } from 'react-icons/hi'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
 
@@ -133,29 +134,53 @@ const sidebar = () => {
         setShowSideBar(true)
     }
 
+    const toggleSidebarWidth = () => {
+        setShowSideBar(!showSideBar)
+    }
+
     return (
         <aside className="absolute z-20 lg:relative transition-all font-lato">
 
             {/* wrapper */}
             {!closeSideBar &&
-                <div className={`${showSideBar ? 'w-60 py-8 px-5' : 'w-20 py-6 px-4 text-center'} h-screen overflow-y-auto shadow-md drop-shadow-md bg-navy transition-all duration-300 scrollbar-hide`}>
+                <div className={`${showSideBar ? 'w-64 py-8 px-5' : 'w-20 py-6 px-3 text-center'} h-screen overflow-y-auto shadow-2xl bg-navy transition-all duration-300 scrollbar-hide border-r border-white/5`}>
 
                     {/* awal content */}
-                    <div className='flex flex-col items-center'>
+                    <div className='flex flex-col items-center h-full'>
 
-                        <div className={`space-y-4 w-full`}>
-                            <div className={`text-center mb-5 flex flex-col gap-3 justify-end`}>
-                                {/* button sidebar */}
-                                <button onClick={() => CloseSideBar()} type="button" className="flex justify-center md:justify-end items-center">
-                                    <span className='text-md text-white'>&#9587;</span>
-                                </button>
-                                {/* button sidebar */}
-                                <button className="text-white text-2xl  flex justify-center md:justify-end items-center" onClick={() => openSideBar()}>
-                                    <span className='text-2xl'>&#9655;</span>
+                        <div className="w-full flex items-center justify-between mb-6">
+                            {/* Close Button (X) - Usually for mobile or complete removal */}
+                            <button 
+                                onClick={() => CloseSideBar()} 
+                                className={`p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all ${!showSideBar && 'mx-auto'}`}
+                                title="Close Sidebar"
+                            >
+                                <HiX size={20} />
+                            </button>
 
+                            {/* Toggle Shorter/Longer Button */}
+                            {showSideBar && (
+                                <button 
+                                    onClick={toggleSidebarWidth}
+                                    className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all"
+                                    title="Collapse Sidebar"
+                                >
+                                    <HiChevronLeft size={24} />
                                 </button>
-                            </div>
+                            )}
                         </div>
+
+                        {/* Open/Expand Button for Mini Sidebar */}
+                        {!showSideBar && (
+                            <button 
+                                onClick={toggleSidebarWidth}
+                                className="mb-6 p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all mx-auto"
+                                title="Expand Sidebar"
+                            >
+                                <HiChevronRight size={24} />
+                            </button>
+                        )}
+
 
 
 

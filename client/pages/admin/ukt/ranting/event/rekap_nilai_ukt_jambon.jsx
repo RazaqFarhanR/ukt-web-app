@@ -9,6 +9,7 @@ import Modal_Filter from '../../../components/modal_filter';
 import Image from 'next/image';
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic';
+import toast from 'react-hot-toast';
 
 
 
@@ -58,6 +59,35 @@ const rekap_nilai_ukt_ukt_jambon = () => {
     const [loading, setLoading] = useState(false);
     const [jenis, setJenis] = useState('all')
     const [updown, setUpDown] = useState('upToDown')
+    const [resyncLoading, setResyncLoading] = useState(false);
+    const [adminRole, setAdminRole] = useState('');
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [showModalResync, setShowModalResync] = useState(false);
+
+    const executeResync = async () => {
+        const token = localStorage.getItem('token');
+        const event = JSON.parse(localStorage.getItem('event'));
+        setResyncLoading(true);
+        
+        try {
+            const res = await axios.post(BASE_URL + 'session/resync_event', 
+                { id_event: event.id_event },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            if (res.data.status) {
+                toast.success('Berhasil melakukan resync nilai KeSHAN!');
+                getDataUktFiltered(); // Refresh the table
+            } else {
+                toast.error("Gagal melakukan resync: " + res.data.message);
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Terjadi kesalahan saat melakukan resync.");
+        } finally {
+            setResyncLoading(false);
+        }
+    }
 
    // get data rayo
     const getDataRayon = async () => {
@@ -197,6 +227,10 @@ const rekap_nilai_ukt_ukt_jambon = () => {
     useEffect(() => {
         localStorage.removeItem('filterRanting')
         isLogged()
+        const adminData = JSON.parse(localStorage.getItem('admin'));
+        if (adminData) {
+            setAdminRole(adminData.id_role);
+        }
     }, [])
 
     useEffect(() => {
@@ -350,6 +384,42 @@ const rekap_nilai_ukt_ukt_jambon = () => {
                                     <h1 className='text-white'>Filter</h1>
                                 </button> */}
 
+                                {/* actions dropdown */}
+                                {(adminRole === 'admin cabang' || adminRole === 'super admin') && (
+                                    <div className="relative">
+                                        <button 
+                                            onClick={() => setShowDropdown(!showDropdown)} 
+                                            className="bg-purple hover:bg-white text-white hover:text-purple transition-all duration-300 rounded-md px-2 py-2 flex items-center justify-center h-full"
+                                        >
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </button>
+                                        
+                                        {showDropdown && (
+                                            <div className="absolute right-0 mt-2 w-56 bg-navy rounded-md shadow-lg z-50 overflow-hidden border border-gray-700">
+                                                <div className="py-1">
+                                                    <button 
+                                                        onClick={() => {
+                                                            setShowDropdown(false);
+                                                            setShowModalResync(true);
+                                                        }} 
+                                                        disabled={resyncLoading} 
+                                                        className="w-full text-left px-4 py-3 text-sm text-white hover:bg-purple transition-all duration-300 flex items-center gap-x-3"
+                                                    >
+                                                        <svg className={resyncLoading ? "animate-spin text-yellow-500" : "text-yellow-500"} width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                        </svg>
+                                                        <span className="font-semibold tracking-wider">{resyncLoading ? 'SYNCING...' : 'RESYNC KESHAN'}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                             </div>
                         </div>
 
@@ -469,6 +539,36 @@ const rekap_nilai_ukt_ukt_jambon = () => {
                         <globalState.Provider value={{ modalFilter, setModalFilter, jenis, setJenis, updown, setUpDown, dataRanting, setDataRanting }}>
                             <Modal_Filter />
                         </globalState.Provider>
+
+                        {/* Modal Confirmation Resync */}
+                        {showModalResync && (
+                            <>
+                                <div className="fixed flex justify-center items-center top-0 left-0 z-50 w-full h-full p-4 overflow-x-hidden overflow-y-auto">
+                                    <div className="relative w-full h-full max-w-md md:h-auto flex items-center justify-center mt-20">
+                                        <div className="relative bg-navy text-white rounded-lg shadow w-full border border-gray-600">
+                                            <div className="flex justify-center px-4 pt-7 pb-4">
+                                                <h1 className="text-2xl font-bold text-center">
+                                                    Konfirmasi Resync
+                                                </h1>
+                                                <button onClick={() => setShowModalResync(false)} type="button" className="p-1.5 inline-flex items-center absolute right-5 top-5">
+                                                    <svg className="w-6 h-6 fill-white hover:fill-purple duration-300" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div className="px-6 py-2 space-y-3">
+                                                <h1 className='text-lg font-medium text-gray-200 text-center'>Apakah Anda yakin ingin melakukan sinkronisasi ulang (resync) semua nilai KeSHAN untuk event ini?</h1>
+                                            </div>
+                                            <div className="flex items-center justify-center p-6 space-x-4">
+                                                <button onClick={() => setShowModalResync(false)} className="w-1/2 text-white hover:text-red bg-red hover:bg-white duration-300 font-medium rounded-lg px-5 py-2.5 text-center">Batal</button>
+                                                <button onClick={() => { setShowModalResync(false); executeResync(); }} className="w-1/2 text-white hover:text-green bg-green hover:bg-white duration-300 rounded-lg font-medium px-5 py-2.5 focus:z-10">Ya, Sinkronkan</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-black opacity-70 fixed inset-0 z-40"></div>
+                            </>
+                        )}
 
                     </div>
                     {/* akhir konten utama */}
