@@ -404,7 +404,11 @@ module.exports = {
 
             const keyMap = new Map(keys.map((k) => [k.id_soal, k.opsi]));
 
-            const updatePromises = [];
+            const existingAnswers = await lembar_jawaban.findAll({
+                where: { id_session, id_siswa }
+            });
+
+            const updates = [];
 
             for (const item of jawaban) {
                 const correctOpsi = keyMap.get(item.id_soal);
@@ -413,15 +417,18 @@ module.exports = {
                     status = item.selectedOption === correctOpsi ? "benar" : "salah";
                 }
 
-                updatePromises.push(
-                    lembar_jawaban.update(
-                        { answer: status },
-                        { where: { id_session, id_siswa, id_soal: item.id_soal } }
-                    )
-                );
+                const ans = existingAnswers.find(a => a.id_soal === item.id_soal);
+                if (ans && ans.answer !== status) {
+                    updates.push({
+                        id_lembar_jawaban: ans.id_lembar_jawaban,
+                        answer: status
+                    });
+                }
             }
 
-            await Promise.all(updatePromises);
+            if (updates.length > 0) {
+                await lembar_jawaban.bulkCreate(updates, { updateOnDuplicate: ['answer'] });
+            }
 
             // Fetch actual count of correct answers from DB to ensure no answers are missed
             const correctCount = await lembar_jawaban.count({
@@ -468,6 +475,48 @@ module.exports = {
             );
 
             res.json({ status: true, message: "Answer synced" });
+        } catch (error) {
+            res.json({ status: false, message: error.message });
+        }
+    },
+    controllerSyncBulk: async (req, res) => {
+        try {
+            const { id_session, id_siswa, items } = req.body;
+            
+            if (!items || !Array.isArray(items) || items.length === 0) {
+                return res.json({ status: true, message: "No items to sync" });
+            }
+
+            const id_soals = items.map(i => i.id_soal);
+            const keys = await kunci_soal.findAll({ where: { id_soal: { [Op.in]: id_soals } } });
+            const keyMap = new Map(keys.map(k => [k.id_soal, k.opsi]));
+            
+            const existingAnswers = await lembar_jawaban.findAll({
+                where: { id_session, id_siswa, id_soal: { [Op.in]: id_soals } }
+            });
+
+            const updates = [];
+            for (const item of items) {
+                const correctOpsi = keyMap.get(item.id_soal);
+                let status = "kosong";
+                if (item.selectedOption) {
+                    status = item.selectedOption === correctOpsi ? "benar" : "salah";
+                }
+
+                const ans = existingAnswers.find(a => a.id_soal === item.id_soal);
+                if (ans && ans.answer !== status) {
+                    updates.push({
+                        id_lembar_jawaban: ans.id_lembar_jawaban,
+                        answer: status
+                    });
+                }
+            }
+
+            if (updates.length > 0) {
+                await lembar_jawaban.bulkCreate(updates, { updateOnDuplicate: ['answer'] });
+            }
+
+            res.json({ status: true, message: "Bulk answers synced" });
         } catch (error) {
             res.json({ status: false, message: error.message });
         }

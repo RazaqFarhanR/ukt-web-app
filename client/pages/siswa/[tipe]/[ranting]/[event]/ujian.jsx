@@ -115,8 +115,8 @@ const ujian = () => {
         }
     }, [syncQueue.length, isTimeUp, isLoading, success]);
 
-    // Sync answer to backend with retry logic
-    const syncAnswer = async (id_soal, selectedOption) => {
+    // Sync answers to backend with retry logic
+    const syncAnswersBulk = async (itemsToSync) => {
         try {
             if (!dataUjian || !dataUjian.data) {
                 return false; // Wait until data is loaded
@@ -126,12 +126,10 @@ const ujian = () => {
             const payload = {
                 id_session: dataUjian.data.id_session,
                 id_siswa: dataSiswa.id_siswa,
-                id_soal,
-                selectedOption
+                items: itemsToSync
             };
 
-            const res = await axios.post(BASE_URL + 'session/sync', payload);
-            // If server responds, remove from queue (even if status is false, to prevent infinite loops)
+            const res = await axios.post(BASE_URL + 'session/sync_bulk', payload);
             return true; 
         } catch (error) {
             console.error("Sync failed:", error.message);
@@ -146,14 +144,19 @@ const ujian = () => {
             setIsSyncing(true);
 
             try {
-                const remainingQueue = [...syncQueue];
-                const nextItem = remainingQueue[0];
+                // Take a snapshot of the queue to sync
+                const itemsToSync = [...syncQueue];
 
-                const success = await syncAnswer(nextItem.id_soal, nextItem.selectedOption);
+                const success = await syncAnswersBulk(itemsToSync);
                 if (success) {
-                    remainingQueue.shift();
-                    setSyncQueue(remainingQueue);
-                    localStorage.setItem('syncQueue', JSON.stringify(remainingQueue));
+                    // Remove the synced items from the current queue
+                    setSyncQueue(prevQueue => {
+                        // Keep items that were added while we were syncing
+                        const syncedIds = itemsToSync.map(i => i.id_soal);
+                        const newQueue = prevQueue.filter(item => !syncedIds.includes(item.id_soal));
+                        localStorage.setItem('syncQueue', JSON.stringify(newQueue));
+                        return newQueue;
+                    });
                 }
             } catch (err) {
                 console.error("Flush queue error", err);
