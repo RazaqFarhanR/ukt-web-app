@@ -20,11 +20,12 @@ const detail_nilai_ukt_putih = () => {
     // deklarasi router
     const router = useRouter()
 
+    const { eventId, idRanting, nameEvent } = router.query;
+
     // state set jenis
     const [active, setActive] = useState('keshan')
     const [ranting, setRanting] = useState(idRanting || '')
     const [role, setRole] = useState('')
-    const { eventId, idRanting, nameEvent } = router.query;
 
     // function set jneis
     const onActive = (e) => {
