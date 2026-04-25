@@ -40,7 +40,6 @@ const {
     controllerAddByCsv,
     controllerAuth,
     controllerGetCountSiswa,
-    controllerDisabledByEvent,
     controllerGetCountSiswaTipe,
     controllerGetCountSiswaTipeRantingbyEvent,
     controllerGetByEventSearchName,
@@ -48,6 +47,7 @@ const {
     controllerActivatedById,
     controllerDownloadTemplateExcel,
     controllerExcel,
+    controllerEditActiveStatusAllSiswaByEvent,
 } = require('./siswa.controller');
 
 
@@ -62,7 +62,7 @@ router.get('/download/template', Auth, verifyRoles("admin", "super admin", "admi
 router.get('/count/siswa/:tipe/:ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetCountSiswaTipeRantingbyEvent)
 router.get('/event/new/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEvent)
 router.get('/event/new/:id/:name', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEventSearchName)
-router.get('/event/non_aktifkan/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerDisabledByEvent)
+router.get('/event/all_aktifkan/:id/:action', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerEditActiveStatusAllSiswaByEvent)
 
 router.get('/event/:id/:action', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEventFiltered)
 router.get('/ranting/:id', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByRanting)

@@ -308,10 +308,12 @@ module.exports = {
                 })
             })
     },
-    controllerDisabledByEvent: async (req, res) => {
+    controllerEditActiveStatusAllSiswaByEvent: async (req, res) => {
+        const action = req.params.action
+        const activeStatus = action === 'aktifkan' ? 1 : 0
         siswa.update(
             {
-                active: 0   // <-- columns to update
+                active: activeStatus   // <-- columns to update
             },
             {
                 where: {

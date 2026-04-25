@@ -3,9 +3,9 @@ const ukt_siswa = models.ukt_siswa;
 
 const { Sequelize, Op, or } = require("sequelize");
 function formatNumber(number) {
-    return (number % 1 === 0)
-        ? number
-        : number.toLocaleString('id', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (number === 0 || number === null || number === undefined) return null;
+    if (number % 1 === 0) return number;
+    return parseFloat(number.toFixed(2));
 }
 module.exports = {
     controllerGetAll: async (req, res) => {
@@ -245,11 +245,11 @@ module.exports = {
                             name: item.siswa_ukt_siswa?.name,
                             rayon: item.rayon,
                             keshan: item.keshan,
-                            senam: item.senam,
-                            jurus: item.jurus,
+                            senam: formatNumber(item.senam),
+                            jurus: formatNumber(item.jurus),
                             teknik: formatNumber(item.teknik),
-                            fisik: item.fisik,
-                            sambung: item.sambung,
+                            fisik: formatNumber(item.fisik),
+                            sambung: formatNumber(item.sambung),
                             total: (
                                 (
                                     item.keshan +
@@ -271,15 +271,15 @@ module.exports = {
                         name: item.siswa_ukt_siswa?.name,
                         rayon: item.rayon,
                         keshan: item.keshan,
-                        senam: item.senam,
-                        senam_toya: item.senam_toya,
-                        jurus: item.jurus,
-                        jurus_toya: item.jurus_toya,
+                        senam: formatNumber(item.senam),
+                        senam_toya: formatNumber(item.senam_toya),
+                        jurus: formatNumber(item.jurus),
+                        jurus_toya: formatNumber(item.jurus_toya),
                         teknik: formatNumber(item.teknik),
-                        fisik: item.fisik,
-                        sambung: item.sambung,
-                        belati: item.belati,
-                        kripen: item.kripen,
+                        fisik: formatNumber(item.fisik),
+                        sambung: formatNumber(item.sambung),
+                        belati: formatNumber(item.belati),
+                        kripen: formatNumber(item.kripen),
                         total: (
                             (
                                 item.keshan +
