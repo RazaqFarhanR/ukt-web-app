@@ -4,20 +4,19 @@ import Header from '../../components/header'
 import Footer from '../../components/footer'
 import { useRouter } from 'next/router'
 
+const Senam = React.lazy(() => import('../content/senam'))
+const Teknik = React.lazy(() => import('../content/teknik'))
+const Jurus = React.lazy(() => import('../content/jurus'))
+const Fisik = React.lazy(() => import('../content/fisik'))
+const Sambung = React.lazy(() => import('../content/sambung'))
+const Keshan = React.lazy(() => import('../content/keshan'))
+
+const SenamToya = React.lazy(() => import('../content/senamToya'))
+const JurusToya = React.lazy(() => import('../content/jurusToya'))
+const Kripen = React.lazy(() => import('../content/kripen'))
+const Belati = React.lazy(() => import('../content/belati'))
 const detail_nilai_ukt_ukcw = () => {
 
-    // AFTER — lazy imports (load only when first activated)
-    const Senam = React.lazy(() => import('../content/senam'))
-    const Teknik = React.lazy(() => import('../content/teknik'))
-    const Jurus = React.lazy(() => import('../content/jurus'))
-    const Fisik = React.lazy(() => import('../content/fisik'))
-    const Sambung = React.lazy(() => import('../content/sambung'))
-    const Keshan = React.lazy(() => import('../content/keshan'))
-
-    const SenamToya = React.lazy(() => import('../content/senamToya'))
-    const JurusToya = React.lazy(() => import('../content/jurusToya'))
-    const Kripen = React.lazy(() => import('../content/kripen'))
-    const Belati = React.lazy(() => import('../content/belati'))
 
     const router = useRouter()
 
@@ -25,16 +24,34 @@ const detail_nilai_ukt_ukcw = () => {
     const [dataEvent, setDataEvent] = useState([])
     const [active, setActive] = useState('keshan')
     const [ranting, setRanting] = useState('TRENGGALEK')
+    const [mounted, setMounted] = useState(false)  // ← guards localStorage
 
     // function set jneis
     const onActive = (e) => {
         setActive(e)
     }
 
-    const getEvent = () => {
-        const event = JSON.parse(localStorage.getItem('event'));
+    useEffect(() => {
+        // All localStorage reads happen here — safe, client-only
+        const token = localStorage.getItem('token')
+        const admin = localStorage.getItem('admin')
+
+        if (!token || !admin) {
+            router.push('/admin/login')
+            return
+        }
+
+        const event = JSON.parse(localStorage.getItem('event'))
+        const role = JSON.parse(admin)
+
         setDataEvent(event)
-    }
+
+        if (role?.id_role === 'admin ranting') {
+            setRanting(role.id_ranting)
+        }
+
+        setMounted(true)  // ← only render content after localStorage is ready
+    }, [])
 
     let activeComponent;
     const data = { tipe_ukt: 'UKCW', ranting: ranting }
@@ -59,22 +76,7 @@ const detail_nilai_ukt_ukcw = () => {
     } else if (active === 'belati') {
         activeComponent = <Belati data={data} />;
     }
-
-    // function login checker
-    const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
-            router.push('/admin/login')
-        }
-    }
-
-
     useEffect(() => {
-        getEvent()
-        isLogged()
-    }, [])
-    useEffect(() => {
-        getEvent()
-        isLogged()
         const role = JSON.parse(localStorage.getItem('admin'))
         if (role?.id_role === 'admin ranting') {
             setRanting(role.id_ranting)
@@ -83,6 +85,7 @@ const detail_nilai_ukt_ukcw = () => {
         }
     }, []) // ← single effect, runs once on mount
 
+     if (!mounted) return null
     return (
         <>
             <div className="flex font-lato">
@@ -119,17 +122,35 @@ const detail_nilai_ukt_ukcw = () => {
                         </div>
 
                         {/* wrapper category */}
-                        <div className="flex bg-navy gap-x-2 overflow-x-scroll text-purple mb-3 scrollbar-hide w-full text-2xl">
-                            <button onClick={() => onActive('keshan')} className={active === 'keshan' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>KESHAN</button>
-                            <button onClick={() => onActive('senam')} className={active === 'senam' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Senam</button>
-                            <button onClick={() => onActive('jurus')} className={active === 'jurus' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Jurus</button>
-                            <button onClick={() => onActive('fisik')} className={active === 'fisik' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Fisik</button>
-                            <button onClick={() => onActive('teknik')} className={active === 'teknik' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Teknik</button>
-                            <button onClick={() => onActive('sambung')} className={active === 'sambung' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Sambung</button>
-                            <button onClick={() => onActive('senamToya')} className={active === 'senamToya' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Senam Toya</button>
-                            <button onClick={() => onActive('jurusToya')} className={active === 'jurusToya' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Jurus Toya</button>
-                            <button onClick={() => onActive('kripen')} className={active === 'kripen' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Kripen</button>
-                            <button onClick={() => onActive('belati')} className={active === 'belati' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Belati</button>
+                        <div className="flex bg-navy gap-x-1.5 overflow-x-auto text-purple mb-3 scrollbar-hide w-full py-1 px-2 rounded-md">
+                            {[
+                                { key: 'keshan', label: 'Keshan' },
+                                { key: 'senam', label: 'Senam' },
+                                { key: 'jurus', label: 'Jurus' },
+                                { key: 'fisik', label: 'Fisik' },
+                                { key: 'teknik', label: 'Teknik' },
+                                { key: 'sambung', label: 'Sambung' },
+                                { key: 'senamToya', label: 'Senam Toya' },
+                                { key: 'jurusToya', label: 'Jurus Toya' },
+                                { key: 'kripen', label: 'Kripen' },
+                                { key: 'belati', label: 'Belati' },
+                            ].map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => onActive(key)}
+                                    className={`
+                whitespace-nowrap flex-shrink-0 xl:flex-shrink
+                py-1.5 px-2 sm:px-3 lg:px-4
+                text-[10px] sm:text-xs lg:text-sm xl:text-base
+                rounded-md uppercase transition ease-in-out duration-300 w-full
+                ${active === key
+                                            ? 'bg-purple text-white'
+                                            : 'bg-white hover:bg-purple hover:text-white'}
+            `}
+                                >
+                                    {label}
+                                </button>
+                            ))}
                         </div>
                         {/* AFTER — stays mounted, just hidden */}
                         <Suspense fallback={<div className="text-white py-4">Loading...</div>}>

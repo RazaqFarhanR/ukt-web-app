@@ -56,52 +56,61 @@ module.exports = {
                 })
             })
     },
-    controllerGetByEventUkt: async (req, res) => {
-        jurus_detail.findAll({
-            where: {
-                id_event: req.params.id
-            },
-            attributes: ['id_jurus_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
-            include: [
-                {
-                    model: models.siswa,
-                    attributes: ['name', 'nomor_urut', 'id_ranting'],
-                    as: "jurus_siswa",
-                    where: {
-                        id_ranting: req.params?.ranting
-                    }
+    controllerGetByEventRanting: async (req, res) => {
+        try {
+            const rows = await jurus_detail.findAll({
+                where: {
+                    id_event: req.params.id
                 },
-                {
-                    model: models.penguji,
-                    attributes: ['name'],
-                    as: "penguji_jurus"
-                },
-                {
-                    model: models.jurus_siswa,
-                    attributes: ['id_jurus', 'predikat'],
-                    as: "siswa_jurus_detail",
-                    required: true,
-                    include: [
-                        {
-                            model: models.jurus,
-                            attributes: ['name'],
-                            as: "jurus"
+                attributes: ['id_jurus_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
+                include: [
+                    {
+                        model: models.siswa,
+                        attributes: ['name', 'nomor_urut', 'id_ranting'],
+                        as: "jurus_siswa",
+                        where: {
+                            id_ranting: req.params?.ranting
                         }
-                    ]
-                }
-            ]
-        })
-            .then(jurus => {
-                res.json({
-                    count: jurus.length,
-                    data: jurus
-                })
+                    },
+                    {
+                        model: models.penguji,
+                        attributes: ['name'],
+                        as: "penguji_jurus"
+                    },
+                    {
+                        model: models.jurus_siswa,
+                        attributes: ['id_jurus', 'predikat'],
+                        as: "siswa_jurus_detail",
+                        required: true,
+                        include: [
+                            {
+                                model: models.jurus,
+                                attributes: ['name'],
+                                as: "jurus"
+                            }
+                        ]
+                    }
+                ]
             })
-            .catch(error => {
-                res.json({
-                    message: error.message
-                })
+            const data = rows.map(row => ({
+                id: row.id_jurus_detail,
+                siswa: {
+                    nama: row.jurus_siswa.name,
+                    nomor_urut: row.jurus_siswa.nomor_urut
+                },
+                penguji: row.penguji_jurus?.name ?? null,
+                detail: row.siswa_jurus_detail.map(d => ({
+                    id_jurus: d.id_jurus,
+                    predikat: d.predikat
+                }))
+            }));
+
+            res.json({ count: data.length, data });
+        } catch (error) {
+            res.json({
+                message: error.message
             })
+        }
     },
     controllerGetByIdSiswa: async (req, res) => {
         jurus_detail.findAll({
@@ -169,7 +178,7 @@ module.exports = {
                 ujian
             } = req.body;
             const detail = {
-                id_penguji,id_siswa,id_event,tipe_ukt
+                id_penguji, id_siswa, id_event, tipe_ukt
             }
             const processDetail = await jurus_detail.create(detail)
             // mapping array ujian jadi banyak row

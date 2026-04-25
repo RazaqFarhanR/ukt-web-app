@@ -4,12 +4,26 @@ import axios from 'axios'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const teknik = (props) => {
+    const [listJurus, setListJurus] = useState([])
     const [dataTeknik, setDataTeknik] = useState([])
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
     const [itemsPerPage] = useState(25);
     const cache = useRef({});
+
+    const getDataListJurus = async () => {
+        const token = localStorage.getItem('token')
+        try {
+            const res = await axios.get(BASE_URL + `jurus_toya_detail/list`, {
+                headers:
+                    { Authorization: `Bearer ${token}` }
+            })
+            setListJurus(res.data.data)
+        } catch (err) {
+            console.log(err.message);
+        }
+    }
 
     const getDataTeknik = async () => {
         const cacheKey = `${props.data?.ranting}-${page}`;
@@ -48,6 +62,9 @@ const teknik = (props) => {
         }
     }
 
+    useEffect(() => {
+        getDataListJurus()
+    }, [])
     useEffect(() => {
         getDataTeknik()
     }, [page, props.data?.ranting])
@@ -105,14 +122,14 @@ const teknik = (props) => {
     function ThComponent({ items }) {
         return items.map((item) => (
             <th key={item.id_teknik} className='px-3 '>
-            <div className={"font-semibold text-white py-1.5 px-12 uppercase"}>{item.siswa_teknik.name}</div></th>
+                <div className={"font-semibold text-white py-1.5 px-12 uppercase"}>{item.name}</div></th>
         ));;
     }
 
     function TdComponent({ items }) {
         return items.map((item) => (
             <td key={item.id_teknik} className='px-3 border-b-2 border-gray'>
-            <div className={"font-semibold bg-purple rounded-md text-white py-1.5 px-12"}>{item.predikat}</div></td>
+                <div className={"font-semibold bg-purple rounded-md text-white py-1.5 px-12"}>{item.predikat}</div></td>
         ));
     }
 
@@ -125,35 +142,35 @@ const teknik = (props) => {
 
                 {/* table */}
                 <div className='overflow-x-scroll h-full bg-navy'>
-                <table className='w-max'>
-                    <thead className='sticky top-0 bg-black'>
-                        <>
-                            <tr className='text-white'>
-                                <th className='py-3 w-5 px-5'>No</th>
-                                <th className='w-30 px-20'>Nama</th>
-                                <th className='w-30 px-20'>Penguji</th>
-                                {dataTeknik.slice(0, 1).map((item, index) => (
-                                <ThComponent items={(item.siswa_teknik_detail) } key={index + 1}/>
-                                ))}
-                            </tr>
-                        </>
-
-                    </thead>
-                    <tbody>
-                        {dataTeknik.map((item, index) => (
+                    <table className='w-max'>
+                        <thead className='sticky top-0 bg-black'>
                             <>
-                                <tr className='text-green text-center' key={item.id_teknik_detail}>
-                                    <td className='border-b-2 text-white py-3 border-gray'>{index + 1}</td>
-                                    <td className='border-b-2 text-white border-gray '>{item?.teknik_siswa?.name}</td>
-                                    <td className='border-b-2 text-white border-gray '>{item?.penguji_teknik?.name}</td>
-                                    <TdComponent items={(item.siswa_teknik_detail)} key={index + 1}/>
+                                <tr className='text-white'>
+                                    <th className='py-3 w-5 px-5'>No</th>
+                                    <th className='w-30 px-20'>Nama</th>
+                                    <th className='w-30 px-20'>Penguji</th>
+                                   {listJurus?.slice(0, 1).map((item, index) => (
+                                    <ThComponent items={listJurus} key={index + 1} />
+                                ))}
                                 </tr>
                             </>
-                        ))}
 
-                    </tbody>
+                        </thead>
+                        <tbody>
+                            {dataTeknik.map((item, index) => (
+                                <>
+                                    <tr className='text-green text-center' key={item.id_teknik_detail}>
+                                        <td className='border-b-2 text-white py-3 border-gray'>{index + 1}</td>
+                                        <td className='border-b-2 text-white border-gray '>{item?.siswa?.nama}</td>
+                                        <td className='border-b-2 text-white border-gray '>{item?.penguji}</td>
+                                        <TdComponent items={(item?.detail)} key={index + 1} />
+                                    </tr>
+                                </>
+                            ))}
 
-                </table>
+                        </tbody>
+
+                    </table>
                 </div>
 
                 <div className="flex justify-center mt-5">
