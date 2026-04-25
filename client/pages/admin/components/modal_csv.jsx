@@ -20,13 +20,23 @@ const Modal_CSV = () => {
         const token = localStorage.getItem('token')
         const user = localStorage.getItem('admin')
         const dataUser = JSON.parse(user)
-        axios.get(BASE_URL + `event`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(BASE_URL + `event?active=true`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 const data = res.data.data
+                const activeEvents = data
+                    .filter(item => item.is_active === true)
+                    .sort((a, b) => {
+                        const typeOrder = ['UKT Jambon', 'UKT Hijau', 'UKT Putih', 'UKCW'];
+                        const orderA = typeOrder.indexOf(a.tipe_ukt);
+                        const orderB = typeOrder.indexOf(b.tipe_ukt);
+                        if (orderA !== orderB) return orderA - orderB;
+                        return b.id_event - a.id_event;
+                    });
+
                 if (dataUser.id_role == 'admin ranting') {
-                    setDataEvent(data.filter(item => item.tipe_ukt !== 'UKCW' && item.is_active === true))
+                    setDataEvent(activeEvents.filter(item => item.tipe_ukt !== 'UKCW'))
                 } else {
-                    setDataEvent(data.filter(item => item.is_active === true))
+                    setDataEvent(activeEvents)
                 }
             })
             .catch(err => {

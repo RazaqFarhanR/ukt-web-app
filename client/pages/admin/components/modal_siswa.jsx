@@ -55,9 +55,19 @@ const modal_siswa = () => {
     // function get data event
     const getDataEvent = () => {
         const token = localStorage.getItem ('token')
-        axios.get (BASE_URL + `event`, { headers: { Authorization: `Bearer ${token}`}})
+        axios.get (BASE_URL + `event?active=true`, { headers: { Authorization: `Bearer ${token}`}})
         .then (res => {
-            setDateEvent (res.data.data)
+            const data = res.data.data
+            const activeEvents = data
+                .filter(item => item.is_active === true)
+                .sort((a, b) => {
+                    const typeOrder = ['UKT Jambon', 'UKT Hijau', 'UKT Putih', 'UKCW'];
+                    const orderA = typeOrder.indexOf(a.tipe_ukt);
+                    const orderB = typeOrder.indexOf(b.tipe_ukt);
+                    if (orderA !== orderB) return orderA - orderB;
+                    return b.id_event - a.id_event;
+                });
+            setDateEvent (activeEvents)
         })
         .catch (err => {
             console.log(err.message);
