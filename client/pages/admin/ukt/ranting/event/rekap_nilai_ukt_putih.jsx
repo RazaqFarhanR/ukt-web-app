@@ -346,7 +346,7 @@ const rekap_nilai_ukt_ukt_putih = () => {
                             </div>
 
                             {/* wrapper search and filter */}
-                            <div className="flex gap-x-2">
+                            <div className="flex gap-x-2 justify-end w-full">
                                 <Select
                                     className='w-72 text-black'
                                     styles={customStyles}

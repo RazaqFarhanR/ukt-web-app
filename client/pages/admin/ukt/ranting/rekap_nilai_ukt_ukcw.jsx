@@ -316,7 +316,7 @@ const rekap_nilai_ukt_ukcw = () => {
                             </div>
 
                             {/* wrapper search and filter */}
-                            <div className="flex flex-col md:flex-row gap-3 w-full items-start md:items-center">
+                            <div className="flex flex-col md:flex-row gap-3 w-full items-start md:items-center justify-end">
 
                                 {/* Select Container - Full width on mobile, 72 on desktop */}
                                 <div className='w-full md:w-72 text-black'>
@@ -521,16 +521,15 @@ const rekap_nilai_ukt_ukcw = () => {
                                                     setUpDown('upToDown');
 
                                                 }}>⌃</button>}</th>
-                                            <th className='text-xs w-[8%] border font-oswald'>Sambong {jenis == 'sambong' && updown == 'upToDown'
+                                            <th className='text-xs w-[8%] border font-oswald'>Sambung {jenis == 'sambong' && updown == 'upToDown'
                                                 ? <button className='rounded-md bg-gray text-xs' onClick={() => {
                                                     setJenis('sambong');
                                                     setUpDown('downToUp');
 
                                                 }}>⌄</button>
                                                 : <button className='rounded-md bg-gray text-xs' onClick={() => {
-                                                    setJenis('sambung');
+                                                    setJenis('sambong');
                                                     setUpDown('upToDown');
-
                                                 }}>⌃</button>}</th>
                                             <th className='text-xs w-[5%] border font-oswald'>Belati {jenis == 'belati' && updown == 'upToDown'
                                                 ? <button className='rounded-md bg-gray text-xs' onClick={() => {

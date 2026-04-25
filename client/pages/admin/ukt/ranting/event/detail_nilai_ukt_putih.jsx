@@ -22,7 +22,7 @@ const detail_nilai_ukt_putih = () => {
 
     // state set jenis
     const [active, setActive] = useState('keshan')
-    const [ranting, setRanting] = useState('')
+    const [ranting, setRanting] = useState(idRanting || '')
     const [role, setRole] = useState('')
     const { eventId, idRanting, nameEvent } = router.query;
 
@@ -32,7 +32,7 @@ const detail_nilai_ukt_putih = () => {
     }
 
     let activeComponent;
-    const data = { tipe_ukt: "UKT PUTIH", ranting: idRanting }
+    const data = { tipe_ukt: "UKT PUTIH", ranting: ranting }
     if (active === 'senam') {
         activeComponent = <Senam data={data} />;
     } else if (active === 'jurus') {
@@ -62,8 +62,10 @@ const detail_nilai_ukt_putih = () => {
         if (role.id_role === 'admin ranting') {
             setRanting(role.id_ranting)
             setRole('admin ranting')
+        } else if (idRanting) {
+            setRanting(idRanting)
         }
-    }, [])
+    }, [idRanting])
 
     return (
         <>

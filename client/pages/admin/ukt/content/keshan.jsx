@@ -106,9 +106,7 @@ const Keshan = (props) => {
     }
 
     function ThComponent({ items }) {
-        let limit = items.length + 1
         let banding = 1;
-        banding < limit;
         return items.map((item) => (
             <th key={banding}>{banding++}</th>
         ));
@@ -184,7 +182,7 @@ const Keshan = (props) => {
                             </thead>
                             <tbody>
                                 {dataUjian?.map((item, index) => (
-                                    <tr className='text-green text-center h-fit' key={item.keshan_siswa.nomor_uru}>
+                                    <tr className='text-green text-center h-fit' key={item.keshan_siswa.nomor_urut}>
                                         <td className='border-b-2 text-white py-3 border-gray'>{item.keshan_siswa.nomor_urut}</td>
                                         <td className='border-b-2 text-white border-gray text-center text-lg'>{item.keshan_siswa.name}</td>
                                         <TdComponent items={item.lembar_jawaban} key={index + 1} />
