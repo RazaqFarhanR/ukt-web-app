@@ -143,10 +143,10 @@ const sidebar = () => {
 
             {/* wrapper */}
             {!closeSideBar &&
-                <div className={`${showSideBar ? 'w-64 py-8 px-5' : 'w-20 py-6 px-3 text-center'} h-screen overflow-y-auto shadow-2xl bg-navy transition-all duration-300 scrollbar-hide border-r border-white/5`}>
+                <div className={`${showSideBar ? 'w-64 pt-8 pb-20 px-5' : 'w-20 pt-6 pb-20 px-3 text-center'} h-screen overflow-y-auto shadow-2xl bg-navy transition-all duration-300 scrollbar-hide border-r border-white/5`}>
 
                     {/* awal content */}
-                    <div className='flex flex-col items-center h-full'>
+                    <div className='flex flex-col items-center'>
 
                         <div className="w-full flex items-center justify-between mb-6">
                             {/* Close Button (X) - Usually for mobile or complete removal */}
