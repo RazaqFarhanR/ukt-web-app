@@ -18,6 +18,20 @@ module.exports = {
                 })
             })
     },
+    controllerGetList: async (req, res) => {
+        models.belati.findAll()
+            .then(belati_detail => {
+                res.json({
+                    count: belati_detail.length,
+                    data: belati_detail
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
     controllerGetByTipeUkt: async (req, res) => {
         belati_detail.findAll({
             where: {
@@ -61,50 +75,50 @@ module.exports = {
                 })
             })
     },
-    controllerGetByUktEvent: async (req, res) => {
-        belati_detail.findAll({
-            where: {
-                tipe_ukt: req.params.id,
-                id_event: req.params.event
-            },
-            attributes: ['id_belati_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
-            include: [
-                {
-                    model: models.siswa,
-                    attributes: ['name', 'nomor_urut'],
-                    as: "belati_siswa",
+    controllerGetByEventRanting: async (req, res) => {
+        try {
+            const rows = await belati_detail.findAll({
+                where: { id_event: req.params.id },
+                attributes: ['id_belati_detail'],
+                include: [
+                    {
+                        model: models.siswa,
+                        attributes: ['name', 'nomor_urut'],
+                        as: 'belati_siswa',
+                        required: true,
+                        where: { id_ranting: req.params.ranting }
+                    },
+                    {
+                        model: models.penguji,
+                        attributes: ['name'],
+                        as: 'penguji_belati'
+                    },
+                    {
+                        model: models.belati_siswa,
+                        attributes: ['id_belati', 'predikat'],
+                        as: 'siswa_belati_detail',
+                        required: true
+                    }
+                ]
+            });
+
+            const data = rows.map(row => ({
+                id: row.id_belati_detail,
+                siswa: {
+                    nama: row.belati_siswa.name,
+                    nomor_urut: row.belati_siswa.nomor_urut
                 },
-                {
-                    model: models.penguji,
-                    attributes: ['name'],
-                    as: "penguji_belati"
-                },
-                {
-                    model: models.belati_siswa,
-                    attributes: ['id_belati', 'predikat'],
-                    as: "siswa_belati_detail",
-                    required: true,
-                    include: [
-                        {
-                            model: models.belati,
-                            attributes: ['name'],
-                            as: "siswa_belati"
-                        }
-                    ]
-                }
-            ]
-        })
-            .then(belati => {
-                res.json({
-                    count: belati.length,
-                    data: belati
-                })
-            })
-            .catch(error => {
-                res.json({
-                    message: error.message
-                })
-            })
+                penguji: row.penguji_belati?.name ?? null,
+                detail: row.siswa_belati_detail.map(d => ({
+                    id_belati: d.id_belati,
+                    predikat: d.predikat
+                }))
+            }));
+
+            res.json({ count: data.length, data });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
     },
     controllerGetByIdSiswa: async (req, res) => {
         belati_detail.findAll({
@@ -172,7 +186,7 @@ module.exports = {
                 ujian
             } = req.body;
             const detail = {
-                id_penguji,id_siswa,id_event,tipe_ukt
+                id_penguji, id_siswa, id_event, tipe_ukt
             }
             const processDetail = await belati_detail.create(detail)
             // mapping array ujian jadi banyak row
@@ -186,19 +200,19 @@ module.exports = {
             const result = await belati_siswa.bulkCreate(data);
             const predikat10 = data.filter(item => item.predikat === 2).length;
             const predikat8 = data.filter(item => item.predikat === 1).length;
-            const examResult10 = (predikat10*(100/data.length)) // (7 * (100/10)) = 70
-            const examResult8 = (predikat8*(80/data.length)) // (3 * (80/10)) = 24
+            const examResult10 = (predikat10 * (100 / data.length)) // (7 * (100/10)) = 70
+            const examResult8 = (predikat8 * (80 / data.length)) // (3 * (80/10)) = 24
             const examResult = examResult10 + examResult8 // 94
 
             await ukt_siswa.update(
-            {
-                belati:examResult.toFixed(2)
-            },
-            {
-                where: {
-                    id_siswa: req.body.id_siswa
+                {
+                    belati: examResult.toFixed(2)
+                },
+                {
+                    where: {
+                        id_siswa: req.body.id_siswa
+                    }
                 }
-            }
             )
 
             res.json({
