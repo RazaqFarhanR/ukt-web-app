@@ -139,9 +139,6 @@ const Keshan = (props) => {
 
     return (
         <div className="min-h-screen bg-darkBlue h-screen">
-            {loading && (
-                <div className="text-white text-center py-4">Loading...</div>
-            )}
             <div className="bg-navy rounded-md py-2 px-3 h-[65%]">
 
                 {/* table */}

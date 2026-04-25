@@ -3,6 +3,7 @@ import Sidebar from '../../components/sidebar'
 import Header from '../../components/header'
 import Footer from '../../components/footer'
 import { useRouter } from 'next/router'
+import DropdownRantingDetail from '../../components/dropdownRantingDetail'
 
 const Senam = React.lazy(() => import('../content/senam'))
 const Teknik = React.lazy(() => import('../content/teknik'))
@@ -15,14 +16,17 @@ const SenamToya = React.lazy(() => import('../content/senamToya'))
 const JurusToya = React.lazy(() => import('../content/jurusToya'))
 const Kripen = React.lazy(() => import('../content/kripen'))
 const Belati = React.lazy(() => import('../content/belati'))
+
 const detail_nilai_ukt_ukcw = () => {
 
 
     const router = useRouter()
     const { idRanting } = router.query
+    const { eventId } = router.query
 
     // state set jenis
     const [dataEvent, setDataEvent] = useState([])
+    const [dataAdmin, setDataAdmin] = useState()
     const [active, setActive] = useState('keshan')
     const [ranting, setRanting] = useState('TRENGGALEK')
     const [mounted, setMounted] = useState(false)  // ← guards localStorage
@@ -44,15 +48,16 @@ const detail_nilai_ukt_ukcw = () => {
 
         const event = JSON.parse(localStorage.getItem('event'))
         const role = JSON.parse(admin)
-
+        console.log(role)
         setDataEvent(event)
+        setDataAdmin(role)
 
         if (role?.id_role === 'admin ranting') {
             setRanting(role.id_ranting)
         }
 
-        setMounted(true)  // ← only render content after localStorage is ready
-    }, [])
+        setMounted(true)
+    }, [router.isReady])
 
     let activeComponent;
     const data = { tipe_ukt: 'UKCW', ranting: ranting }
@@ -86,9 +91,9 @@ const detail_nilai_ukt_ukcw = () => {
         } else if (!ranting) {
             setRanting('TRENGGALEK') // default for super admin
         }
-    }, [idRanting]) // ← single effect, runs once on mount
+    }, [idRanting, eventId]) // ← single effect, runs once on mount
 
-     if (!mounted) return null
+    if (!mounted) return null
     return (
         <>
             <div className="flex font-lato">
@@ -119,9 +124,9 @@ const detail_nilai_ukt_ukcw = () => {
                                 </svg>
                             </button>
                             <h1 className='text-2xl tracking-wider text-white font-lato font-bold uppercase'>Detail Nilai - {dataEvent.name} {ranting}</h1>
-                            <div className='ml-auto'>
-                                <FilterDropdown ranting={ranting} setRanting={setRanting} />
-                            </div>
+                            {dataAdmin.id_role !== 'admin ranting' && <div className='ml-auto'>
+                                <DropdownRantingDetail ranting={ranting} setRanting={setRanting} eventId={eventId} />
+                            </div>}
                         </div>
 
                         {/* wrapper category */}
@@ -187,35 +192,4 @@ const kecamatanList = [
     'Bendungan', 'Dongko', 'Durenan', 'Gandusari', 'Kampak', 'Karangan',
     'Munjungan', 'Panggul', 'Pogalan', 'Pule', 'Suruh', 'Trenggalek', 'Tugu', 'Watulimo'
 ];
-function FilterDropdown({ ranting, setRanting }) {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <div className="relative inline-block text-left">
-            <button
-                className="bg-purple w-64 h-12 text-white rounded"
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                Pilih Ranting
-            </button>
-
-            {isOpen && (
-                <div className="absolute z-10 mt-2 w-64 bg-navy border border-purple text-white rounded shadow-lg max-h-auto overflow-y-auto">
-                    {kecamatanList.map((name) => (
-                        <div
-                            key={name}
-                            className="px-4 py-2 hover:bg-purple-100 cursor-pointer border-purple border"
-                            onClick={() => {
-                                setRanting(name)
-                                setIsOpen(false);
-                            }}
-                        >
-                            {name}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
 export default detail_nilai_ukt_ukcw
