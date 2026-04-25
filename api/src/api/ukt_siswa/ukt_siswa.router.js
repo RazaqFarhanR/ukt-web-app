@@ -26,6 +26,7 @@ const {
     controllerGetByName,
     controllerGetRayon,
     controllerResetGrade,
+    controllerGetDropdownSiswa,
 } = require('./ukt_siswa.controller');
 
 
@@ -41,6 +42,9 @@ router.post('/ukt/filter', Auth, verifyRoles("admin", "super admin", "admin rant
 
 // controller yang dipakai data page admin/ukt/ranting/rekap_nilai_ukt_x
 router.post('/ukt/ranting', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByRantingFiltered )
+// controller dropdown event di page admin/ukt/ranting/event/detail_nilai_ukt_x
+router.get('/dropdown/:event', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetDropdownSiswa )
+
 
 router.post('/rayon', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetRayon )
 router.get('/ukt/:event/:ukt', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), controllerGetByEventUkt )

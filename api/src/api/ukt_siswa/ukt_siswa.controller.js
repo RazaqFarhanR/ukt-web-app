@@ -22,6 +22,33 @@ module.exports = {
                 })
             })
     },
+    controllerGetDropdownSiswa: async (req, res) => {
+        const { event } = req.params; // or req.params.id_event
+
+        models.siswa.findAll({
+            where: {
+                id_event: event
+            },
+            attributes: [
+                'id_ranting',
+                [models.sequelize.fn('COUNT', models.sequelize.col('id_siswa')), 'countSiswa']
+            ],
+            group: ['id_ranting'],
+            order: [['id_ranting', 'ASC']]
+        })
+            .then(result => {
+                res.json({
+                    id_event: event,
+                    totalRanting: result.length,
+                    data: result
+                });
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                });
+            });
+    },
     controllerGetTotalPage: async (req, res) => {
         const limit = Number(req.params.limit);
         ukt_siswa.findAll({

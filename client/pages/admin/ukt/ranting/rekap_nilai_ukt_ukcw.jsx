@@ -281,10 +281,7 @@ const rekap_nilai_ukt_ukcw = () => {
                 </div>
                 : null}
             <div className="flex font-lato">
-
-                <div className='hidden lg:block'>
-                    <Sidebar />
-                </div>
+                <Sidebar />
                 {/* akhir sidebar */}
 
                 {/* awal wrapper konten utama */}
@@ -411,7 +408,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                             <th className='py-0.5 w-[3%] border font-oswald text-xs'>RANK</th>
                                             <th className='w-[20%] border font-oswald text-xs' >NAMA</th>
                                             <th className='w-[8%] border font-oswald text-xs relative'>
-                                                <button 
+                                                <button
                                                     className='flex items-center gap-1 w-full justify-center'
                                                     onClick={() => setRantingDropdown(!rantingDropdown)}
                                                 >
@@ -423,7 +420,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                                 {rantingDropdown && (
                                                     <div className='absolute top-full left-0 bg-purple text-white text-xs py-1 px-2 rounded shadow-lg z-30'>
                                                         {columnType === 'ranting' ? (
-                                                            <button 
+                                                            <button
                                                                 className='hover:bg-white/20 px-2 py-1 block w-full text-left'
                                                                 onClick={() => {
                                                                     setColumnType('rayon');
@@ -433,7 +430,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                                                 RAYON
                                                             </button>
                                                         ) : (
-                                                            <button 
+                                                            <button
                                                                 className='hover:bg-white/20 px-2 py-1 block w-full text-left'
                                                                 onClick={() => {
                                                                     setColumnType('ranting');

@@ -18,6 +18,20 @@ module.exports = {
                 })
             })
     },
+    controllerGetList: async (req, res) => {
+        teknik.findAll()
+            .then(teknik => {
+                res.json({
+                    count: teknik.length,
+                    data: teknik
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
     controllerSearch: async (req, res) => {
         teknik_detail.findAll({
             include: [
@@ -162,52 +176,62 @@ module.exports = {
     },
     controllerGetByEvent: async (req, res) => {
         const { id } = req.params;
-        teknik_detail.findAll({
-            where: {
-                id_event: id
-            },
-            attributes: ['id_teknik_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
-            include: [
-                {
-                    model: models.siswa,
-                    attributes: ['name', 'nomor_urut'],
-                    as: "teknik_siswa",
-                    require: true,
-                    where: {
-                        id_ranting: req.params.ranting
-                    }
+        try {
+            const rows = await teknik_detail.findAll({
+                where: {
+                    id_event: id
                 },
-                {
-                    model: models.penguji,
-                    attributes: ['name'],
-                    as: "penguji_teknik"
-                },
-                {
-                    model: models.teknik_siswa,
-                    attributes: ['id_teknik', 'predikat'],
-                    as: "siswa_teknik_detail",
-                    include: [
-                        {
-                            model: models.teknik,
-                            attributes: ['id_teknik', 'name'],
-                            as: "siswa_teknik",
+                attributes: ['id_teknik_detail', 'id_penguji', 'id_event', 'id_siswa', 'tipe_ukt'],
+                include: [
+                    {
+                        model: models.siswa,
+                        attributes: ['name', 'nomor_urut'],
+                        as: "teknik_siswa",
+                        require: true,
+                        where: {
+                            id_ranting: req.params.ranting
                         }
-                    ],
-                    order: [['id_teknik', 'DESC']]
-                }
-            ],
-        })
-            .then(teknik => {
-                res.json({
-                    count: teknik.length,
-                    data: teknik
-                })
+                    },
+                    {
+                        model: models.penguji,
+                        attributes: ['name'],
+                        as: "penguji_teknik"
+                    },
+                    {
+                        model: models.teknik_siswa,
+                        attributes: ['id_teknik', 'predikat'],
+                        as: "siswa_teknik_detail",
+                        include: [
+                            {
+                                model: models.teknik,
+                                attributes: ['id_teknik', 'name'],
+                                as: "siswa_teknik",
+                            }
+                        ],
+                        order: [['id_teknik', 'DESC']]
+                    }
+                ],
             })
-            .catch(error => {
-                res.json({
-                    message: error.message
-                })
+            console.log(rows)
+            const data = rows.map(row => ({
+                id: row.id_teknik_detail,
+                siswa: {
+                    nama: row.teknik_siswa.name,
+                    nomor_urut: row.teknik_siswa.nomor_urut
+                },
+                penguji: row.penguji_teknik?.name ?? null,
+                detail: row.siswa_teknik_detail.map(d => ({
+                    id_teknik: d.id_teknik,
+                    predikat: d.predikat
+                }))
+            }));
+
+            res.json({ count: data.length, data });
+        } catch (error) {
+            res.json({
+                message: error.message
             })
+        }
     },
     controllerGetByIdSiswa: async (req, res) => {
         teknik_detail.findAll({
@@ -246,7 +270,7 @@ module.exports = {
             })
     },
     controllerAddExam: async (req, res) => {
-        const { id_penguji, id_event, id_siswa, tipe_ukt} = req.body
+        const { id_penguji, id_event, id_siswa, tipe_ukt } = req.body
         const detail = {
             id_penguji,
             id_siswa,
