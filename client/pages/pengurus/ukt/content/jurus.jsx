@@ -14,8 +14,9 @@ const jurus = (props) => {
 
     const getDataListJurus = async () => {
         const token = localStorage.getItem('token')
+       const event = JSON.parse(localStorage.getItem('event'))
         try {
-            const res = await axios.get(BASE_URL + `jurus_detail/list`, {
+            const res = await axios.get(BASE_URL + `jurus_detail/list/` + event.tipe_ukt, {
                 headers:
                     { Authorization: `Bearer ${token}` }
             })
