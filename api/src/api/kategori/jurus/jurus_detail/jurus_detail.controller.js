@@ -23,7 +23,7 @@ module.exports = {
         models.jurus.findAll(
             {
                 where: {
-                    tipe_ukt: req.query.tipe_ukt
+                    tipe_ukt: req.params.tipe_ukt
                 },
                 attributes: ['id_jurus', 'name']
             })
