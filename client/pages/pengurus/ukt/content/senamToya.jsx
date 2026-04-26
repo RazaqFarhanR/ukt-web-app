@@ -41,16 +41,7 @@ const SenamToya = (props) => {
         try {
             const res = await axios.get(BASE_URL + `senam_toya_detail/ukt/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
             const allData = res.data.data;
-            const total = Math.ceil(allData.length / itemsPerPage);
-
-            // Paginate the data client-side
-            const startIndex = (page - 1) * itemsPerPage;
-            const paginatedData = allData.slice(startIndex, startIndex + itemsPerPage);
-
-            const result = { data: paginatedData, totalPages: total };
-            cache.current[cacheKey] = result;
-            setDataSenam(result.data);
-            setTotalPages(result.totalPages);
+            setDataSenam(allData);
         } catch (err) {
             console.log(err.message);
         } finally {
@@ -123,9 +114,19 @@ const SenamToya = (props) => {
     function TdComponent({ items }) {
         return items?.map((item, index) => (
             <td key={index + 1} className='px-3 border-b-2 border-gray'>
-                {item.predikat === 1 && (
+                {item.predikat === 8 && (
                     <div className="font-semibold bg-purple rounded-md text-white py-1.5 px-12 uppercase">
                         CUKUP
+                    </div>
+                )}
+                {item.predikat === true && (
+                    <div className="font-semibold bg-purple rounded-md text-white py-1.5 px-12 uppercase">
+                        CUKUP
+                    </div>
+                )}
+                {item.predikat === 10 && (
+                    <div className="font-semibold bg-green rounded-md text-white py-1.5 px-12 uppercase">
+                        BAIK
                     </div>
                 )}
                 {item.predikat === 2 && (
@@ -195,9 +196,9 @@ const SenamToya = (props) => {
                     </table>
                 </div>
 
-                <div className="flex justify-center mt-5">
+                {/* <div className="flex justify-center mt-5">
                     {renderPageNumbers()}
-                </div>
+                </div> */}
             </div>
         </div>
     )
