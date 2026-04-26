@@ -180,163 +180,177 @@ module.exports = {
 
     },
     controllerCekUjain: async (req, res) => {
-        //cek session session
-        //get soal ujian
-        let soal=[]
-        let lembarSoal
-        let param = {
-            tipe_ukt: req.body.tipe_ukt,
-        }
-        if (req.body.id_ranting) {
-            param.id_ranting = req.body.id_ranting
-        }
-        let paramPaket
-        if (req.body.tipe_ukt == 'ukcw') {
-            const arrPaket = [1,2,3]
-            paramPaket = arrPaket[Math.floor(Math.random() *3)];
-            logger("Param paket:", paramPaket);
-            await lembar_soal.findOne({
-                where: param,
-                attributes:['id_lembar_soal', 'id_ranting', 'tipe_ukt'],
-                include: [
-                    {
-                        model: ranting,
-                        as: "lembar_ranting",
-                        attributes: ['name'],
-                        required: false
-                    },
-                    {
-                        model: models.soal,
-                        where: {paket: paramPaket},
-                        as: "lembar_soal_ujian",
-                        order: [
-                            Sequelize.fn('RAND')
-                        ],
-                        attributes: ['id_soal', 'paket'],
-                        limit: 20
-                    }
-                ]
-            })
-            .then(res => {
-                lembarSoal = res
-                soal = JSON.parse(JSON.stringify(res.lembar_soal_ujian))
-            })
-            .catch(error => {
-                return res.json({
-                    message: error.message
-                })
-            })
-        } else {
-            await lembar_soal.findOne({
-                where: param,
-                attributes:['id_lembar_soal', 'id_ranting', 'tipe_ukt'],
-                include: [
-                    {
-                        model: ranting,
-                        as: "lembar_ranting",
-                        attributes: ['name'],
-                        required: false
-                    },
-                    {
-                        model: models.soal,
-                        as: "lembar_soal_ujian",
-                        order: [
-                            Sequelize.fn('RAND')
-                        ],
-                        attributes: ['id_soal', 'paket'],
-                        limit: 20
-                    }
-                ]
-            })
-            .then(res => {
-                lembarSoal = res
-                soal = JSON.parse(JSON.stringify(res.lembar_soal_ujian))
-                logger("Soal count:", soal.length);
-            })
-            .catch(error => {
-                return res.json({
-                    message: error.message
-                })
-            })
-        }
-        let sessionParam = {
-            id_lembar_soal: lembarSoal.id_lembar_soal,
-            id_siswa: req.body.id_siswa
-        }
-        const cekData = await session.findOne({ where: sessionParam })
-        if (!cekData) {
-            //create session
-            //waktu session
-            let start = new Date()
-            let endDate = new Date()
-            let setdetik = endDate.setMilliseconds((endDate.getMilliseconds()) + 600000)
-            let end = new Date(setdetik)
-
-            let data = {
-                id_lembar_soal: lembarSoal.id_lembar_soal,
-                id_siswa: req.body.id_siswa,
-                id_event: req.body.id_event,
-                nilai: 0,
-                start: start,
-                finish: end
+        try {
+            let soal = []
+            let lembarSoal
+            let param = {
+                tipe_ukt: req.body.tipe_ukt,
             }
-            let waktu = new Date(end).getTime() - new Date().getTime()
-            let minute = (Math.floor((waktu / 1000 / 60) % 60))
-            let second = (Math.floor((waktu / 1000) % 60))
-            //create session
-            const newSession = await session.create(data)
-            .then(async result => {
-                soal.forEach((element => {
-                    element.id_session = result.id_session,
-                    element.id_siswa = result.id_siswa
-                }))
-                await lembar_jawaban.bulkCreate(soal)
-                .then(async jawab => {
-                    let end = new Date(setdetik)
-                    let time = {
-                        start: start,
-                        finish: end
-                    }
-                    await session.update(time,{where: {id_session: result.id_session}})
-                    .then(last => {
-                        res.json({
-                            status: true,
-                            message: "Exam begins",
-                            data: result,
-                            minute: minute,
-                            second: second
-                        })
-                    })
-                    .catch(error => {
-                        return res.json({
-                            status: false,
-                            message: error.message
-                        })
-                    })
-                })
-                .catch(error => {
+            if (req.body.id_ranting) {
+                param.id_ranting = req.body.id_ranting
+            }
+            let paramPaket
+            if (req.body.tipe_ukt == 'ukcw') {
+                let targetLembarSoal = await lembar_soal.findOne({
+                    where: param,
+                    attributes: ['id_lembar_soal', 'id_ranting', 'tipe_ukt']
+                });
+
+                if (!targetLembarSoal) {
                     return res.json({
                         status: false,
-                        message: error.message
+                        message: "Belum ada soal untuk ujian ini"
                     })
+                }
+
+                let availablePackagesData = await models.soal.findAll({
+                    where: { id_lembar_soal: targetLembarSoal.id_lembar_soal },
+                    attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('paket')), 'paket']],
+                    raw: true
+                });
+                
+                let availablePackages = availablePackagesData.map(item => item.paket).filter(p => p !== null);
+
+                if (availablePackages.length === 0) {
+                    return res.json({
+                        status: false,
+                        message: "Belum ada soal untuk ujian ini"
+                    })
+                }
+
+                paramPaket = availablePackages[Math.floor(Math.random() * availablePackages.length)];
+                logger("Param paket:", paramPaket);
+                
+                lembarSoal = await lembar_soal.findOne({
+                    where: param,
+                    attributes:['id_lembar_soal', 'id_ranting', 'tipe_ukt'],
+                    include: [
+                        {
+                            model: ranting,
+                            as: "lembar_ranting",
+                            attributes: ['name'],
+                            required: false
+                        },
+                        {
+                            model: models.soal,
+                            where: {paket: paramPaket},
+                            as: "lembar_soal_ujian",
+                            order: [
+                                Sequelize.fn('RAND')
+                            ],
+                            attributes: ['id_soal', 'paket'],
+                            limit: 20
+                        }
+                    ]
                 })
-            })
-            .catch(error => {
+            } else {
+                lembarSoal = await lembar_soal.findOne({
+                    where: param,
+                    attributes:['id_lembar_soal', 'id_ranting', 'tipe_ukt'],
+                    include: [
+                        {
+                            model: ranting,
+                            as: "lembar_ranting",
+                            attributes: ['name'],
+                            required: false
+                        },
+                        {
+                            model: models.soal,
+                            as: "lembar_soal_ujian",
+                            order: [
+                                Sequelize.fn('RAND')
+                            ],
+                            attributes: ['id_soal', 'paket'],
+                            limit: 20
+                        }
+                    ]
+                })
+            }
+
+            if (!lembarSoal || !lembarSoal.lembar_soal_ujian || lembarSoal.lembar_soal_ujian.length === 0) {
                 return res.json({
                     status: false,
-                    message: error.message
+                    message: "Belum ada soal untuk ujian ini"
                 })
-            })
-        } else {
-            let waktu = Math.max(0, new Date(cekData.finish).getTime() - new Date().getTime());
-            let minute = (Math.floor((waktu / 1000 / 60) % 60))
-            let second = (Math.floor((waktu / 1000) % 60))
-            res.json({
-                status: true,
-                message: "The exam has started",
-                data: cekData,
-                minute: minute,
-                second: second
+            }
+
+            soal = JSON.parse(JSON.stringify(lembarSoal.lembar_soal_ujian))
+            logger("Soal count:", soal.length);
+
+            let sessionParam = {
+                id_lembar_soal: lembarSoal.id_lembar_soal,
+                id_siswa: req.body.id_siswa
+            }
+            const cekData = await session.findOne({ where: sessionParam })
+
+            if (!cekData) {
+                let start = new Date()
+                let endDate = new Date()
+                let setdetik = endDate.setMilliseconds((endDate.getMilliseconds()) + 600000)
+                let end = new Date(setdetik)
+
+                let data = {
+                    id_lembar_soal: lembarSoal.id_lembar_soal,
+                    id_siswa: req.body.id_siswa,
+                    id_event: req.body.id_event,
+                    nilai: 0,
+                    start: start,
+                    finish: end
+                }
+                let waktu = new Date(end).getTime() - new Date().getTime()
+                let minute = (Math.floor((waktu / 1000 / 60) % 60))
+                let second = (Math.floor((waktu / 1000) % 60))
+
+                const result = await session.create(data)
+                soal.forEach(element => {
+                    element.id_session = result.id_session;
+                    element.id_siswa = result.id_siswa;
+                })
+                await lembar_jawaban.bulkCreate(soal)
+
+                let time = {
+                    start: start,
+                    finish: end
+                }
+                await session.update(time,{where: {id_session: result.id_session}})
+                
+                return res.json({
+                    status: true,
+                    message: "Exam begins",
+                    data: result,
+                    minute: minute,
+                    second: second
+                })
+            } else {
+                // Auto-healing logic
+                const countJawaban = await lembar_jawaban.count({
+                    where: { id_session: cekData.id_session, id_siswa: req.body.id_siswa }
+                });
+
+                if (countJawaban === 0) {
+                    logger("Auto-healing: 0 questions found for existing session, regenerating questions...");
+                    soal.forEach(element => {
+                        element.id_session = cekData.id_session;
+                        element.id_siswa = req.body.id_siswa;
+                    });
+                    await lembar_jawaban.bulkCreate(soal);
+                }
+
+                let waktu = Math.max(0, new Date(cekData.finish).getTime() - new Date().getTime());
+                let minute = (Math.floor((waktu / 1000 / 60) % 60))
+                let second = (Math.floor((waktu / 1000) % 60))
+                return res.json({
+                    status: true,
+                    message: "The exam has started",
+                    data: cekData,
+                    minute: minute,
+                    second: second
+                })
+            }
+        } catch (error) {
+            return res.json({
+                status: false,
+                message: error.message
             })
         }
     },
