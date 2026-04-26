@@ -91,8 +91,8 @@ const ukcw = () => {
 
     // function login checker
     const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
-            router.push('/admin/login')
+        if (localStorage.getItem('token') === null || localStorage.getItem('pengurus') === null) {
+            router.push('/pengurus/login')
         }
     }
 

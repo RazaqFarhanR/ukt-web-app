@@ -124,12 +124,13 @@ const rekap_nilai_ukt_ukcw = () => {
             : number.toLocaleString('id', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // function login checker
+     // function login checker
     const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
-            router.push('/admin/login')
+        if (localStorage.getItem('token') === null || localStorage.getItem('pengurus') === null) {
+            router.push('/pengurus/login')
         }
     }
+
     useEffect(() => {
         localStorage.removeItem('filterRanting')
         isLogged()

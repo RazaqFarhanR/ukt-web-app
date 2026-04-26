@@ -45,21 +45,22 @@ const detail_nilai_ukt_jambon = () => {
         activeComponent = <Keshan data={data} />;
     }
 
-    // function login checker
+     // function login checker
     const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
-            router.push('/admin/login')
+        if (localStorage.getItem('token') === null || localStorage.getItem('pengurus') === null) {
+            router.push('/pengurus/login')
         }
     }
+
 
     useEffect(() => {
         isLogged()
     }, [idRanting])
     useEffect(() => {
-        const role = JSON.parse(localStorage.getItem('admin'))
-        if (role.id_role === 'admin ranting') {
+        const role = JSON.parse(localStorage.getItem('pengurus'))
+        if (role.id_role === 'pengurus ranting') {
             setRanting(role.id_ranting)
-            setRole('admin ranting')
+            setRole('pengurus ranting')
         }
     }, [])
 
