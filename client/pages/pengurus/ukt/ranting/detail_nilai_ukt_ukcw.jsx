@@ -1,37 +1,63 @@
-import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
-import axios from 'axios'
+import React, { Suspense, useEffect, useState } from 'react'
 import Sidebar from '../../components/sidebar'
 import Header from '../../components/header'
 import Footer from '../../components/footer'
-
-// ---- content --- //
-import Senam from '../content/senam'
-import Teknik from '../content/teknik'
-import Jurus from '../content/jurus'
-import Fisik from '../content/fisik'
-import Sambung from '../content/sambung'
-import Keshan from '../content/keshan'
 import { useRouter } from 'next/router'
+import DropdownRantingDetail from '../../components/dropdownRantingDetail'
+
+const Senam = React.lazy(() => import('../content/senam'))
+const Teknik = React.lazy(() => import('../content/teknik'))
+const Jurus = React.lazy(() => import('../content/jurus'))
+const Fisik = React.lazy(() => import('../content/fisik'))
+const Sambung = React.lazy(() => import('../content/sambung'))
+const Keshan = React.lazy(() => import('../content/keshan'))
+
+const SenamToya = React.lazy(() => import('../content/senamToya'))
+const JurusToya = React.lazy(() => import('../content/jurusToya'))
+const Kripen = React.lazy(() => import('../content/kripen'))
+const Belati = React.lazy(() => import('../content/belati'))
 
 const detail_nilai_ukt_ukcw = () => {
 
+
     const router = useRouter()
+    const { idRanting } = router.query
+    const { eventId } = router.query
 
     // state set jenis
     const [dataEvent, setDataEvent] = useState([])
+    const [datapengurus, setDatapengurus] = useState()
     const [active, setActive] = useState('keshan')
-    const [ranting, setRanting] = useState('')
+    const [ranting, setRanting] = useState('TRENGGALEK')
+    const [mounted, setMounted] = useState(false)  // ← guards localStorage
 
     // function set jneis
     const onActive = (e) => {
         setActive(e)
     }
 
-    const getEvent = () => {
-        const event = JSON.parse(localStorage.getItem('event'));
+    useEffect(() => {
+        // All localStorage reads happen here — safe, client-only
+        const token = localStorage.getItem('token')
+        const pengurus = localStorage.getItem('pengurus')
+
+        if (!token || !pengurus) {
+            router.push('/pengurus/login')
+            return
+        }
+
+        const event = JSON.parse(localStorage.getItem('event'))
+        const role = JSON.parse(pengurus)
+        console.log(role)
         setDataEvent(event)
-    }
+        setDatapengurus(role)
+
+        if (role?.id_role === 'pengurus ranting') {
+            setRanting(role.id_ranting)
+        }
+
+        setMounted(true)
+    }, [router.isReady])
 
     let activeComponent;
     const data = { tipe_ukt: 'UKCW', ranting: ranting }
@@ -47,27 +73,27 @@ const detail_nilai_ukt_ukcw = () => {
         activeComponent = <Sambung data={data} />;
     } else if (active === 'keshan') {
         activeComponent = <Keshan data={data} />;
+    } else if (active === 'senamToya') {
+        activeComponent = <SenamToya data={data} />;
+    } else if (active === 'jurusToya') {
+        activeComponent = <JurusToya data={data} />;
+    } else if (active === 'kripen') {
+        activeComponent = <Kripen data={data} />;
+    } else if (active === 'belati') {
+        activeComponent = <Belati data={data} />;
     }
-
-    // function login checker
-    const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('pengurus') === null) {
-            router.push('/pengurus/login')
-        }
-    }
-
-
     useEffect(() => {
-        getEvent()
-        isLogged()
-    }, [])
-    useEffect(() => {
-        const role = JSON.parse(localStorage.getItem('admin'))
-        if (role.id_role === 'pengurus ranting') {
+        const role = JSON.parse(localStorage.getItem('pengurus'))
+        if (role?.id_role === 'pengurus ranting') {
             setRanting(role.id_ranting)
+        } else if (idRanting) {
+            setRanting(idRanting)
+        } else if (!ranting) {
+            setRanting('TRENGGALEK') // default for super pengurus
         }
-    }, [])
+    }, [idRanting, eventId]) // ← single effect, runs once on mount
 
+    if (!mounted) return null
     return (
         <>
             <div className="flex font-lato">
@@ -98,21 +124,55 @@ const detail_nilai_ukt_ukcw = () => {
                                 </svg>
                             </button>
                             <h1 className='text-2xl tracking-wider text-white font-lato font-bold uppercase'>Detail Nilai - {dataEvent.name} {ranting}</h1>
-                            <div className='ml-auto'>
-                                <FilterDropdown ranting={ranting} setRanting={setRanting} />
-                            </div>
+                            {datapengurus.id_role !== 'pengurus ranting' && <div className='ml-auto'>
+                                <DropdownRantingDetail ranting={ranting} setRanting={setRanting} eventId={eventId} />
+                            </div>}
                         </div>
 
                         {/* wrapper category */}
-                        <div className="flex bg-navy gap-x-2 overflow-x-scroll text-purple mb-3 scrollbar-hide w-full text-2xl">
-                            <button onClick={() => onActive('keshan')} className={active === 'keshan' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>KESHAN</button>
-                            <button onClick={() => onActive('senam')} className={active === 'senam' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Senam</button>
-                            <button onClick={() => onActive('jurus')} className={active === 'jurus' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Jurus</button>
-                            <button onClick={() => onActive('fisik')} className={active === 'fisik' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Fisik</button>
-                            <button onClick={() => onActive('teknik')} className={active === 'teknik' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Teknik</button>
-                            <button onClick={() => onActive('sambung')} className={active === 'sambung' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Sambung</button>
+                        <div className="flex bg-navy gap-x-1.5 overflow-x-auto text-purple mb-3 scrollbar-hide w-full py-1 px-2 rounded-md">
+                            {[
+                                { key: 'keshan', label: 'Keshan' },
+                                { key: 'senam', label: 'Senam' },
+                                { key: 'jurus', label: 'Jurus' },
+                                { key: 'fisik', label: 'Fisik' },
+                                { key: 'teknik', label: 'Teknik' },
+                                { key: 'sambung', label: 'Sambung' },
+                                { key: 'senamToya', label: 'Senam Toya' },
+                                { key: 'jurusToya', label: 'Jurus Toya' },
+                                { key: 'kripen', label: 'Kripen' },
+                                { key: 'belati', label: 'Belati' },
+                            ].map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => onActive(key)}
+                                    className={`
+                whitespace-nowrap flex-shrink-0 xl:flex-shrink
+                py-1.5 px-2 sm:px-3 lg:px-4
+                text-[10px] sm:text-xs lg:text-sm xl:text-base
+                rounded-md uppercase transition ease-in-out duration-300 w-full
+                ${active === key
+                                            ? 'bg-purple text-white'
+                                            : 'bg-white hover:bg-purple hover:text-white'}
+            `}
+                                >
+                                    {label}
+                                </button>
+                            ))}
                         </div>
-                        {activeComponent}
+                        {/* AFTER — stays mounted, just hidden */}
+                        <Suspense fallback={<div className="text-white py-4">Loading...</div>}>
+                            {active === 'keshan' && <Keshan data={data} />}
+                            {active === 'senam' && <Senam data={data} />}
+                            {active === 'jurus' && <Jurus data={data} />}
+                            {active === 'fisik' && <Fisik data={data} />}
+                            {active === 'teknik' && <Teknik data={data} />}
+                            {active === 'sambung' && <Sambung data={data} />}
+                            {active === 'senamToya' && <SenamToya data={data} />}
+                            {active === 'jurusToya' && <JurusToya data={data} />}
+                            {active === 'kripen' && <Kripen data={data} />}
+                            {active === 'belati' && <Belati data={data} />}
+                        </Suspense>
 
                     </div>
                     {/* akhir konten utama */}
@@ -132,35 +192,4 @@ const kecamatanList = [
     'Bendungan', 'Dongko', 'Durenan', 'Gandusari', 'Kampak', 'Karangan',
     'Munjungan', 'Panggul', 'Pogalan', 'Pule', 'Suruh', 'Trenggalek', 'Tugu', 'Watulimo'
 ];
-function FilterDropdown({ ranting, setRanting }) {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <div className="relative inline-block text-left">
-            <button
-                className="bg-purple w-64 h-12 text-white rounded"
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                Pilih Ranting
-            </button>
-
-            {isOpen && (
-                <div className="absolute z-10 mt-2 w-64 bg-navy border border-purple text-white rounded shadow-lg max-h-auto overflow-y-auto">
-                    {kecamatanList.map((name) => (
-                        <div
-                            key={name}
-                            className="px-4 py-2 hover:bg-purple-100 cursor-pointer border-purple border"
-                            onClick={() => {
-                                setRanting(name)
-                                setIsOpen(false);
-                            }}
-                        >
-                            {name}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
 export default detail_nilai_ukt_ukcw

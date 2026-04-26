@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, startTransition } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -7,7 +7,54 @@ const fisik = (props) => {
     const [dataFisik, setDataFisik] = useState([])
     const [event, setEvent] = useState('')
     const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState();
+    const [totalPages, setTotalPages] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const cache = useRef({});
+
+    const getDataFisik = async () => {
+        const cacheKey = `${props.data?.ranting}-${page}`;
+        if (cache.current[cacheKey]) {
+            const cached = cache.current[cacheKey];
+            startTransition(() => {
+                setDataFisik(cached.data);
+                setTotalPages(cached.totalPages);
+            });
+            return;
+        }
+
+        setLoading(true);
+        const token = localStorage.getItem('token')
+        const eventData = JSON.parse(localStorage.getItem('event'))
+        setEvent(eventData.name)
+
+        try {
+            // Run both calls in parallel
+            const [pagesRes, dataRes] = await Promise.all([
+                axios.get(BASE_URL + `fisik/pages/${eventData.id_event}/${props.data?.ranting}/50`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(BASE_URL + `fisik/event/${eventData.id_event}/${props.data?.ranting}/${page}/50`, { headers: { Authorization: `Bearer ${token}` } })
+            ]);
+
+            const result = { data: dataRes.data.data, totalPages: pagesRes.data.totalPages };
+            cache.current[cacheKey] = result; // cache it
+            startTransition(() => {
+                setDataFisik(result.data);
+                setTotalPages(result.totalPages);
+            });
+        } catch (err) {
+            console.log(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        getDataFisik()
+    }, [page, props.data?.ranting])
+
+    // Reset to page 1 when ranting changes
+    useEffect(() => {
+        setPage(1);
+    }, [props.data?.ranting]);
 
     const renderPageNumbers = () => {
         const pages = [];
@@ -58,38 +105,21 @@ const fisik = (props) => {
         return pages;
     };
 
-    const getDataFisik = () => {
-        const token = localStorage.getItem('token')
-        const event = JSON.parse(localStorage.getItem('event'))
-        setEvent(event.name)
-        axios.get(BASE_URL + `fisik/pages/${event.id_event}/${props.data?.ranting}/50`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                setTotalPages(res.data.totalPages);
-            })
-            .catch(err => {
-                console.log(err.message);
-            })
-
-        axios.get(BASE_URL + `fisik/event/${event.id_event}/${props.data?.ranting}/${page}/50`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                console.log(res.data.data);
-                setDataFisik(res.data.data)
-            })
-            .catch(err => {
-                console.log(err.message);
-            })
-    }
-
-    useEffect(() => {
-        getDataFisik()
-    }, [page, props])
     return (
         <div className="min-h-screen bg-darkBlue py-6 h-screen">
             {dataFisik.length > 0
                 ? <div className="bg-navy rounded-md py-2 h-[65%]">
 
                     {/* table */}
-                    <div className='overflow-x-scroll h-full bg-navy'>
+                    <div className='overflow-x-scroll h-full bg-navy relative'>
+                        {loading && (
+                        <div className="absolute inset-0 bg-navy bg-opacity-70 flex justify-center items-center z-10">
+                            <svg className="animate-spin h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                        </div>
+                    )}
                         <table className='w-full table-fixed'>
                             <thead className='sticky top-0 bg-black'>
                                 <>
@@ -133,7 +163,7 @@ const fisik = (props) => {
 
                 </div>
                 : <div className='text-center text-white'>
-                    <h1 className='text-xl font-sans font-bold'> Silahkan masukkan data fisik siswa event: {event.name}</h1>
+                    <h1 className='text-xl font-sans font-bold'> Silahkan masukkan data fisik siswa event: {event}</h1>
                 </div>
             }
             <div className="flex justify-center mt-5">

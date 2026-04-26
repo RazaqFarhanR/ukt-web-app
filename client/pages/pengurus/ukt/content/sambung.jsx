@@ -168,7 +168,8 @@ const sambung = (props) => {
             <div className="bg-navy rounded-md py-2 px-3 h-[70%]">
 
                 {/* table */}
-                <div className='h-full overflow-y-auto'>
+                <div className='h-full overflow-y-auto relative'>
+                    
                     <table className='w-full border-spacing-2'>
                         <thead className='sticky top-0 bg-black border border-white'>
                             <tr className='text-white text-[10px]'>
