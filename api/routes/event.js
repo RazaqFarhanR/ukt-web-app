@@ -17,7 +17,16 @@ const event = models.event;
 
 //endpoint get data event
 app.get("/", Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting"), (req,res) => {
-    event.findAll()
+    const { active } = req.query;
+    let where = {};
+    if (active === 'true') {
+        where.is_active = true;
+    }
+
+    event.findAll({
+        where: where,
+        order: [['id_event', 'DESC']]
+    })
     .then(event => {
         res.json({
             count: event.length,

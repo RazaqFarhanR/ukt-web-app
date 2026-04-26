@@ -23,6 +23,7 @@ const {
     controllerGetSoal,
     controllerKoreksi,
     controllerSync,
+    controllerSyncBulk,
     controllerResyncEvent
 } = require('./session.controller');
 
@@ -37,6 +38,7 @@ router.post('/getdata', controllerCekUjain)
 router.post('/getsoal/:page', controllerGetSoal)
 router.post('/koreksi', controllerKoreksi)
 router.post('/sync', controllerSync)
+router.post('/sync_bulk', controllerSyncBulk)
 router.post('/resync_event', Auth, verifyRoles("super admin", "admin cabang"), controllerResyncEvent )
 router.post('/', Auth, verifyRoles("admin", "super admin", "admin ranting", "admin cabang", "pengurus cabang", "pengurus ranting", "penguji cabang", "penguji ranting", "siswa"), controllerAdd )
 router.post('/getid', Auth, verifyRoles("siswa"), controllerGetById )

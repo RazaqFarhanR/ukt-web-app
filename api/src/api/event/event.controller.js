@@ -5,7 +5,16 @@ const siswa = models.siswa;
 
 module.exports = {
     controllerGetAll: async (req, res) => {
-        event.findAll()
+        const { active } = req.query;
+        let where = {};
+        if (active === 'true') {
+            where.is_active = true;
+        }
+
+        event.findAll({
+            where: where,
+            order: [['id_event', 'DESC']]
+        })
             .then(event => {
                 res.json({
                     count: event.length,
