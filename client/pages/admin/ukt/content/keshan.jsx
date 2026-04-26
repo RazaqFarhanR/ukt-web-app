@@ -4,43 +4,20 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const Keshan = (props) => {
     const [dataUjian, setDataUjian] = useState([])
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
-    const cache = useRef({});
 
     const getDataUjian = async () => {
-        const cacheKey = `${props.data?.ranting}-${page}`;
-        if (cache.current[cacheKey]) {
-            const cached = cache.current[cacheKey];
-            startTransition(() => {
-                setDataUjian(cached.data);
-                setTotalPages(cached.totalPages);
-            });
-            return;
-        }
-
+        if (!props.data?.ranting) return;
         setLoading(true);
         const event = JSON.parse(localStorage.getItem('event'));
         const token = localStorage.getItem('token');
 
         try {
-            // Run both calls in parallel
-            const [pagesRes, dataRes] = await Promise.all([
-                axios.get(`${BASE_URL}session/pages/${event.id_event}/${props.data?.ranting}/25`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                }),
-                axios.get(`${BASE_URL}session/ukt/${event.id_event}/${props.data?.ranting}/${page}/25`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
-            ]);
-
-            const result = { data: dataRes.data.data, totalPages: pagesRes.data.totalPages };
-            cache.current[cacheKey] = result; // cache it
-            startTransition(() => {
-                setDataUjian(result.data);
-                setTotalPages(result.totalPages);
+            const dataRes = await axios.get(`${BASE_URL}session/ukt/${event.id_event}/${props.data?.ranting}/1/9999`, {
+                headers: { Authorization: `Bearer ${token}` }
             });
+
+            setDataUjian(dataRes.data.data);
         } catch (err) {
             console.log(err.message);
         } finally {
@@ -48,62 +25,10 @@ const Keshan = (props) => {
         }
     }
 
-    // Only re-fetch when ranting or page actually changes — not on every parent render
     useEffect(() => {
         getDataUjian();
-    }, [page, props.data?.ranting]);
-
-    // Reset to page 1 when ranting changes
-    useEffect(() => {
-        setPage(1);
     }, [props.data?.ranting]);
 
-    const renderPageNumbers = () => {
-        const pages = [];
-
-        // Generate page numbers based on the total number of pages
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === 1 || i === totalPages || i === page) {
-                // Show the first, last, and current page numbers
-                pages.push(
-                    <button
-                        key={i}
-                        onClick={() => setPage(i)}
-                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue text-white' : 'bg-gray text-white'
-                            }`}
-                    >
-                        {i}
-                    </button>
-                );
-            } else if (
-                i >= page - 5 &&
-                i <= page + 5 &&
-                (i % 10 !== 0 || Math.abs(page - i) <= 10)
-            ) {
-                // Show the page numbers within a range of 10 from the current page
-                pages.push(
-                    <button
-                        key={i}
-                        onClick={() => setPage(i)}
-                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue text-white' : 'bg-gray text-white'
-                            }`}
-                    >
-                        {i}
-                    </button>
-                );
-            } else if (
-                (i === page - 10 && page > 15) ||
-                (i === page + 10 && page < totalPages - 15)
-            ) {
-                // Show a dot for every 10 numbers before or after the current page
-                pages.push(
-                    <span key={i} className="mx-1 p-2">
-                        ...
-                    </span>
-                );
-            }
-        }
-    }
 
     function ThComponent({ items }) {
         let banding = 1;
@@ -172,19 +97,33 @@ const Keshan = (props) => {
                                 <tr className='text-white'>
                                     <th className='py-3 w-20'>No</th>
                                     <th className='w-[26rem] px-5'>Nama</th>
-                                    {dataUjian?.slice(0, 1).map((item, index) => (
-                                        <ThComponent items={item.lembar_jawaban} key={index + 1} />
-                                    ))}
+                                    {(() => {
+                                        const studentWithAnswers = dataUjian?.find(item => item.lembar_jawaban && item.lembar_jawaban.length > 0);
+                                        return studentWithAnswers ? (
+                                            <ThComponent items={studentWithAnswers.lembar_jawaban} key="header" />
+                                        ) : null;
+                                    })()}
                                 </tr>
                             </thead>
                             <tbody>
-                                {dataUjian?.map((item, index) => (
-                                    <tr className='text-green text-center h-fit' key={item.keshan_siswa.nomor_urut}>
-                                        <td className='border-b-2 text-white py-3 border-gray'>{item.keshan_siswa.nomor_urut}</td>
-                                        <td className='border-b-2 text-white border-gray text-center text-lg'>{item.keshan_siswa.name}</td>
-                                        <TdComponent items={item.lembar_jawaban} key={index + 1} />
-                                    </tr>
-                                ))}
+                                {(() => {
+                                    const studentWithAnswers = dataUjian?.find(item => item.lembar_jawaban && item.lembar_jawaban.length > 0);
+                                    const questionCount = studentWithAnswers?.lembar_jawaban?.length || 0;
+
+                                    return dataUjian?.map((item, index) => (
+                                        <tr className='text-green text-center h-fit' key={item.id_siswa}>
+                                            <td className='border-b-2 text-white py-3 border-gray'>{item.keshan_siswa?.nomor_urut}</td>
+                                            <td className='border-b-2 text-white border-gray text-center text-lg whitespace-nowrap px-4'>{item.keshan_siswa?.name}</td>
+                                            {item.lembar_jawaban && item.lembar_jawaban.length > 0 ? (
+                                                <TdComponent items={item.lembar_jawaban} key={index + 1} />
+                                            ) : (
+                                                Array.from({ length: questionCount }).map((_, i) => (
+                                                    <td key={i} className='border-b-2 text-white/20 py-3 border-gray text-[10px] italic bg-navy/50'>BELUM UJIAN</td>
+                                                ))
+                                            )}
+                                        </tr>
+                                    ));
+                                })()}
                             </tbody>
                         </table>
                     )}
