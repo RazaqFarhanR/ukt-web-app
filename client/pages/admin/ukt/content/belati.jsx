@@ -41,16 +41,8 @@ const belati = (props) => {
         try {
             const res = await axios.get(BASE_URL + `belati_detail/ukt/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
             const allData = res.data.data;
-            const total = Math.ceil(allData.length / itemsPerPage);
-
-            // Paginate the data client-side
-            const startIndex = (page - 1) * itemsPerPage;
-            const paginatedData = allData.slice(startIndex, startIndex + itemsPerPage);
-
-            const result = { data: paginatedData, totalPages: total };
-            cache.current[cacheKey] = result;
-            setDatabelati(result.data);
-            setTotalPages(result.totalPages);
+            cache.current[cacheKey] = allData;
+            setDatabelati(allData);
         } catch (err) {
             console.log(err.message);
         } finally {
