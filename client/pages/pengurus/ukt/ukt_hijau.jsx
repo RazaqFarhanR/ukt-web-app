@@ -32,7 +32,7 @@ const ukt_hijau = () => {
 
     // function get data ranting
     const getDataRanting = async () => {
-        const user = localStorage.getItem('admin')
+        const user = localStorage.getItem('pengurus')
         const dataUser = JSON.parse(user)
         setDataUser(dataUser)
         const token = localStorage.getItem('token')
@@ -68,12 +68,13 @@ const ukt_hijau = () => {
         });
     }
 
-    // function login checker
+     // function login checker
     const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
-            router.push('/admin/login')
+        if (localStorage.getItem('token') === null || localStorage.getItem('pengurus') === null) {
+            router.push('/pengurus/login')
         }
     }
+
 
     useEffect(() => {
 

@@ -33,7 +33,7 @@ const ukt_jambon = () => {
     // function get data ranting
     const getDataRanting = () => {
         const token = localStorage.getItem('token')
-        const user = localStorage.getItem('admin')
+        const user = localStorage.getItem('pengurus')
         const dataUser = JSON.parse(user)
         setDataUser(dataUser)
         axios.get(BASE_URL + `ranting`, { headers: { Authorization: `Bearer ${token}` } })
@@ -67,12 +67,13 @@ const ukt_jambon = () => {
         });
     }
 
-    // function login checker
+     // function login checker
     const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
-            router.push('/admin/login')
+        if (localStorage.getItem('token') === null || localStorage.getItem('pengurus') === null) {
+            router.push('/pengurus/login')
         }
     }
+
 
     useEffect(() => {
         getDataEvent()
