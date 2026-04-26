@@ -545,14 +545,14 @@ const rekap_nilai_ukt_ukcw = () => {
                                                     setUpDown('upToDown');
 
                                                 }}><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
-                                            <th className='text-xs w-[5%] border font-oswald'>Sambung {jenis == 'sambong' && updown == 'upToDown'
+                                            <th className='text-xs w-[5%] border font-oswald'>Sambung {jenis == 'sambung' && updown == 'upToDown'
                                                 ? <button className='rounded-md bg-gray p-0.5' onClick={() => {
-                                                    setJenis('sambong');
+                                                    setJenis('sambung');
                                                     setUpDown('downToUp');
 
                                                 }}><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg></button>
                                                 : <button className='rounded-md bg-gray p-0.5' onClick={() => {
-                                                    setJenis('sambong');
+                                                    setJenis('sambung');
                                                     setUpDown('upToDown');
                                                 }}><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
                                             <th className='text-xs w-[6%] border font-oswald bg-purple'>Rata-rata {jenis == 'all' && updown == 'upToDown'
@@ -584,7 +584,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.belati < 50 && 'text-[#ca3030]'} ${item?.belati > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.belati)}</td>
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.kripen < 50 && 'text-[#ca3030]'} ${item?.kripen > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.kripen)}</td>
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.fisik < 50 && 'text-[#ca3030]'} ${item?.fisik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.fisik)}</td>
-                                                    <td className={`border-b-2 border-gray border text-xs ${item?.sambong < 50 && 'text-[#ca3030]'} ${item?.sambong > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambung)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.sambung < 50 && 'text-[#ca3030]'} ${item?.sambung > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambung)}</td>
                                                     <td
                                                         className={`border-b-2 border-gray border font-bold text-xs
                                                             ${item?.total < 50
