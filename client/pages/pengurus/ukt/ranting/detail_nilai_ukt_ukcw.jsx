@@ -51,8 +51,8 @@ const detail_nilai_ukt_ukcw = () => {
 
     // function login checker
     const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
-            router.push('/admin/login')
+        if (localStorage.getItem('token') === null || localStorage.getItem('pengurus') === null) {
+            router.push('/pengurus/login')
         }
     }
 
@@ -63,7 +63,7 @@ const detail_nilai_ukt_ukcw = () => {
     }, [])
     useEffect(() => {
         const role = JSON.parse(localStorage.getItem('admin'))
-        if (role.id_role === 'admin ranting') {
+        if (role.id_role === 'pengurus ranting') {
             setRanting(role.id_ranting)
         }
     }, [])

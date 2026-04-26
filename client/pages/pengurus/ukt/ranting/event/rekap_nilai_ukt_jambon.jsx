@@ -81,8 +81,8 @@ const rekap_nilai_ukt_ukt_jambon = () => {
     const getDataEventSelect = async () => {
         const event = JSON.parse(localStorage.getItem('event'));
         const token = localStorage.getItem('token')
-        const admin = JSON.parse(localStorage.getItem('admin'));
-        const ranting = admin.id_role == 'admin ranting' ? admin.id_ranting : 'all';
+        const pengurus = JSON.parse(localStorage.getItem('pengurus'));
+        const ranting = pengurus.id_role == 'pengurus ranting' ? pengurus.id_ranting : 'all';
         await
             axios.get(BASE_URL + `event/select/tipe/UKT Jambon/${ranting}`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
@@ -156,8 +156,8 @@ const rekap_nilai_ukt_ukt_jambon = () => {
 
     // function login checker
     const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('admin') === null) {
-            router.push('/admin/login')
+        if (localStorage.getItem('token') === null || localStorage.getItem('pengurus') === null) {
+            router.push('/pengurus/login')
         }
     }
 
