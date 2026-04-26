@@ -44,18 +44,7 @@ const jurus = (props) => {
         try {
             const res = await axios.get(BASE_URL + `jurus_detail/ukt/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
             const allData = res.data.data;
-            const total = Math.ceil(allData.length / itemsPerPage);
-
-            // Paginate the data client-side
-            const startIndex = (page - 1) * itemsPerPage;
-            const paginatedData = allData.slice(startIndex, startIndex + itemsPerPage);
-
-            const result = { data: paginatedData, totalPages: total };
-            cache.current[cacheKey] = result;
-            startTransition(() => {
-                setDataJurus(result.data);
-                setTotalPages(result.totalPages);
-            });
+            setDataJurus(allData);
         } catch (err) {
             console.log(err.message);
         } finally {
@@ -74,50 +63,50 @@ const jurus = (props) => {
         setPage(1);
     }, [props.data?.ranting]);
 
-    const renderPageNumbers = () => {
-        const pages = [];
+    // const renderPageNumbers = () => {
+    //     const pages = [];
 
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === 1 || i === totalPages || i === page) {
-                pages.push(
-                    <button
-                        key={i}
-                        onClick={() => setPage(i)}
-                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-white'
-                            }`}
-                    >
-                        {i}
-                    </button>
-                );
-            } else if (
-                i >= page - 5 &&
-                i <= page + 5 &&
-                (i % 10 !== 0 || Math.abs(page - i) <= 10)
-            ) {
-                pages.push(
-                    <button
-                        key={i}
-                        onClick={() => setPage(i)}
-                        className={`mx-1 p-2 rounded ${i === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-white'
-                            }`}
-                    >
-                        {i}
-                    </button>
-                );
-            } else if (
-                (i === page - 10 && page > 15) ||
-                (i === page + 10 && page < totalPages - 15)
-            ) {
-                pages.push(
-                    <span key={i} className="mx-1 p-2">
-                        ...
-                    </span>
-                );
-            }
-        }
+    //     for (let i = 1; i <= totalPages; i++) {
+    //         if (i === 1 || i === totalPages || i === page) {
+    //             pages.push(
+    //                 <button
+    //                     key={i}
+    //                     onClick={() => setPage(i)}
+    //                     className={`mx-1 p-2 rounded ${i === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-white'
+    //                         }`}
+    //                 >
+    //                     {i}
+    //                 </button>
+    //             );
+    //         } else if (
+    //             i >= page - 5 &&
+    //             i <= page + 5 &&
+    //             (i % 10 !== 0 || Math.abs(page - i) <= 10)
+    //         ) {
+    //             pages.push(
+    //                 <button
+    //                     key={i}
+    //                     onClick={() => setPage(i)}
+    //                     className={`mx-1 p-2 rounded ${i === page ? 'bg-blue-500 text-white' : 'bg-gray-200 text-white'
+    //                         }`}
+    //                 >
+    //                     {i}
+    //                 </button>
+    //             );
+    //         } else if (
+    //             (i === page - 10 && page > 15) ||
+    //             (i === page + 10 && page < totalPages - 15)
+    //         ) {
+    //             pages.push(
+    //                 <span key={i} className="mx-1 p-2">
+    //                     ...
+    //                 </span>
+    //             );
+    //         }
+    //     }
 
-        return pages;
-    };
+    //     return pages;
+    // };
 
     function ThComponent({ items }) {
         return items?.map((item, index) => (
@@ -132,7 +121,17 @@ const jurus = (props) => {
                         CUKUP
                     </div>
                 )}
+                {item.predikat === true && (
+                    <div className="font-semibold bg-purple rounded-md text-white py-1.5 px-12 uppercase">
+                        CUKUP
+                    </div>
+                )}
                 {item.predikat === 10 && (
+                    <div className="font-semibold bg-green rounded-md text-white py-1.5 px-12 uppercase">
+                        BAIK
+                    </div>
+                )}
+                {item.predikat === 2 && (
                     <div className="font-semibold bg-green rounded-md text-white py-1.5 px-12 uppercase">
                         BAIK
                     </div>
@@ -196,9 +195,9 @@ const jurus = (props) => {
                     </table>
                 </div>
 
-                <div className="flex justify-center mt-5">
+                {/* <div className="flex justify-center mt-5">
                     {renderPageNumbers()}
-                </div>
+                </div> */}
             </div>
         </div>
     )
