@@ -53,6 +53,7 @@ const ujian = () => {
     const [ minutes, setMinutes ] = useState(10);
     const [seconds, setSeconds ] =  useState(0);
     const getDataUjian = () => {
+        setIsFetchingSoal(true);
         const token = localStorage.getItem('tokenSiswa')
         const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
         let data = {
@@ -72,15 +73,18 @@ const ujian = () => {
             } else {
                 console.error(res.data.message);
                 setSoal(null);
+                setIsFetchingSoal(false);
             }
         })
         .catch((err) => {
             console.log(err.message);
             setSoal(null);
+            setIsFetchingSoal(false);
         })
     }
     
     const getSoal = (id, page) => {
+        setIsFetchingSoal(true);
         const token = localStorage.getItem('tokenSiswa')
         const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
         let data = {
@@ -90,14 +94,17 @@ const ujian = () => {
         axios.post(BASE_URL + 'session/getsoal/'+ page, data)
         .then(res => {
             setSoal(res.data.data);
+            setIsFetchingSoal(false);
         })
         .catch((err) => {
             console.log(err.message);
+            setIsFetchingSoal(false);
         })
     }
 
     // create a state variable to store the selected options and id_soal values
     const [selectedOptions, setSelectedOptions] = useState([]);
+    const [isFetchingSoal, setIsFetchingSoal] = useState(false);
 
     // function to handle changes in the selected option and update the state
     function handleOptionChange(nomor, id_soal, selectedOption) {
@@ -150,13 +157,14 @@ const ujian = () => {
     }
     
     const nextPage = () => {
+        if (!dataUjian || !dataUjian.data) return;
         router.push({query: {tipe: tipe, ranting: ranting, event: event, page:(Number(page) + 1)}})
         getSoal(dataUjian.data.id_session, (Number(page) + 1))
         setCurrentPage((Number(page) + 1))
     }
 
     useEffect(() => {
-        if (dataUjian.length != 0){
+        if (dataUjian && dataUjian.data){
             getSoal(dataUjian.data.id_session, (Number(page)))
         }
     }, [page])
@@ -237,9 +245,33 @@ const ujian = () => {
                 
                 {/* container soal & jawaban */}
                 {soal ? (
-                    <div className='w-full bg-navy rounded-lg lg:my-2 lg:p-3 p-2'>
-                        {/* wrapper soal */}
-                        <div className='w-full h-auto mb-2'>
+                    <>
+                    {isFetchingSoal ? (
+                        <div className='w-full bg-navy rounded-lg lg:my-2 lg:p-3 p-2 animate-pulse'>
+                            <div className='h-8 bg-gray-600/50 rounded w-3/4 mb-8 mt-2'></div>
+                            <div className='space-y-6 mt-12'>
+                                <div className='flex items-center'>
+                                    <div className='h-6 w-6 bg-gray-600/50 rounded-full mr-4'></div>
+                                    <div className='h-6 bg-gray-600/50 rounded w-1/2'></div>
+                                </div>
+                                <div className='flex items-center'>
+                                    <div className='h-6 w-6 bg-gray-600/50 rounded-full mr-4'></div>
+                                    <div className='h-6 bg-gray-600/50 rounded w-1/2'></div>
+                                </div>
+                                <div className='flex items-center'>
+                                    <div className='h-6 w-6 bg-gray-600/50 rounded-full mr-4'></div>
+                                    <div className='h-6 bg-gray-600/50 rounded w-1/2'></div>
+                                </div>
+                                <div className='flex items-center'>
+                                    <div className='h-6 w-6 bg-gray-600/50 rounded-full mr-4'></div>
+                                    <div className='h-6 bg-gray-600/50 rounded w-1/2'></div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className='w-full bg-navy rounded-lg lg:my-2 lg:p-3 p-2'>
+                            {/* wrapper soal */}
+                            <div className='w-full h-auto mb-2'>
                             <p className='text-white lg:text-3xl text-lg font-lato select-none'>{page}. {soal.pertanyaan}</p>
                         </div>
                         {/* wrapper jawaban */}
@@ -312,19 +344,23 @@ const ujian = () => {
                             </form>
                         </div>
                     </div>
+                    )}
+                    {/* navigation */}
+                    <Pagination
+                        page={page}
+                        next={() => nextPage()}
+                        answered={[...selectedOptions]}
+                        handleSave={() => setShowModalAlert(true)}
+                    />
+                    </>
                 ) : (
-                    <div className='w-full bg-navy rounded-lg lg:my-2 lg:p-3 p-2 flex justify-center items-center h-48'>
-                        <p className='text-white lg:text-2xl text-lg font-lato text-center'>Data soal tidak ditemukan atau sesi ujian tidak valid. Harap lapor ke admin.</p>
+                    <div className='w-full bg-navy rounded-lg lg:my-2 lg:p-3 p-2 flex flex-col justify-center items-center h-48'>
+                        <p className='text-white lg:text-xl text-lg font-lato text-center mb-4'>Terjadi kesalahan jaringan.</p>
+                        <button onClick={() => getDataUjian()} className='bg-purple hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] text-white px-6 py-2 rounded-md font-bold transition'>
+                            Muat Ulang (Refresh)
+                        </button>
                     </div>
                 )}
-
-                {/* navigation */}
-                <Pagination
-                    page={page}
-                    next={() => nextPage()}
-                    answered={[...selectedOptions]}
-                    handleSave={() => setShowModalAlert(true)}
-                />
             </div>
             <ModalSelesai
             show={showModalSelesai}
