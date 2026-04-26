@@ -212,7 +212,6 @@ module.exports = {
                     }
                 ],
             })
-            console.log(rows)
             const data = rows.map(row => ({
                 id: row.id_teknik_detail,
                 siswa: {
