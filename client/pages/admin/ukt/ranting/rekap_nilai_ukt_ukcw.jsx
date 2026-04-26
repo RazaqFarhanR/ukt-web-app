@@ -579,7 +579,7 @@ const rekap_nilai_ukt_ukcw = () => {
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.belati < 50 && 'text-[#ca3030]'} ${item?.belati > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.belati)}</td>
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.kripen < 50 && 'text-[#ca3030]'} ${item?.kripen > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.kripen)}</td>
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.fisik < 50 && 'text-[#ca3030]'} ${item?.fisik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.fisik)}</td>
-                                                    <td className={`border-b-2 border-gray border text-xs ${item?.sambong < 50 && 'text-[#ca3030]'} ${item?.sambong > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambong)}</td>
+                                                    <td className={`border-b-2 border-gray border text-xs ${item?.sambong < 50 && 'text-[#ca3030]'} ${item?.sambong > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambung)}</td>
                                                     <td
                                                         className={`border-b-2 border-gray border font-bold text-xs
                                                             ${item?.total < 50
