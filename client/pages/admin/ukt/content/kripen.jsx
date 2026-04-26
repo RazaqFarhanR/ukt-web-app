@@ -114,9 +114,19 @@ const Kripen = (props) => {
     function TdComponent({ items }) {
         return items?.map((item, index) => (
             <td key={index + 1} className='px-3 border-b-2 border-gray'>
-                {item.predikat === 1 && (
+               {item.predikat === 8 && (
                     <div className="font-semibold bg-purple rounded-md text-white py-1.5 px-12 uppercase">
                         CUKUP
+                    </div>
+                )}
+                {item.predikat === true && (
+                    <div className="font-semibold bg-purple rounded-md text-white py-1.5 px-12 uppercase">
+                        CUKUP
+                    </div>
+                )}
+                {item.predikat === 10 && (
+                    <div className="font-semibold bg-green rounded-md text-white py-1.5 px-12 uppercase">
+                        BAIK
                     </div>
                 )}
                 {item.predikat === 2 && (

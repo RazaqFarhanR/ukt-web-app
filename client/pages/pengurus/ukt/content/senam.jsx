@@ -28,18 +28,7 @@ const senam = (props) => {
         try {
             const res = await axios.get(BASE_URL + `senam_detail/ukt/${event.id_event}/${props.data?.ranting}`, { headers: { Authorization: `Bearer ${token}` } })
             const allData = res.data.data;
-            const total = Math.ceil(allData.length / itemsPerPage);
-
-            // Paginate the data client-side
-            const startIndex = (page - 1) * itemsPerPage;
-            const paginatedData = allData.slice(startIndex, startIndex + itemsPerPage);
-
-            const result = { data: paginatedData, totalPages: total };
-            cache.current[cacheKey] = result;
-            startTransition(() => {
-                setDataSenam(result.data);
-                setTotalPages(result.totalPages);
-            });
+            setDataSenam(allData);
         } catch (err) {
             console.log(err.message);
         } finally {
@@ -182,9 +171,9 @@ const senam = (props) => {
                     </table>
                 </div>
 
-                <div className="flex justify-center mt-5">
+                {/* <div className="flex justify-center mt-5">
                     {renderPageNumbers()}
-                </div>
+                </div> */}
             </div>
 
         </div>
