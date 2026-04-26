@@ -45,9 +45,17 @@ const loginPage = () => {
     const [showModalSiswa, setShowModalSiswa] = useState (false)
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [isLoadingMulai, setIsLoadingMulai] = useState(false);
+    const [isLoadingAuth, setIsLoadingAuth] = useState(false);
+
+    const handleMulai = async () => {
+        setIsLoadingMulai(true);
+        await router.push(router.asPath + `/ujian`);
+    };
 
     const Auth = async (e) => {
         e.preventDefault()
+        setIsLoadingAuth(true);
         let form = {
             nomor_urut: nomorUrut,
             id_event: dataEvent.id
@@ -81,15 +89,18 @@ const loginPage = () => {
                 localStorage.setItem('dataSiswa', JSON.stringify(dataSiswa))
                 localStorage.setItem('tokenSiswa', (token))
                 setShowModalSiswa(true)
+                setIsLoadingAuth(false)
                 // console.log(router.asPath);
                 // router.push('./ujian')
             } else {
                 setErrorMessage(res.data.message || "Nomor urut salah atau tidak terdaftar.");
                 setShowErrorModal(true);
+                setIsLoadingAuth(false)
             }
         })
         .catch(err => {
             console.log(err.message);
+            setIsLoadingAuth(false)
         })
     }
 
@@ -125,10 +136,21 @@ const loginPage = () => {
                                 </div>
 
                                 <button 
-                                    className='bg-purple py-1.5 w-full rounded-md text-lg font-semibold hover:scale-105 transition ease-in-out duration-300 uppercase'
+                                    className={`py-1.5 w-full rounded-md text-lg font-semibold hover:scale-105 transition ease-in-out duration-300 uppercase flex justify-center items-center ${isLoadingAuth ? 'bg-purple/70 cursor-not-allowed' : 'bg-purple'}`}
                                     type='submit'
+                                    disabled={isLoadingAuth}
                                 >
-                                Verikasi Nama
+                                {isLoadingAuth ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Memverifikasi...
+                                    </>
+                                ) : (
+                                    "Verifikasi Nama"
+                                )}
                                 </button>
                             </form>
                         </div>
@@ -139,7 +161,8 @@ const loginPage = () => {
             {/* <globalState.Provider value={{ showModalSiswa, setShowModalSiswa}}> */}
                 <Modal_siswa 
                     show={showModalSiswa}
-                    mulai={() => router.push(router.asPath+`/ujian`)}
+                    mulai={handleMulai}
+                    loading={isLoadingMulai}
                     nama={dataSiswa?.name}
                     ranting={dataSiswa?.id_ranting}
                     close={() => setShowModalSiswa(false)}

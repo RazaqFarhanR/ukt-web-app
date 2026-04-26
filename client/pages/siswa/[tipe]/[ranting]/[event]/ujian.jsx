@@ -57,6 +57,7 @@ const ujian = () => {
     const [ minutes, setMinutes ] = useState(10);
     const [seconds, setSeconds ] =  useState(0);
     const getDataUjian = () => {
+        setIsFetchingSoal(true);
         const token = localStorage.getItem('tokenSiswa')
         const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
         let data = {
@@ -67,19 +68,27 @@ const ujian = () => {
         let session
         axios.post(BASE_URL + 'session/getdata', data)
         .then(res => {
-            session = res.data
-            setDataUjian(res.data)
-            setMinutes(res.data.minute)
-            setSeconds(res.data.second)
-            getSoal(res.data.data.id_session, page)
-
+            if (res.data.status) {
+                session = res.data
+                setDataUjian(res.data)
+                setMinutes(res.data.minute)
+                setSeconds(res.data.second)
+                getSoal(res.data.data.id_session, page)
+            } else {
+                console.error(res.data.message);
+                setSoal(null);
+                setIsFetchingSoal(false);
+            }
         })
         .catch((err) => {
             console.log(err.message);
+            setSoal(null);
+            setIsFetchingSoal(false);
         })
     }
     
     const getSoal = (id, page) => {
+        setIsFetchingSoal(true);
         const token = localStorage.getItem('tokenSiswa')
         const dataSiswa = JSON.parse(localStorage.getItem('dataSiswa'))
         let data = {
@@ -89,15 +98,18 @@ const ujian = () => {
         axios.post(BASE_URL + 'session/getsoal/'+ page, data)
         .then(res => {
             setSoal(res.data.data);
+            setIsFetchingSoal(false);
         })
         .catch((err) => {
             console.log(err.message);
+            setIsFetchingSoal(false);
         })
     }
 
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [syncQueue, setSyncQueue] = useState([]);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [isFetchingSoal, setIsFetchingSoal] = useState(false);
 
     useEffect(() => {
         if (showModalSyncWait && syncQueue.length === 0) {
@@ -267,13 +279,14 @@ const ujian = () => {
     }
     
     const nextPage = () => {
+        if (!dataUjian || !dataUjian.data) return;
         router.push({query: {tipe: tipe, ranting: ranting, event: event, page:(Number(page) + 1)}})
         getSoal(dataUjian.data.id_session, (Number(page) + 1))
         setCurrentPage((Number(page) + 1))
     }
 
     useEffect(() => {
-        if (dataUjian.length != 0){
+        if (dataUjian && dataUjian.data){
             getSoal(dataUjian.data.id_session, (Number(page)))
         }
     }, [page])
@@ -396,95 +409,129 @@ const ujian = () => {
                 </div>
                 
                 {/* container soal & jawaban */}
-                <div className='w-full bg-navy rounded-lg lg:my-2 lg:p-3 p-2'>
-                    {/* wrapper soal */}
-                    <div className='w-full h-auto mb-2'>
-                        <p className='text-white lg:text-3xl text-lg font-lato select-none'>{page}. {soal.pertanyaan}</p>
+                {soal ? (
+                    <>
+                    {isFetchingSoal ? (
+                        <div className='w-full bg-navy rounded-lg lg:my-2 lg:p-3 p-2 animate-pulse'>
+                            <div className='h-8 bg-gray-600/50 rounded w-3/4 mb-8 mt-2'></div>
+                            <div className='space-y-6 mt-12'>
+                                <div className='flex items-center'>
+                                    <div className='h-6 w-6 bg-gray-600/50 rounded-full mr-4'></div>
+                                    <div className='h-6 bg-gray-600/50 rounded w-1/2'></div>
+                                </div>
+                                <div className='flex items-center'>
+                                    <div className='h-6 w-6 bg-gray-600/50 rounded-full mr-4'></div>
+                                    <div className='h-6 bg-gray-600/50 rounded w-1/2'></div>
+                                </div>
+                                <div className='flex items-center'>
+                                    <div className='h-6 w-6 bg-gray-600/50 rounded-full mr-4'></div>
+                                    <div className='h-6 bg-gray-600/50 rounded w-1/2'></div>
+                                </div>
+                                <div className='flex items-center'>
+                                    <div className='h-6 w-6 bg-gray-600/50 rounded-full mr-4'></div>
+                                    <div className='h-6 bg-gray-600/50 rounded w-1/2'></div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className='w-full bg-navy rounded-lg lg:my-2 lg:p-3 p-2'>
+                            {/* wrapper soal */}
+                            <div className='w-full h-auto mb-2'>
+                            <p className='text-white lg:text-3xl text-lg font-lato select-none'>{page}. {soal.pertanyaan}</p>
+                        </div>
+                        {/* wrapper jawaban */}
+                        <div className='w-full h-auto mt-7'>
+                            <form className='space-y-4'>
+                                <div className="radio">
+                                    <label className='flex items-center'>
+                                        <input name={soal.id_soal} className="form-radio mr-4 lg:h-7 lg:w-7 h-5 w-5" type="radio" value="option1" 
+                                        checked={
+                                            soal.id_soal === (selectedOptions?.find(item => {
+                                                return item.id_soal === soal.id_soal
+                                            })?.id_soal)
+                                            &&
+                                            selectedOptions?.find(item => {
+                                                return item.id_soal === soal.id_soal
+                                            })?.selectedOption === "opsi1"
+                                        } 
+                                        onChange={() => handleOptionChange(page, soal.id_soal, "opsi1")}/>
+                                        <p className='text-white lg:text-2xl text-lg font-lato'>{soal.opsi1}</p>
+                                    </label>
+                                </div>
+                                <div className="radio">
+                                    <label className='flex items-center'>
+                                        <input name={soal.id_soal} className="form-radio mr-4 lg:h-7 lg:w-7 h-5 w-5" type="radio" value="option2" 
+                                        checked={
+                                            soal.id_soal === (selectedOptions?.find(item => {
+                                                return item.id_soal === soal.id_soal
+                                            })?.id_soal)
+                                            &&
+                                            selectedOptions?.find(item => {
+                                                return item.id_soal === soal.id_soal
+                                            })?.selectedOption === "opsi2"
+                                        } 
+                                        onChange={() => handleOptionChange(page, soal.id_soal, "opsi2")}/>
+                                        <p className='text-white lg:text-2xl text-lg font-lato'>{soal.opsi2}</p>
+                                    </label>
+                                </div>
+                                <div className="radio">
+                                    <label className='flex items-center'>
+                                        <input name={soal.id_soal} className="form-radio mr-4 lg:h-7 lg:w-7 h-5 w-5" type="radio" value="option3" 
+                                        checked={
+                                            soal.id_soal === (selectedOptions?.find(item => {
+                                                return item.id_soal === soal.id_soal
+                                            })?.id_soal)
+                                            &&
+                                            selectedOptions?.find(item => {
+                                                return item.id_soal === soal.id_soal
+                                            })?.selectedOption === "opsi3"
+                                        }
+                                        onChange={() => handleOptionChange(page, soal.id_soal, "opsi3")}/>
+                                        <p className='text-white lg:text-2xl text-lg font-lato'>{soal.opsi3}</p>
+                                    </label>
+                                </div>
+                                <div className="radio">
+                                    <label className='flex items-center'>
+                                        <input name={soal.id_soal} className="form-radio mr-4 lg:h-7 lg:w-7 h-5 w-5" type="radio" value="option4" 
+                                        checked={
+                                            soal.id_soal === (selectedOptions?.find(item => {
+                                                return item.id_soal === soal.id_soal
+                                            })?.id_soal)
+                                            &&
+                                            selectedOptions?.find(item => {
+                                                return item.id_soal === soal.id_soal
+                                            })?.selectedOption === "opsi4"
+                                        } 
+                                        onChange={() => handleOptionChange(page, soal.id_soal, "opsi4")}/>
+                                        <p className='text-white lg:text-2xl text-lg font-lato'>{soal.opsi4}</p>
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    {/* wrapper jawaban */}
-                    <div className='w-full h-auto mt-7'>
-                        <form className='space-y-4'>
-                            <div className="radio">
-                                <label className='flex items-center'>
-                                    <input name={soal.id_soal} className="form-radio mr-4 lg:h-7 lg:w-7 h-5 w-5" type="radio" value="option1" 
-                                    checked={
-                                        soal.id_soal === (selectedOptions?.find(item => {
-                                            return item.id_soal === soal.id_soal
-                                        })?.id_soal)
-                                        &&
-                                        selectedOptions?.find(item => {
-                                            return item.id_soal === soal.id_soal
-                                        })?.selectedOption === "opsi1"
-                                    } 
-                                    onChange={() => handleOptionChange(page, soal.id_soal, "opsi1")}/>
-                                    <p className='text-white lg:text-2xl text-lg font-lato'>{soal.opsi1}</p>
-                                </label>
-                            </div>
-                            <div className="radio">
-                                <label className='flex items-center'>
-                                    <input name={soal.id_soal} className="form-radio mr-4 lg:h-7 lg:w-7 h-5 w-5" type="radio" value="option2" 
-                                    checked={
-                                        soal.id_soal === (selectedOptions?.find(item => {
-                                            return item.id_soal === soal.id_soal
-                                        })?.id_soal)
-                                        &&
-                                        selectedOptions?.find(item => {
-                                            return item.id_soal === soal.id_soal
-                                        })?.selectedOption === "opsi2"
-                                    } 
-                                    onChange={() => handleOptionChange(page, soal.id_soal, "opsi2")}/>
-                                    <p className='text-white lg:text-2xl text-lg font-lato'>{soal.opsi2}</p>
-                                </label>
-                            </div>
-                            <div className="radio">
-                                <label className='flex items-center'>
-                                    <input name={soal.id_soal} className="form-radio mr-4 lg:h-7 lg:w-7 h-5 w-5" type="radio" value="option3" 
-                                    checked={
-                                        soal.id_soal === (selectedOptions?.find(item => {
-                                            return item.id_soal === soal.id_soal
-                                        })?.id_soal)
-                                        &&
-                                        selectedOptions?.find(item => {
-                                            return item.id_soal === soal.id_soal
-                                        })?.selectedOption === "opsi3"
-                                    }
-                                    onChange={() => handleOptionChange(page, soal.id_soal, "opsi3")}/>
-                                    <p className='text-white lg:text-2xl text-lg font-lato'>{soal.opsi3}</p>
-                                </label>
-                            </div>
-                            <div className="radio">
-                                <label className='flex items-center'>
-                                    <input name={soal.id_soal} className="form-radio mr-4 lg:h-7 lg:w-7 h-5 w-5" type="radio" value="option4" 
-                                    checked={
-                                        soal.id_soal === (selectedOptions?.find(item => {
-                                            return item.id_soal === soal.id_soal
-                                        })?.id_soal)
-                                        &&
-                                        selectedOptions?.find(item => {
-                                            return item.id_soal === soal.id_soal
-                                        })?.selectedOption === "opsi4"
-                                    } 
-                                    onChange={() => handleOptionChange(page, soal.id_soal, "opsi4")}/>
-                                    <p className='text-white lg:text-2xl text-lg font-lato'>{soal.opsi4}</p>
-                                </label>
-                            </div>
-                        </form>
+                    )}
+                    {/* navigation */}
+                    <Pagination
+                        page={page}
+                        next={() => nextPage()}
+                        answered={[...selectedOptions]}
+                        handleSave={() => {
+                            if (syncQueue.length > 0) {
+                                setShowModalSyncWait(true);
+                            } else {
+                                setShowModalAlert(true);
+                            }
+                        }}
+                    />
+                    </>
+                ) : (
+                    <div className='w-full bg-navy rounded-lg lg:my-2 lg:p-3 p-2 flex flex-col justify-center items-center h-48'>
+                        <p className='text-white lg:text-xl text-lg font-lato text-center mb-4'>Terjadi kesalahan jaringan.</p>
+                        <button onClick={() => getDataUjian()} className='bg-purple hover:bg-gradient-to-r from-[#16D4FC] to-[#9A4BE9] text-white px-6 py-2 rounded-md font-bold transition'>
+                            Muat Ulang
+                        </button>
                     </div>
-                </div>
-
-                {/* navigation */}
-                <Pagination
-                    page={page}
-                    next={() => nextPage()}
-                    answered={[...selectedOptions]}
-                    handleSave={() => {
-                        if (syncQueue.length > 0) {
-                            setShowModalSyncWait(true);
-                        } else {
-                            setShowModalAlert(true);
-                        }
-                    }}
-                />
+                )}
             </div>
             <ModalSelesai
             show={showModalSelesai}

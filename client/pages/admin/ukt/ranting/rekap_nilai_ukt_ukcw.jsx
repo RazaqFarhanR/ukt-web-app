@@ -92,11 +92,16 @@ const rekap_nilai_ukt_ukcw = () => {
     const executeResync = async () => {
         const token = localStorage.getItem('token');
         const event = JSON.parse(localStorage.getItem('event'));
+        const selectedEvent =
+            eventSelect.length > 0
+                ? eventSelect.map(item => item.value)
+                : [eventId];
+
         setResyncLoading(true);
         
         try {
             const res = await axios.post(BASE_URL + 'session/resync_event', 
-                { id_event: event.id_event },
+                { id_event: selectedEvent },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             
