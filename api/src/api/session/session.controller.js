@@ -34,21 +34,13 @@ module.exports = {
     },
     controllerGetTotalPage: async (req, res) => {
         const limit = Number(req.params.limit);
-        session.findAll({
+        models.siswa.findAll({
             where: {
-                id_event: req.params.id
+                id_event: req.params.id,
+                id_ranting: req.params.ranting,
+                active: true
             },
-            include: [
-                {
-                    model: models.siswa,
-                    attributes: ['id_siswa'],                                                                           
-                    as: "keshan_siswa",
-                    where: {
-                        id_ranting: req.params.ranting
-                    }
-                },
-            ],
-            attributes: ['id_session']
+            attributes: ['id_siswa']
         })
             .then(result => {
                 const totalPages = Math.ceil(result.length / limit);
@@ -67,38 +59,53 @@ module.exports = {
 
         const offset = (pageNumber - 1) * itemsPerPage;
 
-        session.findAll({
+        models.siswa.findAll({
             where: {
-                id_event: id
+                id_event: id,
+                id_ranting: req.params.ranting,
+                active: true
             },
+            attributes: ['id_siswa', 'name', 'nomor_urut', 'id_ranting'],
             include: [
                 {
-                    model: models.siswa,
-                    attributes: ['name', 'nomor_urut', 'id_ranting'],
-                    as: "keshan_siswa",
-                    where: {
-                        id_ranting: req.params.ranting
-                    }
-                },
-                {
-                    model: models.lembar_jawaban,
-                    as: "lembar_jawaban",
+                    model: models.session,
+                    as: "siswa_session",
+                    where: { id_event: id },
+                    required: false,
                     include: [
                         {
-                            model: models.soal,
-                            as: 'soal_ujian'
+                            model: models.lembar_jawaban,
+                            as: "lembar_jawaban",
+                            include: [
+                                {
+                                    model: models.soal,
+                                    as: 'soal_ujian'
+                                }
+                            ]
                         }
                     ]
                 }
             ],
-
-            limit: itemsPerPage,
-            offset: offset,
+            order: [['nomor_urut', 'ASC']]
         })
-            .then(session => {
+            .then(result => {
+                // Map to existing structure expected by frontend
+                const mappedData = result.map(s => {
+                    const sess = s.siswa_session && s.siswa_session.length > 0 ? s.siswa_session[0] : null;
+                    return {
+                        id_session: sess?.id_session || null,
+                        id_siswa: s.id_siswa,
+                        keshan_siswa: {
+                            name: s.name,
+                            nomor_urut: s.nomor_urut,
+                            id_ranting: s.id_ranting
+                        },
+                        lembar_jawaban: sess?.lembar_jawaban || []
+                    }
+                })
                 res.json({
-                    count: session.length,
-                    data: session
+                    count: mappedData.length,
+                    data: mappedData
                 })
             })
             .catch(error => {
@@ -720,12 +727,16 @@ module.exports = {
     controllerResyncEvent: async (req, res) => {
         try {
             const { id_event } = req.body;
-            if (!id_event) {
+            const eventIds = Array.isArray(id_event) ? id_event : [id_event];
+            
+            if (eventIds.length === 0 || !eventIds[0]) {
                 return res.json({ status: false, message: "ID Event diperlukan" });
             }
 
             const sessions = await session.findAll({
-                where: { id_event }
+                where: { 
+                    id_event: { [Op.in]: eventIds }
+                }
             });
 
             if (!sessions || sessions.length === 0) {
@@ -733,7 +744,7 @@ module.exports = {
             }
 
             let resyncCount = 0;
-            const updatePromises = sessions.map(async (sess) => {
+            for (const sess of sessions) {
                 const correctCount = await lembar_jawaban.count({
                     where: {
                         id_session: sess.id_session,
@@ -744,19 +755,22 @@ module.exports = {
 
                 const finalScore = correctCount * 5;
 
+                await session.update(
+                    { nilai: finalScore },
+                    { where: { id_session: sess.id_session } }
+                );
+
                 await ukt_siswa.update(
                     { keshan: finalScore },
                     { 
                         where: { 
                             id_siswa: sess.id_siswa,
-                            id_event: id_event
+                            id_event: sess.id_event
                         } 
                     }
                 );
                 resyncCount++;
-            });
-
-            await Promise.all(updatePromises);
+            }
 
             res.json({
                 status: true,

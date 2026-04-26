@@ -67,6 +67,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "id_siswa",
         as: "senam_toya_siswa"
       })
+      this.hasMany(models.session, {
+        foreignKey: "id_siswa",
+        as: "siswa_session"
+      })
     }
   }
   siswa.init({
