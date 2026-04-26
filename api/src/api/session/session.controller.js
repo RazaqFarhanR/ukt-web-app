@@ -453,6 +453,8 @@ module.exports = {
 
             // Fetch actual count of correct answers from DB to ensure no answers are missed
             const correctCount = await lembar_jawaban.count({
+                distinct: true,
+                col: 'id_soal',
                 where: {
                     id_session: id_session,
                     id_siswa: id_siswa,
@@ -660,31 +662,59 @@ module.exports = {
         }
     },
     controllerFinish: async (req, res) => {
-        let finish = new Date()
+        try {
+            let finish = new Date();
+            const { id_lembar_soal, id_siswa } = req.body;
 
-        let param = {
-            id_lembar_soal: req.body.id_lembar_soal,
-            id_siswa: req.body.id_siswa
-        }
+            const sess = await session.findOne({
+                where: { id_lembar_soal, id_siswa }
+            });
 
-        let data = {
-            nilai: req.body.nilai,
-            // waktu_pengerjaan: req.body.waktu_pengerjaan,
-            finish: finish
+            if (!sess) {
+                return res.json({ status: false, message: "Sesi tidak ditemukan" });
+            }
+
+            // Hitung nilai di server side untuk keamanan
+            const correctCount = await lembar_jawaban.count({
+                distinct: true,
+                col: 'id_soal',
+                where: {
+                    id_session: sess.id_session,
+                    id_siswa: id_siswa,
+                    answer: "benar"
+                }
+            });
+
+            // Asumsi 20 soal, nilai max 100. Jika soal dinamis, gunakan total count.
+            const finalScore = correctCount * 5;
+
+            let data = {
+                nilai: finalScore,
+                finish: finish
+            };
+
+            await session.update(data, { where: { id_session: sess.id_session } });
+
+            // Update ukt_siswa juga agar sinkron
+            await ukt_siswa.update(
+                { keshan: finalScore },
+                { 
+                    where: { 
+                        id_siswa: id_siswa,
+                        id_event: sess.id_event
+                    } 
+                }
+            );
+
+            res.json({
+                status: true,
+                message: "Ujian selesai",
+                data: data,
+                score: finalScore
+            });
+        } catch (error) {
+            res.json({ status: false, message: error.message });
         }
-        logger("Kirim finish data:", data);
-        session.update(data, { where: param })
-            .then(result => {
-                res.json({
-                    message: "Ujian selesai",
-                    data: data
-                })
-            })
-            .catch(error => {
-                res.json({
-                    message: error.message
-                })
-            })
     },
     controllerEdit: async (req, res) => {
         let param = {
@@ -746,6 +776,8 @@ module.exports = {
             let resyncCount = 0;
             for (const sess of sessions) {
                 const correctCount = await lembar_jawaban.count({
+                    distinct: true,
+                    col: 'id_soal',
                     where: {
                         id_session: sess.id_session,
                         id_siswa: sess.id_siswa,
