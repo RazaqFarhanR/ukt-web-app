@@ -1,3 +1,4 @@
+const { where } = require('sequelize');
 const models = require('../../../../models/index');
 const jurus_detail = models.jurus_detail;
 const jurus_siswa = models.jurus_siswa;
@@ -6,6 +7,26 @@ const ukt_siswa = models.ukt_siswa;
 module.exports = {
     controllerGetAll: async (req, res) => {
         jurus_detail.findAll()
+            .then(jurus_detail => {
+                res.json({
+                    count: jurus_detail.length,
+                    data: jurus_detail
+                })
+            })
+            .catch(error => {
+                res.json({
+                    message: error.message
+                })
+            })
+    },
+    controllerGetList: async (req, res) => {
+        models.jurus.findAll(
+            {
+                where: {
+                    tipe_ukt: req.query.tipe_ukt
+                },
+                attributes: ['id_jurus', 'name']
+            })
             .then(jurus_detail => {
                 res.json({
                     count: jurus_detail.length,

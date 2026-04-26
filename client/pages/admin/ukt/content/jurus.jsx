@@ -15,7 +15,7 @@ const jurus = (props) => {
     const getDataListJurus = async () => {
         const token = localStorage.getItem('token')
         try {
-            const res = await axios.get(BASE_URL + `jurus_toya_detail/list`, {
+            const res = await axios.get(BASE_URL + `jurus_detail/list`, {
                 headers:
                     { Authorization: `Bearer ${token}` }
             })
