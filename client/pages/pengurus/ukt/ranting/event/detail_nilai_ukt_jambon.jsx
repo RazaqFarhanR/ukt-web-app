@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import Sidebar from '../../../components/sidebar'
@@ -6,13 +6,14 @@ import Header from '../../../components/header'
 import Footer from '../../../components/footer'
 
 // ---- content --- //
-import Senam from '../../content/senam'
-import Teknik from '../../content/teknik'
-import Jurus from '../../content/jurus'
-import Fisik from '../../content/fisik'
-import Sambung from '../../content/sambung'
-import Keshan from '../../content/keshan'
+const Senam = React.lazy(() => import('../../content/senam'))
+const Teknik = React.lazy(() => import('../../content/teknik'))
+const Jurus = React.lazy(() => import('../../content/jurus'))
+const Fisik = React.lazy(() => import('../../content/fisik'))
+const Sambung = React.lazy(() => import('../../content/sambung'))
+const Keshan = React.lazy(() => import('../../content/keshan'))
 import { useRouter } from 'next/router'
+import DropdownRantingDetail from '@/pages/pengurus/components/dropdownRantingDetail'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const detail_nilai_ukt_jambon = () => {
@@ -21,16 +22,41 @@ const detail_nilai_ukt_jambon = () => {
     const router = useRouter()
     const { eventId, idRanting, nameEvent } = router.query;
     // state set jenis
+    const [dataEvent, setDataEvent] = useState([])
+    const [datapengurus, setDatapengurus] = useState()
     const [active, setActive] = useState('keshan')
-    const [ranting, setRanting] = useState('')
-    const [role, setRole] = useState('')
+    const [ranting, setRanting] = useState(idRanting || '')
+    const [mounted, setMounted] = useState(false)  // ← guards localStorage
+
     // function set jneis
     const onActive = (e) => {
         setActive(e)
     }
+    useEffect(() => {
+        // All localStorage reads happen here — safe, client-only
+        const token = localStorage.getItem('token')
+        const pengurus = localStorage.getItem('pengurus')
+
+        if (!token || !pengurus) {
+            router.push('/pengurus/login')
+            return
+        }
+
+        const event = JSON.parse(localStorage.getItem('event'))
+        const role = JSON.parse(pengurus)
+
+        setDataEvent(event)
+        setDatapengurus(role)
+
+        if (role?.id_role === 'pengurus ranting') {
+            setRanting(role.id_ranting)
+        }
+
+        setMounted(true)  // ← only render content after localStorage is ready
+    }, [])
 
     let activeComponent;
-    const data = { tipe_ukt: "UKT HIJAU", ranting: idRanting}
+    const data = { tipe_ukt: "UKT JAMBON", ranting: ranting }
     if (active === 'senam') {
         activeComponent = <Senam data={data} />;
     } else if (active === 'jurus') {
@@ -45,24 +71,16 @@ const detail_nilai_ukt_jambon = () => {
         activeComponent = <Keshan data={data} />;
     }
 
-     // function login checker
-    const isLogged = () => {
-        if (localStorage.getItem('token') === null || localStorage.getItem('pengurus') === null) {
-            router.push('/pengurus/login')
-        }
-    }
-
-
-    useEffect(() => {
-        isLogged()
-    }, [idRanting])
     useEffect(() => {
         const role = JSON.parse(localStorage.getItem('pengurus'))
         if (role.id_role === 'pengurus ranting') {
             setRanting(role.id_ranting)
-            setRole('pengurus ranting')
+        } else if (idRanting) {
+            setRanting(idRanting)
         }
-    }, [])
+    }, [idRanting])
+
+    if (!mounted) return null
 
     return (
         <>
@@ -87,16 +105,54 @@ const detail_nilai_ukt_jambon = () => {
                     {/* konten utama */}
                     <div className="min-h-full bg-darkBlue px-10 py-8">
 
-                        {/* wrapper category */}
-                        <div className="flex bg-navy gap-x-2 overflow-x-scroll text-purple mb-3 scrollbar-hide w-full text-2xl">
-                            <button onClick={() => onActive('keshan')} className={active === 'keshan' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>KESHAN</button>
-                            <button onClick={() => onActive('senam')} className={active === 'senam' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Senam</button>
-                            <button onClick={() => onActive('jurus')} className={active === 'jurus' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Jurus</button>
-                            <button onClick={() => onActive('fisik')} className={active === 'fisik' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Fisik</button>
-                            <button onClick={() => onActive('teknik')} className={active === 'teknik' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Teknik</button>
-                            <button onClick={() => onActive('sambung')} className={active === 'sambung' ? "bg-purple text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full" : "bg-white hover:bg-purple hover:text-white transition ease-in-out duration-300 py-1.5 px-4 rounded-md uppercase w-full"}>Sambung</button>
+                        <div className="flex justify-start items-center gap-x-3 pb-5">
+                            <button onClick={() => router.back()} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
+                                <svg className='-translate-x-0.5 fill-white group-hover:fill-purple' width="13" height="22" viewBox="0 0 14 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
+                                </svg>
+                            </button>
+                            <h1 className='text-2xl tracking-wider text-white font-lato font-bold uppercase'>Detail Nilai - {dataEvent.name} {ranting}</h1>
+                            {datapengurus.id_role !== 'pengurus ranting' && <div className='ml-auto'>
+                                <DropdownRantingDetail ranting={ranting} setRanting={setRanting} eventId={eventId} />
+                            </div>}
                         </div>
-                        {activeComponent}
+
+                        {/* wrapper category */}
+                        <div className="flex bg-navy gap-x-1.5 overflow-x-auto text-purple mb-3 scrollbar-hide w-full py-1 px-2 rounded-md">
+                            {[
+                                { key: 'keshan', label: 'Keshan' },
+                                { key: 'senam', label: 'Senam' },
+                                { key: 'jurus', label: 'Jurus' },
+                                { key: 'fisik', label: 'Fisik' },
+                                { key: 'teknik', label: 'Teknik' },
+                                { key: 'sambung', label: 'Sambung' },
+                            ].map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => onActive(key)}
+                                    className={`
+                whitespace-nowrap flex-shrink-0 xl:flex-shrink
+                py-1.5 px-2 sm:px-3 lg:px-4
+                text-[10px] sm:text-xs lg:text-sm xl:text-base
+                rounded-md uppercase transition ease-in-out duration-300 w-full
+                ${active === key
+                                            ? 'bg-purple text-white'
+                                            : 'bg-white hover:bg-purple hover:text-white'}
+            `}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                        {/* AFTER — stays mounted, just hidden */}
+                        <Suspense fallback={<div className="text-white py-4">Loading...</div>}>
+                            {active === 'keshan' && <Keshan data={data} />}
+                            {active === 'senam' && <Senam data={data} />}
+                            {active === 'jurus' && <Jurus data={data} />}
+                            {active === 'fisik' && <Fisik data={data} />}
+                            {active === 'teknik' && <Teknik data={data} />}
+                            {active === 'sambung' && <Sambung data={data} />}
+                        </Suspense>
                     </div>
                     {/* akhir konten utama */}
 
@@ -110,39 +166,5 @@ const detail_nilai_ukt_jambon = () => {
         </>
     )
 }
-const kecamatanList = [
-    'Bendungan', 'Dongko', 'Durenan', 'Gandusari', 'Kampak', 'Karangan',
-    'Munjungan', 'Panggul', 'Pogalan', 'Pule', 'Suruh', 'Trenggalek', 'Tugu', 'Watulimo'
-];
-function FilterDropdown({ ranting, setRanting }) {
-    const [isOpen, setIsOpen] = useState(false);
 
-    return (
-        <div className="relative inline-block text-left">
-            <button
-                className="bg-purple w-64 h-12 text-white rounded"
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                Pilih Ranting
-            </button>
-
-            {isOpen && (
-                <div className="absolute z-10 mt-2 w-64 bg-navy border border-purple text-white rounded shadow-lg max-h-auto overflow-y-auto">
-                    {kecamatanList.map((name) => (
-                        <div
-                            key={name}
-                            className="px-4 py-2 hover:bg-purple-100 cursor-pointer border-purple border"
-                            onClick={() => {
-                                setRanting(name)
-                                setIsOpen(false);
-                            }}
-                        >
-                            {name}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
 export default detail_nilai_ukt_jambon
