@@ -137,6 +137,12 @@ const rekap_nilai_ukt_ukcw = () => {
             updown,
             id_ranting: selectedRanting
         };
+        
+        // Include search name if provided
+        if (name && name.trim() !== '') {
+            form.name = name.trim();
+        }
+        
         setLoading(true);
 
         await axios.post(BASE_URL + `ukt_siswa/ukt/ranting`, form, { headers: { Authorization: `Bearer ${token}` } })
@@ -193,38 +199,9 @@ const rekap_nilai_ukt_ukcw = () => {
     const handleChangeEvent = (option) => {
         setEventSelect(option)
     };
-    const getDataByName = () => {
-        const token = localStorage.getItem('token')
-        const event = JSON.parse(localStorage.getItem('event'));
 
-        setLoading(true);
-        axios.get(BASE_URL + `ukt_siswa/name/${name}/${event.id_event}`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(res => {
-                setDataUkt(res.data.data)
-            })
-            .catch(err => {
-                console.log(err.message);
-                console.log(err.response.data);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }
-    let timeoutId = null;
-
-    useEffect(() => {
-        if (name != null) {
-            const delay = 500; // Adjust the delay time (in milliseconds) as per your requirement
-
-            const timeoutId = setTimeout(() => {
-                getDataByName();
-            }, delay);
-
-            return () => {
-                clearTimeout(timeoutId); // Clear the timeout if the effect is cleaned up before the delay
-            };
-        }
-    }, [name]);
+    // Debounce timer for search
+    let searchTimeoutId = null;
 
     useEffect(() => {
         if (!router.isReady) return;
@@ -233,7 +210,14 @@ const rekap_nilai_ukt_ukcw = () => {
         const event = JSON.parse(localStorage.getItem('event'));
         setDataEvent(event);
 
-        getDataUktFiltered();
+        // Debounce the API call when name changes
+        if (searchTimeoutId) {
+            clearTimeout(searchTimeoutId);
+        }
+
+        searchTimeoutId = setTimeout(() => {
+            getDataUktFiltered();
+        }, 500);
 
         const socket = getSocket();
 
@@ -252,10 +236,13 @@ const rekap_nilai_ukt_ukcw = () => {
         socket.on('update_rekap', handleUpdate);
 
         return () => {
+            if (searchTimeoutId) {
+                clearTimeout(searchTimeoutId);
+            }
             socket.off('update_rekap', handleUpdate);
             socket.disconnect();
         };
-    }, [dataRanting, jenis, updown, router.isReady, eventSelect]);
+    }, [dataRanting, jenis, updown, router.isReady, eventSelect, name]);
 
     // useEffect(() => {
     //     socket.on('refreshRekap', () => {

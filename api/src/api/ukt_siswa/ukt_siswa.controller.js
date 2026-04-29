@@ -172,10 +172,14 @@ module.exports = {
             });
     },
     controllerGetByRantingFiltered: async (req, res) => {
-        const { jenis, updown, event, tipeUkt } = req.body;
+        const { jenis, updown, event, tipeUkt, name } = req.body;
         const rantings = req.body.ranting || ['BENDUNGAN', 'DONGKO', 'DURENAN', 'GANDUSARI', 'KAMPAK', 'KARANGAN', 'MUNJUNGAN', 'PANGGUL', 'POGALAN', 'PULE', 'SURUH', 'TRENGGALEK', 'TUGU', 'WATULIMO']
         const rayons = req.body.rayon || []
         let orderCriteria = [];
+        
+        // Safety check for name - only apply search if name is provided and not empty
+        const searchName = name && typeof name === 'string' && name.trim() !== '' ? name.trim() : null;
+        
         const where1 = {
             id_event: event,
             rayon: {
@@ -246,7 +250,12 @@ module.exports = {
                         id_ranting: {
                             [Op.in]: rantings
                         },
-                        active: true
+                        active: true,
+                        ...(searchName && {
+                            name: {
+                                [Op.like]: `%${searchName}%`
+                            }
+                        })
                     },
                     include: [
                         {
