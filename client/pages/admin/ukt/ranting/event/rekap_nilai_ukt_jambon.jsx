@@ -126,10 +126,7 @@ const rekap_nilai_ukt_jambon = () => {
             eventSelect.length > 0
                 ? eventSelect.map(item => item.value)
                 : [eventId];
-        const selectedRanting =
-            dataRanting != null
-                ? dataRanting.map(item => item.value)
-                : [idRanting]
+        const selectedRanting = [idRanting]
         let form = {
             event: selectedEvent,
             tipeUkt: event.tipe_ukt,
@@ -336,17 +333,6 @@ const rekap_nilai_ukt_jambon = () => {
                                             type="text"
                                         />
                                     </div>
-
-                                    {/* Filter Button - Compact on mobile, label hidden or visible */}
-                                    <button
-                                        onClick={() => setModalFilter(true)}
-                                        className="bg-green hover:bg-[#0ea97f] active:scale-95 transition-all duration-300 rounded-md px-4 md:px-5 py-2 flex items-center justify-center gap-x-2 shrink-0"
-                                    >
-                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M16.5 2.25H1.5L7.5 9.345V14.25L10.5 15.75V9.345L16.5 2.25Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                        <span className='text-white hidden sm:block md:block'>Filter</span>
-                                    </button>
                                 </div>
 
                                 {/* actions dropdown */}
@@ -395,7 +381,7 @@ const rekap_nilai_ukt_jambon = () => {
                             <div className='overflow-x-auto overflow-y-auto h-full bg-navy'>
                                 {/* table */}
                                 <table className='w-full table-fixed min-w-[800px]'>
-                                    <thead className='bg-purple sticky top-0'>
+                                    <thead className='bg-purple sticky top-0 z-10'>
                                         <tr className='text-white text-center bg-purple'>
                                             <th className='py-0.5 w-[3%] border font-oswald text-xs'>RANK</th>
                                             <th className='w-[20%] border font-oswald text-xs' >NAMA</th>
@@ -498,7 +484,7 @@ const rekap_nilai_ukt_jambon = () => {
                                                     setJenis('sambung');
                                                     setUpDown('upToDown');
                                                 }}><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 15l7-7 7 7" /></svg></button>}</th>
-                                            <th className='text-xs w-[6%] border font-oswald bg-purple'>Rata-rata {jenis == 'all' && updown == 'upToDown'
+                                            <th className='text-xs w-[6%] border font-oswald bg-purple sticky right-0 z-20'>Rata-rata {jenis == 'all' && updown == 'upToDown'
                                                 ? <button className='rounded-md bg-gray p-0.5' onClick={() => {
                                                     setJenis('all');
                                                     setUpDown('downToUp');
@@ -525,7 +511,7 @@ const rekap_nilai_ukt_jambon = () => {
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.fisik < 50 && 'text-[#ca3030]'} ${item?.fisik > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.fisik)}</td>
                                                     <td className={`border-b-2 border-gray border text-xs ${item?.sambung < 50 && 'text-[#ca3030]'} ${item?.sambung > 89.99 && 'text-[#7dff5d]'}`}>{formatNumber(item?.sambung)}</td>
                                                     <td
-                                                        className={`border-b-2 border-gray border font-bold text-xs
+                                                        className={`border-b-2 border-gray border font-bold text-xs sticky right-0 z-10
                                                             ${item?.total < 50
                                                                 ? 'bg-[#371b1b]'
                                                                 : item?.total > 89.99

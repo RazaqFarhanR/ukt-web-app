@@ -296,7 +296,7 @@ const rekap_nilai_ukt_hijau = () => {
 
                             {/* page name and button back */}
                             <div className="flex justify-center items-center gap-x-3">
-                                <Link href={'../?ranting=' + idRanting + '&ukt=UKT+HIJAU&tipe=ukt_hijau'} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
+                                <Link href={'../?ranting=' + idRanting + '&ukt=UKT+JAMBON&tipe=ukt_jambon'} className="bg-purple hover:bg-white rounded-md w-9 h-9 flex justify-center items-center group duration-300">
                                     <svg className='-translate-x-0.5 fill-white group-hover:fill-purple' width="13" height="22" viewBox="0 0 14 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M11.2258 26.4657L0.354838 14.4974C0.225806 14.3549 0.134623 14.2005 0.08129 14.0343C0.0270964 13.8681 0 13.69 0 13.5C0 13.31 0.0270964 13.1319 0.08129 12.9657C0.134623 12.7995 0.225806 12.6451 0.354838 12.5026L11.2258 0.498681C11.5269 0.166227 11.9032 0 12.3548 0C12.8065 0 13.1935 0.1781 13.5161 0.534301C13.8387 0.890501 14 1.30607 14 1.781C14 2.25594 13.8387 2.6715 13.5161 3.0277L4.03226 13.5L13.5161 23.9723C13.8172 24.3048 13.9677 24.7141 13.9677 25.2005C13.9677 25.6878 13.8065 26.1095 13.4839 26.4657C13.1613 26.8219 12.7849 27 12.3548 27C11.9247 27 11.5484 26.8219 11.2258 26.4657Z" />
                                     </svg>
@@ -336,46 +336,35 @@ const rekap_nilai_ukt_hijau = () => {
                                             type="text"
                                         />
                                     </div>
-
-                                    {/* Filter Button - Compact on mobile, label hidden or visible */}
-                                    <button
-                                        onClick={() => setModalFilter(true)}
-                                        className="bg-green hover:bg-[#0ea97f] active:scale-95 transition-all duration-300 rounded-md px-4 md:px-5 py-2 flex items-center justify-center gap-x-2 shrink-0"
-                                    >
-                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M16.5 2.25H1.5L7.5 9.345V14.25L10.5 15.75V9.345L16.5 2.25Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                        <span className='text-white hidden sm:block md:block'>Filter</span>
-                                    </button>
                                 </div>
 
                                 {/* actions dropdown */}
                                 {(adminRole === 'admin cabang' || adminRole === 'super admin') && (
                                     <div className="relative">
-                                        <button
-                                            onClick={() => setShowDropdown(!showDropdown)}
+                                        <button 
+                                            onClick={() => setShowDropdown(!showDropdown)} 
                                             className="bg-purple hover:bg-white text-white hover:text-purple transition-all duration-300 rounded-md px-2 py-2 flex items-center justify-center h-full"
                                         >
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                <path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                <path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                             </svg>
                                         </button>
-
+                                        
                                         {showDropdown && (
                                             <div className="absolute right-0 mt-2 w-56 bg-navy rounded-md shadow-lg z-50 overflow-hidden border border-gray-700">
                                                 <div className="py-1">
-                                                    <button
+                                                    <button 
                                                         onClick={() => {
                                                             setShowDropdown(false);
                                                             setShowModalResync(true);
-                                                        }}
-                                                        disabled={resyncLoading}
+                                                        }} 
+                                                        disabled={resyncLoading} 
                                                         className="w-full text-left px-4 py-3 text-sm text-white hover:bg-purple transition-all duration-300 flex items-center gap-x-3"
                                                     >
                                                         <svg className={resyncLoading ? "animate-spin text-yellow-500" : "text-yellow-500"} width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                                         </svg>
                                                         <span className="font-semibold tracking-wider">{resyncLoading ? 'SYNCING...' : 'RESYNC KESHAN'}</span>
                                                     </button>
