@@ -81,10 +81,18 @@ const modal_siswa = () => {
         
         const token = localStorage.getItem ('token')
         
+        let finalRanting = ranting;
+        if (ukt !== "UKCW") {
+            const selectedEventData = dataEvent.find(item => String(item.id_event) === String(event));
+            if (selectedEventData) {
+                finalRanting = selectedEventData.id_ranting;
+            }
+        }
+
         let form = {
             nomor_urut : noUrut,
             name : siswaName,
-            id_ranting : ranting,
+            id_ranting : finalRanting,
             rayon : rayon,
             jenis_kelamin : jenisKelamin,
             jenis_latihan : jenisLatihan,

@@ -64,6 +64,9 @@ const Modal_CSV = () => {
         form.append('excelFile', fileCSV)
         form.append('id_event', event.id)
         form.append('tipe_ukt', event.tipe_ukt)
+        if (event.id_ranting) {
+            form.append('id_ranting', event.id_ranting)
+        }
         // let form = {
         //     csvFile: fileCSV,
         //     id_event: event.id,
@@ -150,12 +153,12 @@ const Modal_CSV = () => {
                                                             className="w-full bg-darkBlue focus:outline-none"
                                                             onChange={(e) => {
                                                                 const data = JSON.parse(e.target.value);
-                                                                setEvent({ id: data.id, name: data.name, tipe_ukt: data.tipe_ukt })
+                                                                setEvent({ id: data.id, name: data.name, tipe_ukt: data.tipe_ukt, id_ranting: data.id_ranting })
                                                             }}
                                                         >
                                                             <option value="" disabled>Select an option</option>
                                                             {dataEvent.map((item, index) => (
-                                                                <option key={index} value={JSON.stringify({ id: item.id_event, name: item.name, tipe_ukt: item.tipe_ukt })}>{item.tipe_ukt} : {item.name}</option>
+                                                                <option key={index} value={JSON.stringify({ id: item.id_event, name: item.name, tipe_ukt: item.tipe_ukt, id_ranting: item.id_ranting })}>{item.tipe_ukt} : {item.name}</option>
                                                             ))}
                                                         </select>
                                                     </div>

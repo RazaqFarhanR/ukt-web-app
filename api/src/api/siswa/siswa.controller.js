@@ -729,8 +729,8 @@ module.exports = {
             peserta: req.body.jenis_latihan + " - " + req.body.jenis_kelamin,
             tipe_ukt: req.body.tipe_ukt,
             id_ranting: req.body.id_ranting,
-            rayon: req.body.rayon,
-            tingkatan: req.body.tingkatan,
+            rayon: req.body.rayon || '',
+            tingkatan: req.body.tingkatan || '',
         }
         siswa.create(data)
             .then(result => {
@@ -869,6 +869,11 @@ module.exports = {
                             dataKelamin = 'Perempuan';
                         }
                         let peserta = String(row.getCell(4).value).trim() + ' - ' + dataKelamin
+                        let finalRanting = req.body.id_ranting || String(row.getCell(5).value || '').trim();
+                        if (!finalRanting) {
+                            throw new Error(`Baris Excel ke-${row.number}: Kolom Ranting kosong atau event tidak valid.`);
+                        }
+
                         return {
                             id_event: req.body.id_event,
                             tipe_ukt: req.body.tipe_ukt,
@@ -878,7 +883,7 @@ module.exports = {
                             jenis_kelamin: dataKelamin,
                             jenis_latihan: String(row.getCell(4).value).trim(),
                             peserta: peserta,
-                            id_ranting: String(row.getCell(5).value || '').trim(),
+                            id_ranting: finalRanting,
                             rayon: String(row.getCell(6).value).trim(),
                             tingkatan: String(row.getCell(7).value).trim(),
                             active: true,
@@ -978,8 +983,8 @@ module.exports = {
             peserta: req.body.jenis_latihan + " - " + req.body.jenis_kelamin,
             tipe_ukt: req.body.tipe_ukt,
             id_ranting: req.body.id_ranting,
-            rayon: req.body.rayon,
-            tingkatan: req.body.tingkatan,
+            rayon: req.body.rayon || '',
+            tingkatan: req.body.tingkatan || '',
         }
         siswa.update(data, { where: param })
             .then(result => {
