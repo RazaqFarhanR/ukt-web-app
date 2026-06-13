@@ -1,5 +1,6 @@
 import { globalState } from '@/context/context'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 import React, { useContext, useEffect, useState, } from 'react'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -72,10 +73,10 @@ const Modal_CSV = () => {
         axios.post(BASE_URL + `siswa/excel`, form, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => {
                 setShowModalCSV(false)
-                console.log(res.data.message);
+                toast.success(res.data.message || 'Siswa berhasil ditambahkan via Excel');
             })
             .catch(err => {
-                alert(err.response?.data?.message || err.message);
+                toast.error(err.response?.data?.message || err.message);
                 console.log(err.message);
             })
     }

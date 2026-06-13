@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { globalState } from '@/context/context'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const modal_siswa = () => {
@@ -98,10 +99,10 @@ const modal_siswa = () => {
             .then (res => {
                 setShowModalSiswa (false)
                 getDataSiswa ()
-                // console.log(res.data.message);
+                toast.success(res.data.message || 'Siswa berhasil ditambahkan');
             })
             .catch (err => {
-                alert(err.response?.data?.message || err.message);
+                toast.error(err.response?.data?.message || err.message);
                 console.log(err.message);
             })
         } else if (action === 'update') {
@@ -109,10 +110,10 @@ const modal_siswa = () => {
             .then (res => {
                 setShowModalSiswa (false)
                 getDataSiswa ()
-                // console.log(res.data.message);
+                toast.success(res.data.message || 'Siswa berhasil diubah');
             })
             .catch (err => {
-                alert(err.response?.data?.message || err.message);
+                toast.error(err.response?.data?.message || err.message);
                 console.log(err.message);
             })
         }
