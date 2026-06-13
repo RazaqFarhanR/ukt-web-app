@@ -729,8 +729,8 @@ module.exports = {
             peserta: req.body.jenis_latihan + " - " + req.body.jenis_kelamin,
             tipe_ukt: req.body.tipe_ukt,
             id_ranting: req.body.id_ranting,
-            rayon: req.body.rayon,
-            tingkatan: req.body.tingkatan,
+            rayon: req.body.rayon || '',
+            tingkatan: req.body.tingkatan || '',
         }
         siswa.create(data)
             .then(result => {
@@ -978,8 +978,8 @@ module.exports = {
             peserta: req.body.jenis_latihan + " - " + req.body.jenis_kelamin,
             tipe_ukt: req.body.tipe_ukt,
             id_ranting: req.body.id_ranting,
-            rayon: req.body.rayon,
-            tingkatan: req.body.tingkatan,
+            rayon: req.body.rayon || '',
+            tingkatan: req.body.tingkatan || '',
         }
         siswa.update(data, { where: param })
             .then(result => {
