@@ -90,6 +90,7 @@ const modal_siswa = () => {
             tipe_ukt : ukt,
             id_event : event,
             id_role : 'siswa',
+            tingkatan : '',
         }
 
         if (action === 'insert') {
@@ -100,6 +101,7 @@ const modal_siswa = () => {
                 // console.log(res.data.message);
             })
             .catch (err => {
+                alert(err.response?.data?.message || err.message);
                 console.log(err.message);
             })
         } else if (action === 'update') {
@@ -110,6 +112,7 @@ const modal_siswa = () => {
                 // console.log(res.data.message);
             })
             .catch (err => {
+                alert(err.response?.data?.message || err.message);
                 console.log(err.message);
             })
         }
@@ -327,12 +330,20 @@ const modal_siswa = () => {
                                             <div className="relative w-full">
                                                 <div className='bg-darkBlue rounded-lg px-2'>
                                                     <select className='w-full bg-darkBlue focus:outline-none' 
-                                                    name={event} value={event} onChange = {(e) => setEvent (e.target.value)} required
+                                                    name="event" value={event} onChange={(e) => {
+                                                        setEvent(e.target.value);
+                                                        if (ukt !== "UKCW" && e.target.selectedIndex >= 0) {
+                                                            const selectedOption = e.target.options[e.target.selectedIndex];
+                                                            const selectedRanting = selectedOption.getAttribute('data-ranting');
+                                                            if (selectedRanting) setRanting(selectedRanting);
+                                                        }
+                                                    }} required
                                                     >
                                                         <option></option>
                                                         {dataEvent.map((item, index) => (
                                                             <option key={index + 1}
                                                             value={item.id_event}
+                                                            data-ranting={item.id_ranting}
                                                             >{item.name}</option>
                                                         ))}
                                                     </select>

@@ -739,7 +739,7 @@ module.exports = {
                 })
             })
             .catch(error => {
-                res.json({
+                res.status(400).json({
                     message: error.message
                 })
             })
@@ -840,7 +840,7 @@ module.exports = {
                         res.json({ message: 'Data has been inserted' })
                     })
                     .catch((error) => {
-                        res.json({ message: error.message })
+                        res.status(400).json({ message: error.message })
                     })
             });
     },
@@ -879,7 +879,6 @@ module.exports = {
                             jenis_latihan: String(row.getCell(4).value).trim(),
                             peserta: peserta,
                             id_ranting: String(row.getCell(5).value || '').trim(),
-                            id_cabang: 'jatim',
                             rayon: String(row.getCell(6).value).trim(),
                             tingkatan: String(row.getCell(7).value).trim(),
                             active: true,
@@ -989,7 +988,7 @@ module.exports = {
                 })
             })
             .catch(error => {
-                res.json({
+                res.status(400).json({
                     message: error.message
                 })
             })

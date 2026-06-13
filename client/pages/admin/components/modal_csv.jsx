@@ -75,6 +75,7 @@ const Modal_CSV = () => {
                 console.log(res.data.message);
             })
             .catch(err => {
+                alert(err.response?.data?.message || err.message);
                 console.log(err.message);
             })
     }
